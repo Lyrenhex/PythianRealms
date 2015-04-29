@@ -104,10 +104,7 @@ try:
                 username = easygui.enterbox("TechnoMagic Account Username", "Login")
                 password = easygui.passwordbox("TechnoMagic Account Password", "Login")
                 try:
-                    import mysql.connector as dbc
-                    db = dbc.connect(user='usernamehidden', password='passwordhidden',
-                                                  host='hosthidden',
-                                                  database='databasehidden') # I don't publicly release this, heh. >:)
+                    from dbstuff import * # Not released to the GitHub Repo for security purposes.
                     webbrowser.open("http://www.technomagic.net/accounts/securekey.php?userpw="+password)
                     password = easygui.enterbox("TechnoMagic Account SecureKey (Should be shown in browser.)", "Login")
                     dba = db.cursor()
