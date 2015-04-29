@@ -4,7 +4,7 @@
 
 version = "0.0.0.3"
 
-import sys, os, time, random, math, traceback, webbrowser, datetime as dt, base64
+import sys, os, time, random, math, traceback, webbrowser, datetime as dt
 
 # Error Reporting note: %0D%0A is the Newline Character for the Mailto: command. Since the Error Reporter uses Mailto:,
 # use %0D%0A instead of \n.
