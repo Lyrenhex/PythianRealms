@@ -16,6 +16,6 @@ But you are not permitted to:
 - Redistribute this software.
 - Modify this software.*
 
-- * Modifying the software is allowed if developing for improvements. You may NOT redistribute the modified file for ANY reason. After you have developed the software, please send a pull request so that I will merge the code.
+(*) Modifying the software is allowed if developing for improvements. You may NOT redistribute the modified file for ANY reason. After you have developed the software, please send a pull request so that I will merge the code.
 
 Thank you.
