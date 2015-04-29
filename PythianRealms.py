@@ -4,7 +4,7 @@
 
 version = "0.0.0.3"
 
-import sys, os, time, random, math, traceback, webbrowser, datetime as dt
+import sys, os, time, random, math, traceback, webbrowser, datetime as dt, base64
 
 # Error Reporting note: %0D%0A is the Newline Character for the Mailto: command. Since the Error Reporter uses Mailto:,
 # use %0D%0A instead of \n.
@@ -16,13 +16,13 @@ try:
     # SET UP POUP WINDOWS #
     #######################
 
-    import easygui  # An included library with Python install.
+    import easygui  # I really feel sorry for Linux users. So many depndencies :'(
     def msgbox(title, text):
         #ctypes.windll.user32.MessageBoxA(None, str(text), str(title), 0)
         easygui.msgbox(text, title) 
     #msgbox('Your title', 'Your text', 1)
 
-    class Settings(easygui.EgStore):
+    class Settings(easygui.EgStore): # Create a class named Settings inheriting from easygui.EgStore so that I can persist TechnoMagic Account info.
         def __init__(self, filename):  # filename is required
             #-------------------------------------------------
             # Specify default/initial values for variables that
@@ -105,9 +105,9 @@ try:
                 password = easygui.passwordbox("TechnoMagic Account Password", "Login")
                 try:
                     import mysql.connector as dbc
-                    db = dbc.connect(user='pythian', password='realmsian',
-                                                  host='92.234.196.233',
-                                                  database='tchnm_15865510_acc')
+                    db = dbc.connect(user='usernamehidden', password='passwordhidden',
+                                                  host='hosthidden',
+                                                  database='databasehidden') # I don't publicly release this, heh. >:)
                     webbrowser.open("http://www.technomagic.net/accounts/securekey.php?userpw="+password)
                     password = easygui.enterbox("TechnoMagic Account SecureKey (Should be shown in browser.)", "Login")
                     dba = db.cursor()
