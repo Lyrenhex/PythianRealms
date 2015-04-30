@@ -96,3 +96,6 @@ KeyError: 1
 2015-04-30 18:04:40,437 - DEBUGGER - INFO: Can we connect to the server? True
 2015-04-30 18:04:43,578 - DEBUGGER - INFO: Operating System Environment: win32.
 2015-04-30 18:04:46,161 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 18:25:50,555 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 18:25:54,089 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 18:25:57,592 - DEBUGGER - INFO: Changing the following layers: []

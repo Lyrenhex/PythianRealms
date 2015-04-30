@@ -12,7 +12,7 @@ Changelog:
 - Added NPCs. They currently do nothing, but eh.
 - TechnoMagic Accounts Login info now saves! Yaaay! :D
 - Moved settings.txt file to the data folder.
-- Optimized NPC saving and loading.
+- Optimized NPC rendering.
 
 0.0.0.1 -> 0.0.0.2:
 - Created a framework for myself, so that I can easily make messages appear on the screen.
