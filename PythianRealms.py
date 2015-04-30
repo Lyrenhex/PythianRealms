@@ -31,6 +31,7 @@ try:
             self.username = None
             self.password = None
             self.storyintro = False
+            self.realm = 0
 
             #-------------------------------------------------
             # For subclasses of EgStore, these must be
@@ -186,6 +187,8 @@ try:
     mapheight = 100
     mapz = 4
 
+    realms = 10
+
     playerz = 0
 
     oldtiles = []
@@ -230,6 +233,7 @@ try:
     mapsurf = pygame.Surface((mapwidth*tilesizex, mapheight*tilesizey))
     mapsurf.fill(brown)
     prevsurf = pygame.Surface((mapwidth*tilesizex, mapheight*tilesizey), pygame.SRCALPHA, 32).convert_alpha()
+    npcsurf = pygame.Surface((mapwidth*tilesizex, mapheight*tilesizey), pygame.SRCALPHA, 32).convert_alpha()
 
     layersurfs = []
     for layer in range(mapz):
@@ -356,7 +360,7 @@ try:
                 16: [0] ,
                }
     NPCrealm = {
-                0 : 1,
+                0 : 0,
                 1 : 1,
                 2 : 2,
                 3 : 1,
@@ -441,11 +445,11 @@ try:
     #for npc in NPCs:
     #    for chunk in range(25):
     #        if chunk in NPChealth[npc]:
-    #            for curnpc in NPChealth[npc][chunk]:
+    #            for curnpc in NPChealth[npc]:
     #                if os.path.isfile("data/"+str(npc)+"/"+str(chunk)+"/"+str(curnpc)+".txt") and os.access("data/"+str(npc)+"/"+str(chunk)+"/"+str(curnpc)+".txt", os.R_OK):
     #                    file = open("data/"+str(npc)+"/"+str(chunk)+"/"+str(curnpc)+".txt", "r")
     #                    integer = int(file.read())
-    #                    NPChealth[npc][chunk][curnpc] = integer
+    #                    NPChealth[npc][curnpc] = integer
     #                    file.close()
     NPCmaxHealth = {
         0 : 1,
@@ -468,7 +472,7 @@ try:
         }
                 #NPC ID : { NPC NUMBER : NPC NUMBER pos },
     npcPosX = {
-                0 : { 0 : random.randint(0,mapwidth-1) },
+                0 : { 0 : 5 },
                 1 : { 0 : random.randint(0,mapwidth-1),
                             1 : random.randint(0,mapwidth-1),
                             2 : random.randint(0,mapwidth-1),
@@ -493,7 +497,7 @@ try:
                 16: { 0 : random.randint(0,mapwidth-1) },
               }
     npcPosY = {
-                0 : { 0 : random.randint(0,mapheight-1) },
+                0 : { 0 : 5 },
                 1 : { 0 : random.randint(0,mapheight-1),
                             1 : random.randint(0,mapheight-1),
                             2 : random.randint(0,mapheight-1),
@@ -656,6 +660,9 @@ try:
         # show the story intro (somehow make a video show here).
         settings.storyintro = True
         settings.store()
+
+    oldNPCposX = None
+    oldNPCposY = None
     
     while True:
         # msg(["Test"])
@@ -665,6 +672,9 @@ try:
 
         if place or change:
             prevsurf.fill(0)
+
+        if oldNPCposX != npcPosX or oldNPCposY != npcPosY:
+            npcsurf.fill(0)
 
         if change:
             changetext = gamefont.render("RENDERING ENGINE IS BUSY... PLEASE WAIT!", True, yellow, red)
@@ -691,7 +701,7 @@ try:
                                 playerz -= 1
                         except:
                             pass
-                    xoffset -= 1
+                    xoffset -= 2
                 except:
                     pass
         if keys[pygame.K_LEFT]:
@@ -708,7 +718,7 @@ try:
                                 playerz -= 1
                         except:
                             pass
-                    xoffset += 1
+                    xoffset += 2
                 except:
                     pass
         if keys[pygame.K_UP]:
@@ -724,7 +734,7 @@ try:
                                 playerz -= 1
                         except:
                             pass
-                    yoffset += 1
+                    yoffset += 2
                 except:
                     pass
         if keys[pygame.K_DOWN]:
@@ -740,7 +750,7 @@ try:
                                 playerz -= 1
                         except:
                             pass
-                    yoffset -= 1
+                    yoffset -= 2
                 except:
                     pass
 
@@ -856,6 +866,37 @@ try:
         for layersurf in layersurfs:
             if layersurfs.index(layersurf) in shownz:
                 display.blit(layersurfs[layersurfs.index(layersurf)], (xoffset,yoffset))
+        if oldNPCposX != npcPosX or oldNPCposY != npcPosY:
+            print("render the npcs")
+            #for each NPC
+            for item in NPCs:
+                if settings.realm == NPCrealm[item]:
+                    realm = settings.realm
+                #determine the NPC's name here. This name **only** affects the text shown above the NPC.
+                #if chunk == NPCchunk[item] and realm == NPCrealm[item]:
+                    npcPosZ[item] = 1
+                    for curnpc in NPCcount[item]:
+                        #display the npc at the correct position
+                        npcsurf.blit(npcGraphic[item],(npcPosX[item][curnpc]*tilesizex,npcPosY[item][curnpc]*tilesizey))
+                        if NPCtype[item] == "Hostile":
+                            #display the NPC's name...?
+                            NPCname = gamefont.render(str(npcName[item]), True, red)
+                            npcsurf.blit(NPCname, (npcPosX[item][curnpc]*tilesizex, npcPosY[item][curnpc]*tilesizey-15))
+                            percent = NPChealth[item][curnpc]/NPCmaxHealth[item]
+                            NHP = gamefont.render(str(round(percent*100))+"%", True, red)
+                            npcsurf.blit(NHP, (npcPosX[item][curnpc]*tilesizex,npcPosY[item][curnpc]*tilesizey-27))
+                        elif NPCtype[item] == "Friendly":
+                            #display the NPC's name...?
+                            NPCname = gamefont.render(str(npcName[item]), True, green)
+                            npcsurf.blit(NPCname, (npcPosX[item][curnpc]*tilesizex, npcPosY[item][curnpc]*tilesizey-15))
+                        else:
+                            #display the NPC's name...?
+                            NPCname = gamefont.render(str(npcName[item]), True, black)
+                            npcsurf.blit(NPCname, (npcPosX[item][curnpc]*tilesizex, npcPosY[item][curnpc]*tilesizey-15))
+                else:
+                    npcPosZ[item] = 2
+            oldNPCposX, oldNPCposY = npcPosX, npcPosY
+        display.blit(npcsurf, (xoffset, yoffset))
         display.blit(prevsurf, (xoffset, yoffset))
         display.blit(player, (vmapwidth*tilesizex/2-(tilesizex/2),vmapheight*tilesizey/2-(tilesizey/2)-playerz*16))
 

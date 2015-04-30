@@ -1,5 +1,15 @@
 Changelog:
 
+0.0.0.2 -> 0.0.0.3:
+- Game will now ask if you really want to quit. Just press "No" if you don't.
+- Game will now attempt to connect to an "Auth Server" at startup.
+- Actually now making use of easygui. Linux users will need to install it!!
+- Linux users will now need to also install MySQL "Connector/Python" module.
+- Integration with TechnoMagic Accounts. All users must have a TechnoMagic Account to save their data "cloudly" (saving not a feature, yet). Playing offline works, but saves locally (no saving yet!).
+- If online, the game will now display your last login when you start up the game.
+- Improved error handler.
+- Added NPCs. They currently do nothing, but eh.
+
 0.0.0.1 -> 0.0.0.2:
 - Created a framework for myself, so that I can easily make messages appear on the screen.
 - Used aforementioned framework to add a startup message.
