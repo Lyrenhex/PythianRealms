@@ -30,6 +30,7 @@ try:
             #-------------------------------------------------
             self.username = None
             self.password = None
+            self.storyintro = False
 
             #-------------------------------------------------
             # For subclasses of EgStore, these must be
@@ -650,6 +651,11 @@ try:
     msg(startupnotes)
     
     changedz = [] #0,1,2,3 after you add the loading system. Until then, this'll do.
+    
+    if settings.storyintro == False:
+        # show the story intro (somehow make a video show here).
+        settings.storyintro = True
+        settings.store()
     
     while True:
         # msg(["Test"])
