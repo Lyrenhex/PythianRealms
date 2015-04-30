@@ -8,7 +8,11 @@ Changelog:
 - Integration with TechnoMagic Accounts. All users must have a TechnoMagic Account to save their data "cloudly" (saving not a feature, yet). Playing offline works, but saves locally (no saving yet!).
 - If online, the game will now display your last login when you start up the game.
 - Improved error handler.
+- Added a .zip file containing all the required Python Modules if on Linux (requires Launcher redownload)... Now you just need Python 3.2.5! Yay! :D
 - Added NPCs. They currently do nothing, but eh.
+- TechnoMagic Accounts Login info now saves! Yaaay! :D
+- Moved settings.txt file to the data folder.
+- Optimized NPC saving and loading.
 
 0.0.0.1 -> 0.0.0.2:
 - Created a framework for myself, so that I can easily make messages appear on the screen.

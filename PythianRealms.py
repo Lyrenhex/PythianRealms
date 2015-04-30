@@ -79,7 +79,7 @@ try:
     # INITIALIZE SETTINGS #
     #######################
 
-    settingsFile = "Settings.txt"
+    settingsFile = "data\Settings.txt"
     settings = Settings(settingsFile)
 
     #print(settings.username)
@@ -867,7 +867,6 @@ try:
             if layersurfs.index(layersurf) in shownz:
                 display.blit(layersurfs[layersurfs.index(layersurf)], (xoffset,yoffset))
         if oldNPCposX != npcPosX or oldNPCposY != npcPosY:
-            print("render the npcs")
             #for each NPC
             for item in NPCs:
                 if settings.realm == NPCrealm[item]:
@@ -918,6 +917,9 @@ try:
 
             pptext = gamefont.render("Map Offset: ("+str(xoffset)+", "+str(yoffset)+")", True, white)
             display.blit(pptext, (0,60))
+
+            rtext = gamefont.render("Realm: "+str(realm), True, white)
+            display.blit(rtext, (0,72))
 
         pygame.event.pump()
 
