@@ -65,7 +65,7 @@ try:
 
     import urllib.request as urllib2
     try:
-        response=urllib2.urlopen('http://92.234.196.233',timeout=1)
+        response=urllib2.urlopen('http://92.234.196.233',timeout=10)
         online = True
     except urllib2.URLError as err:
         online = False
@@ -106,26 +106,27 @@ try:
                 username = easygui.enterbox("TechnoMagic Account Username", "Login")
                 password = easygui.passwordbox("TechnoMagic Account Password", "Login")
                 try:
-                    from dbstuff import * # Not released to the GitHub Repo for security purposes.
-                    webbrowser.open("http://www.technomagic.net/accounts/securekey.php?userpw="+password)
-                    password = easygui.enterbox("TechnoMagic Account SecureKey (Should be shown in browser.)", "Login")
+                    import mysql.connector as dbc
+                    db = dbc.connect(user='PYTH_'+username, password=password,
+                                                                  host='92.234.196.233',
+                                                                  database='tchnm_15865510_acc')
+                    db.autocommit = True
                     dba = db.cursor()
-                    query = ("SELECT * FROM users WHERE Username = '"+username+"' AND Password = '"+password+"'")
+                    query = ("SELECT * FROM `PYTH_"+username+"`")
                     dba.execute(query)
                     dbd = []
                     for columns in dba:
                         for column in columns:
                             dbd.append(column)
                     logger.info("Authorisation Server returned: "+str(dbd))
-                    if dbd[3] != password:
-                        msgbox("Login Failed!", "Sorry, your login failed! Switching to offline mode. You can try log in again by restarting the game. Error: Wrong password.")
-                        online = False
-                        username = "Offline User"
-                    else:
-                        settings.username = username
-                        settings.password = password
-                        settings.store()
-                        logger.info("Successfully logged in to account!")
+##                    if dbd[3] != password:
+##                        msgbox("Login Failed!", "Sorry, your login failed! Switching to offline mode. You can try log in again by restarting the game. Error: Wrong password.")
+##                        online = False
+##                        username = "Offline User"
+                    settings.username = username
+                    settings.password = password
+                    settings.store()
+                    logger.info("Successfully logged in to account!")
                 except Exception as e:
                     msgbox("Login Failed!", "Sorry, your login failed! Switching to offline mode. You can try log in again by restarting the game. Error: %s" % e)
                     online = False
@@ -135,26 +136,26 @@ try:
                 username = easygui.enterbox("TechnoMagic Account Username", "Login")
         else:
             username = settings.username
-            password = settings.username
+            password = settings.password
             try:
                 import mysql.connector as dbc
-                db = dbc.connect(user='pythian', password='realmsian',
-                                              host='92.234.196.233',
-                                              database='tchnm_15865510_acc')
+                db = dbc.connect(user='PYTH_'+username, password=password,
+                                                              host='92.234.196.233',
+                                                              database='tchnm_15865510_acc')
+                db.autocommit = True
                 dba = db.cursor()
-                query = ("SELECT * FROM users WHERE Username = '"+username+"' AND Password = '"+password+"'")
+                query = ("SELECT * FROM `PYTH_"+username+"`")
                 dba.execute(query)
                 dbd = []
                 for columns in dba:
                     for column in columns:
                         dbd.append(column)
                 logger.info("Authorisation Server returned: "+str(dbd))
-                if dbd[3] != password:
-                    msgbox("Login Failed!", "Sorry, your login failed! Switching to offline mode. You can try log in again by restarting the game. Error: Wrong password.")
-                    online = False
-                    username = "Offline User"
-                else:
-                    logger.info("Successfully logged in to account!")
+##                    if dbd[3] != password:
+##                        msgbox("Login Failed!", "Sorry, your login failed! Switching to offline mode. You can try log in again by restarting the game. Error: Wrong password.")
+##                        online = False
+##                        username = "Offline User"
+                logger.info("Successfully logged in to account!")
             except Exception as e:
                 msgbox("Login Failed!", "Sorry, your login failed! Switching to offline mode. You can try log in again by restarting the game. Error: %s" % e)
                 online = False
@@ -163,8 +164,7 @@ try:
         username = "Offline User"
 
     if online:
-        logintime = dt.datetime.today().strftime("%Y/%m/%d").split("/")
-        logintime = dt.date(int(logintime[0]), int(logintime[1]), int(logintime[2]))
+        logintime = dt.datetime.now().strftime("%I:%M %p on %B %d, %Y")
         logger.info ("Logged in on "+str(logintime))
 
     #####################
@@ -651,7 +651,7 @@ try:
          "",
          "PROTIP: You can find a load of helpful guides by typing (without quotes) \"%APPDATA%\PythianRealms\" into run (Windows key + R), selecting the folder of the latest build, and going into the Docs folder."]
     if online:
-        startupnotes[0] = "Hey, "+str(username)+", welcome back to PythianRealms! You last logged in on "+str(dbd[16])+"."
+        startupnotes[0] = "Hey, "+str(username)+", welcome back to PythianRealms! You last logged in at "+str(dbd[0])+"."
     msg(startupnotes)
     
     changedz = [] #0,1,2,3 after you add the loading system. Until then, this'll do.
@@ -766,9 +766,8 @@ try:
         for event in pygame.event.get():
             if event.type == QUIT:
                 if(easygui.ynbox("Are you sure you want to quit? Your game WILL be saved!")):
-                    if online:
-                        dba.execute("UPDATE users SET `PythianRealms_Last-Login` = '"+str(logintime)+"' WHERE Username = '"+username+"' AND Password = '"+password+"'")
                     try:
+                        dba.execute("UPDATE PYTH_"+username+" SET `LastLogin` = '"+str(logintime)+"'")
                         db.close()
                     except:
                         pass
