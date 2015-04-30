@@ -1,0 +1,101 @@
+2015-04-30 17:42:30,437 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 17:43:14,743 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 17:43:22,578 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 17:43:22,622 - DEBUGGER - ERROR: Traceback (most recent call last):
+  File "C:\Users\Scratso\Documents\GitHub\PythianRealms-Dev\PythianRealms.py", line 864, in <module>
+    if chunk in NPCchunk[item] and realm == NPCrealm[item]:
+NameError: name 'chunk' is not defined
+
+2015-04-30 17:43:59,226 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 17:44:20,980 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 17:44:25,776 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 17:44:25,790 - DEBUGGER - ERROR: Traceback (most recent call last):
+  File "C:\Users\Scratso\Documents\GitHub\PythianRealms-Dev\PythianRealms.py", line 864, in <module>
+    if chunk in NPCchunk[item] and realm == NPCrealm[item]:
+NameError: name 'chunk' is not defined
+
+2015-04-30 17:45:04,052 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 17:45:12,947 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 17:45:16,862 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 17:45:16,917 - DEBUGGER - ERROR: Traceback (most recent call last):
+  File "C:\Users\Scratso\Documents\GitHub\PythianRealms-Dev\PythianRealms.py", line 868, in <module>
+    for curnpc in NPCchunk[item]:
+NameError: name 'NPCchunk' is not defined
+
+2015-04-30 17:45:36,717 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 17:45:45,516 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 17:45:52,385 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 17:45:52,459 - DEBUGGER - ERROR: Traceback (most recent call last):
+  File "C:\Users\Scratso\Documents\GitHub\PythianRealms-Dev\PythianRealms.py", line 870, in <module>
+    DISPLAYSURF.blit(npcGraphic[item],(npcPosX[item][curnpc]*TILESIZEX,npcPosY[item][curnpc]*TILESIZEY))
+NameError: name 'DISPLAYSURF' is not defined
+
+2015-04-30 17:46:16,112 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 17:46:23,335 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 17:46:26,917 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 17:46:26,994 - DEBUGGER - ERROR: Traceback (most recent call last):
+  File "C:\Users\Scratso\Documents\GitHub\PythianRealms-Dev\PythianRealms.py", line 870, in <module>
+    display.blit(npcGraphic[item],(npcPosX[item][curnpc]*tilesizex,npcPosY[item][curnpc]*tilesizey))
+NameError: name 'curnpc' is not defined
+
+2015-04-30 17:49:23,177 - DEBUGGER - INFO: Can we connect to the server? False
+2015-04-30 17:49:23,209 - DEBUGGER - WARNING: Cannot connect to the Auth Server! Any online data will not be available and any purchased items will also not be available!
+2015-04-30 17:49:28,907 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 17:49:31,486 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 17:49:31,506 - DEBUGGER - ERROR: Traceback (most recent call last):
+  File "C:\Users\Scratso\Documents\GitHub\PythianRealms-Dev\PythianRealms.py", line 881, in <module>
+    NPCname = gamefont.render(str(npcName[item]), True, GREEN)
+NameError: name 'GREEN' is not defined
+
+2015-04-30 17:49:54,765 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 17:50:03,224 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 17:50:08,003 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 17:50:08,061 - DEBUGGER - ERROR: Traceback (most recent call last):
+  File "C:\Users\Scratso\Documents\GitHub\PythianRealms-Dev\PythianRealms.py", line 871, in <module>
+    display.blit(npcGraphic[item],(npcPosX[item][curnpc]*tilesizex,npcPosY[item][curnpc]*tilesizex))
+KeyError: 1
+
+2015-04-30 17:50:36,028 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 17:50:42,648 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 17:50:45,405 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 17:50:45,421 - DEBUGGER - ERROR: Traceback (most recent call last):
+  File "C:\Users\Scratso\Documents\GitHub\PythianRealms-Dev\PythianRealms.py", line 871, in <module>
+    display.blit(npcGraphic[item],(npcPosX[item][curnpc]*tilesizex,npcPosY[item][curnpc]*tilesizey))
+KeyError: 1
+
+2015-04-30 17:53:37,053 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 17:53:44,394 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 17:53:47,154 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 17:53:47,250 - DEBUGGER - ERROR: Traceback (most recent call last):
+  File "C:\Users\Scratso\Documents\GitHub\PythianRealms-Dev\PythianRealms.py", line 867, in <module>
+    mapsurf.blit(npcGraphic[item],(npcPosX[item][curnpc]*tilesizex,npcPosY[item][curnpc]*tilesizey))
+KeyError: 1
+
+2015-04-30 17:54:28,973 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 17:54:37,072 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 17:54:39,062 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 17:55:20,332 - DEBUGGER - INFO: Can we connect to the server? False
+2015-04-30 17:55:20,362 - DEBUGGER - WARNING: Cannot connect to the Auth Server! Any online data will not be available and any purchased items will also not be available!
+2015-04-30 17:55:21,780 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 17:55:24,585 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 17:57:19,869 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 17:57:26,023 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 17:57:28,622 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 17:58:25,190 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 17:58:28,565 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 17:58:32,269 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 17:58:46,193 - DEBUGGER - INFO: Changing the following layers: [0, 1, 2, 3]
+2015-04-30 17:58:51,200 - DEBUGGER - INFO: Changing the following layers: [0, 1, 2, 3]
+2015-04-30 17:58:56,290 - DEBUGGER - INFO: Changing the following layers: [0, 1, 2, 3]
+2015-04-30 18:02:22,569 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 18:02:26,825 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 18:02:29,078 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 18:03:33,898 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 18:03:38,104 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 18:03:40,680 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 18:04:40,437 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 18:04:43,578 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 18:04:46,161 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 18:25:50,555 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 18:25:54,089 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 18:25:57,592 - DEBUGGER - INFO: Changing the following layers: []

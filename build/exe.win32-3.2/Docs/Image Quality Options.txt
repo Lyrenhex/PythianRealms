@@ -1,0 +1,13 @@
+(Last updated: v0.0.0.1) This document goes over what each option is and in what way each option should be used. Under normal circumstances, 32bit should serve the average user fine, but if you're egomaniacal and have a powerful computer or you're running a horrific desktop/laptop running Windows 95, or even if your resolution is tiny, you may wish to check the options below.
+
+To cycle through your options, press Tab. *** Changes are automatic, so player glitches (changing position) are expected in this early build. ***
+
+R = Recommended
+
+16bit: This option renders the tops of tiles at the size of 16px by 16px. The game window becomes very small, but the FPS will usually peak at its maximum (1000) even on just ordinary computers. Realistically, should only be used for windows 95/98 based machines, but can also serve as a workaround if your resolution is too low to fit the 32bit game on your screen.
+
+32bit (R):  This option renders the tops of tiles at the size of 32px by 32px. The game window is mediocre in this quality, and the FPS (on an ordinary 5GB laptop or a 2GB desktop with no other applications running) will often be a stable 200/250. This option is suitable for most users, as t doesn't impact much on the FPS and it looks more clean and polished than the 16bit option.
+
+48bit: This option renders the tops of tile at the size of 48px by 48px. The game window is large, and the FPS (same laptop as above) will bounce around ~90 FPS. We regard it as only suitable for people who have a resolution which is too high to see the game window properly AND have suitable amount of processing power and RAM to counteract the negative FPS effects.
+
+64bit: This is the last quality option currently available in PythianRealms (0.0.0.1). The tops of tiles are rendered at 64px by 64px. The game window is very large (spanning two laptop-wide monitors (Samsung NP3530EC-A0EDX)) and the FPS (same laptop) will usually bounce around ~45. It is only suitable for computers of a gaming level standard. Although it is POSSIBLE to play on a normal computer with this image quality set, your experience would be affected by the slow movement.
