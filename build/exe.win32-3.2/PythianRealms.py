@@ -65,7 +65,7 @@ try:
 
     import urllib.request as urllib2
     try:
-        response=urllib2.urlopen('http://92.234.196.233',timeout=1)
+        response=urllib2.urlopen('http://92.234.196.233',timeout=10)
         online = True
     except urllib2.URLError as err:
         online = False
@@ -106,26 +106,27 @@ try:
                 username = easygui.enterbox("TechnoMagic Account Username", "Login")
                 password = easygui.passwordbox("TechnoMagic Account Password", "Login")
                 try:
-                    from dbstuff import * # Not released to the GitHub Repo for security purposes.
-                    webbrowser.open("http://www.technomagic.net/accounts/securekey.php?userpw="+password)
-                    password = easygui.enterbox("TechnoMagic Account SecureKey (Should be shown in browser.)", "Login")
+                    import mysql.connector as dbc
+                    db = dbc.connect(user='PYTH_'+username, password=password,
+                                                                  host='92.234.196.233',
+                                                                  database='tchnm_15865510_acc')
+                    db.autocommit = True
                     dba = db.cursor()
-                    query = ("SELECT * FROM users WHERE Username = '"+username+"' AND Password = '"+password+"'")
+                    query = ("SELECT * FROM `PYTH_"+username+"`")
                     dba.execute(query)
                     dbd = []
                     for columns in dba:
                         for column in columns:
                             dbd.append(column)
                     logger.info("Authorisation Server returned: "+str(dbd))
-                    if dbd[3] != password:
-                        msgbox("Login Failed!", "Sorry, your login failed! Switching to offline mode. You can try log in again by restarting the game. Error: Wrong password.")
-                        online = False
-                        username = "Offline User"
-                    else:
-                        settings.username = username
-                        settings.password = password
-                        settings.store()
-                        logger.info("Successfully logged in to account!")
+##                    if dbd[3] != password:
+##                        msgbox("Login Failed!", "Sorry, your login failed! Switching to offline mode. You can try log in again by restarting the game. Error: Wrong password.")
+##                        online = False
+##                        username = "Offline User"
+                    settings.username = username
+                    settings.password = password
+                    settings.store()
+                    logger.info("Successfully logged in to account!")
                 except Exception as e:
                     msgbox("Login Failed!", "Sorry, your login failed! Switching to offline mode. You can try log in again by restarting the game. Error: %s" % e)
                     online = False
@@ -135,26 +136,26 @@ try:
                 username = easygui.enterbox("TechnoMagic Account Username", "Login")
         else:
             username = settings.username
-            password = settings.username
+            password = settings.password
             try:
                 import mysql.connector as dbc
-                db = dbc.connect(user='pythian', password='realmsian',
-                                              host='92.234.196.233',
-                                              database='tchnm_15865510_acc')
+                db = dbc.connect(user='PYTH_'+username, password=password,
+                                                              host='92.234.196.233',
+                                                              database='tchnm_15865510_acc')
+                db.autocommit = True
                 dba = db.cursor()
-                query = ("SELECT * FROM users WHERE Username = '"+username+"' AND Password = '"+password+"'")
+                query = ("SELECT * FROM `PYTH_"+username+"`")
                 dba.execute(query)
                 dbd = []
                 for columns in dba:
                     for column in columns:
                         dbd.append(column)
                 logger.info("Authorisation Server returned: "+str(dbd))
-                if dbd[3] != password:
-                    msgbox("Login Failed!", "Sorry, your login failed! Switching to offline mode. You can try log in again by restarting the game. Error: Wrong password.")
-                    online = False
-                    username = "Offline User"
-                else:
-                    logger.info("Successfully logged in to account!")
+##                    if dbd[3] != password:
+##                        msgbox("Login Failed!", "Sorry, your login failed! Switching to offline mode. You can try log in again by restarting the game. Error: Wrong password.")
+##                        online = False
+##                        username = "Offline User"
+                logger.info("Successfully logged in to account!")
             except Exception as e:
                 msgbox("Login Failed!", "Sorry, your login failed! Switching to offline mode. You can try log in again by restarting the game. Error: %s" % e)
                 online = False
@@ -163,8 +164,7 @@ try:
         username = "Offline User"
 
     if online:
-        logintime = dt.datetime.today().strftime("%Y/%m/%d").split("/")
-        logintime = dt.date(int(logintime[0]), int(logintime[1]), int(logintime[2]))
+        logintime = dt.datetime.now().strftime("%I:%M %p on %B %d, %Y")
         logger.info ("Logged in on "+str(logintime))
 
     #####################
@@ -200,6 +200,9 @@ try:
 
     change = True
     debug = False
+
+    invshow = False
+    shopshow = False
 
     # visible map sizes. There is always hidden map.
     vmapwidth = round(75/(tilesizex/16))
@@ -651,7 +654,7 @@ try:
          "",
          "PROTIP: You can find a load of helpful guides by typing (without quotes) \"%APPDATA%\PythianRealms\" into run (Windows key + R), selecting the folder of the latest build, and going into the Docs folder."]
     if online:
-        startupnotes[0] = "Hey, "+str(username)+", welcome back to PythianRealms! You last logged in on "+str(dbd[16])+"."
+        startupnotes[0] = "Hey, "+str(username)+", welcome back to PythianRealms! You last logged in at "+str(dbd[0])+"."
     msg(startupnotes)
     
     changedz = [] #0,1,2,3 after you add the loading system. Until then, this'll do.
@@ -766,13 +769,197 @@ try:
         for event in pygame.event.get():
             if event.type == QUIT:
                 if(easygui.ynbox("Are you sure you want to quit? Your game WILL be saved!")):
-                    if online:
-                        dba.execute("UPDATE users SET `PythianRealms_Last-Login` = '"+str(logintime)+"' WHERE Username = '"+username+"' AND Password = '"+password+"'")
                     try:
+                        dba.execute("UPDATE PYTH_"+username+" SET `LastLogin` = '"+str(logintime)+"'")
                         db.close()
                     except:
                         pass
                     sys.exit("User has quit the application.")
+            if event.type == MOUSEBUTTONDOWN:
+                #row 1
+                if mx >= (vmapwidth*tilesizex)/2-155+10 and mx <= (vmapwidth*tilesizex)/2-155+50 and my >= (vmapheight*tilesizey)/2-155+20 and my <= (vmapheight*tilesizey)/2-155+60:
+                    if invshow:
+                        active = DIRT
+                        sel = ((vmapwidth*tilesizex)/2-155+10,(vmapheight*tilesizey)/2-155+20)
+                    elif shopshow:
+                        inventory[DIRT] += 1
+                elif mx >= (vmapwidth*tilesizex)/2-155+60 and mx <= (vmapwidth*tilesizex)/2-155+100 and my >= (vmapheight*tilesizey)/2-155+20 and my <= (vmapheight*tilesizey)/2-155+60:
+                    if invshow:
+                        active = GRASS
+                        sel = ((vmapwidth*tilesizex)/2-155+60,(vmapheight*tilesizey)/2-155+20)
+                    elif shopshow:
+                        if coins >= 1:
+                            coins -= 1
+                            inventory[GRASS] += 1
+                        else:
+                            msg(["You need 1 Credit to buy the Grass that is being Monitored."])
+                            
+                elif mx >= (vmapwidth*tilesizex)/2-155+110 and mx <= (vmapwidth*tilesizex)/2-155+150 and my >= (vmapheight*tilesizey)/2-155+20 and my <= (vmapheight*tilesizey)/2-155+60:
+                    if invshow:
+                        active = WATER
+                        sel = ((vmapwidth*tilesizex)/2-155+110,(vmapheight*tilesizey)/2-155+20)
+                    elif shopshow:
+                        if coins >= 3:
+                            coins -= 3
+                            inventory[WATER] += 1
+                        else:
+                            msg(["You need 3 Credits to buy Water."])
+                            
+                elif mx >= (vmapwidth*tilesizex)/2-155+160 and mx <= (vmapwidth*tilesizex)/2-155+200 and my >= (vmapheight*tilesizey)/2-155+20 and my <= (vmapheight*tilesizey)/2-155+60:
+                    if invshow:
+                        active = COAL
+                        sel = ((vmapwidth*tilesizex)/2-155+160,(vmapheight*tilesizey)/2-155+20)
+                    elif shopshow:
+                        if coins >= 4:
+                            coins -= 4
+                            inventory[COAL] += 1
+                        else:
+                            msg(["You need 4 Credits to buy Coal."])
+                            
+                elif mx >= (vmapwidth*tilesizex)/2-155+210 and mx <= (vmapwidth*tilesizex)/2-155+250 and my >= (vmapheight*tilesizey)/2-155+20 and my <= (vmapheight*tilesizey)/2-155+60:
+                    if invshow:
+                        active = LAVA
+                        sel = ((vmapwidth*tilesizex)/2-155+210,(vmapheight*tilesizey)/2-155+20)
+                    elif shopshow:
+                        if coins >= 5:
+                            coins -= 5
+                            inventory[LAVA] += 1
+                        else:
+                            msg(["You need 5 Credits to buy Lava. A wise man once told me, 'Chicks dig lava moats'."])
+                             
+                elif mx >= (vmapwidth*tilesizex)/2-155+260 and mx <= (vmapwidth*tilesizex)/2-155+300 and my >= (vmapheight*tilesizey)/2-155+20 and my <= (vmapheight*tilesizey)/2-155+60:
+                    if invshow:
+                        active = ROCK
+                        sel = ((vmapwidth*tilesizex)/2-155+260,(vmapheight*tilesizey)/2-155+20)
+                    elif shopshow:
+                        if coins >= 6:
+                            coins -= 6
+                            inventory[ROCK] += 1
+                        else:
+                            msg(["You need 6 Credits to buy Stone. Or is it cement? Who knows..."])
+                            
+                #row 2
+                elif mx >= (vmapwidth*tilesizex)/2-155+10 and mx <= (vmapwidth*tilesizex)/2-155+50 and my >= (vmapheight*tilesizey)/2-155+70 and my <= (vmapheight*tilesizey)/2-155+110:
+                    if invshow:
+                        active = DIAM
+                        sel = ((vmapwidth*tilesizex)/2-155+10,(vmapheight*tilesizey)/2-155+70)
+                    elif shopshow:
+                        if coins >= 10:
+                            coins -= 10
+                            inventory[DIAM] += 1
+                        else:
+                            msg(["You need 10 Credits to buy Diamond."])
+                            
+                elif mx >= (vmapwidth*tilesizex)/2-155+60 and mx <= (vmapwidth*tilesizex)/2-155+100 and my >= (vmapheight*tilesizey)/2-155+70 and my <= (vmapheight*tilesizey)/2-155+110:
+                    if invshow:
+                        active = SAPP
+                        sel = ((vmapwidth*tilesizex)/2-155+60,(vmapheight*tilesizey)/2-155+70)
+                    elif shopshow:
+                        if coins >= 12:
+                            coins -= 12
+                            inventory[SAPP] += 1
+                        else:
+                            msg(["You need 12 Credits to buy Sapphire(Coyote)."]) # give the guys at 8BitMMO an Easter Egg. ;)
+                            
+                elif mx >= (vmapwidth*tilesizex)/2-155+110 and mx <= (vmapwidth*tilesizex)/2-155+150 and my >= (vmapheight*tilesizey)/2-155+70 and my <= (vmapheight*tilesizey)/2-155+110:
+                    if invshow:
+                        active = RUBY
+                        sel = ((vmapwidth*tilesizex)/2-155+110,(vmapheight*tilesizey)/2-155+70)
+                    elif shopshow:
+                        if coins >= 14:
+                            coins -= 14
+                            inventory[RUBY] += 1
+                        else:
+                            msg(["You need 14 Credits to buy Ruby. I would make a dog joke here, but doge."])
+                            
+                elif mx >= (vmapwidth*tilesizex)/2-155+160 and mx <= (vmapwidth*tilesizex)/2-155+200 and my >= (vmapheight*tilesizey)/2-155+70 and my <= (vmapheight*tilesizey)/2-155+110:
+                    if invshow:
+                        active = GOLD
+                        sel = ((vmapwidth*tilesizex)/2-155+160,(vmapheight*tilesizey)/2-155+70)
+                    elif shopshow:
+                        if coins >= 13:
+                            coins -= 13
+                            inventory[GOLD] += 1
+                        else:
+                            msg(["You need 13 Credits to buy Gold. 'Tis secretly 789 generic pikas squashed up."])
+                            
+                elif mx >= (vmapwidth*tilesizex)/2-155+210 and mx <= (vmapwidth*tilesizex)/2-155+250 and my >= (vmapheight*tilesizey)/2-155+70 and my <= (vmapheight*tilesizey)/2-155+110:
+                    if invshow:
+                        active = CARP
+                        sel = ((vmapwidth*tilesizex)/2-155+210,(vmapheight*tilesizey)/2-155+70)
+                    elif shopshow:
+                        if coins >= 9:
+                            coins -= 9
+                            inventory[CARP] += 1
+                        else:
+                            msg(["You need 9 Credits to buy Carpet. Or if you're a Meep, you'll buy this and stockpile them."])
+                            
+                elif mx >= (vmapwidth*tilesizex)/2-155+260 and mx <= (vmapwidth*tilesizex)/2-155+300 and my >= (vmapheight*tilesizey)/2-155+70 and my <= (vmapheight*tilesizey)/2-155+110:
+                    if invshow:
+                        active = SNOW
+                        sel = ((vmapwidth*tilesizex)/2-155+260,(vmapheight*tilesizey)/2-155+70)
+                    elif shopshow:
+                        if coins >= 7:
+                            coins -= 7
+                            inventory[SNOW] += 1
+                        else:
+                            msg(["You need 7 Credits to buy Snow. But beware! It could be Toxic."])
+                            
+                #row 3
+                elif mx >= (vmapwidth*tilesizex)/2-155+10 and mx <= (vmapwidth*tilesizex)/2-155+50 and my >= (vmapheight*tilesizey)/2-155+120 and my <= (vmapheight*tilesizey)/2-155+160:
+                    if invshow:
+                        active = WOODS
+                        sel2 = ((vmapwidth*tilesizex)/2-155+10,(vmapheight*tilesizey)/2-155+120)
+                    elif shopshow:
+                        if coins >= 7:
+                            coins -= 7
+                            inventory[WOODS] += 1
+                        else:
+                            msg(["You need 7 Credits to buy Wood."])
+                            
+                elif mx >= (vmapwidth*tilesizex)/2-155+60 and mx <= (vmapwidth*tilesizex)/2-155+100 and my >= (vmapheight*tilesizey)/2-155+120 and my <= (vmapheight*tilesizey)/2-155+160:
+                    if invshow:
+                        active = GLASSS
+                        sel2 = ((vmapwidth*tilesizex)/2-155+60,(vmapheight*tilesizey)/2-155+120)
+                    elif shopshow:
+                        if coins >= 8:
+                            coins -= 8
+                            inventory[GLASSS] += 1
+                        else:
+                            msg(["The Value of Glass is 8 Credits."])
+                            
+                elif mx >= (vmapwidth*tilesizex)/2-155+110 and mx <= (vmapwidth*tilesizex)/2-155+150 and my >= (vmapheight*tilesizey)/2-155+120 and my <= (vmapheight*tilesizey)/2-155+160:
+                    if invshow:
+                        active = BRICKS
+                        sel2 = ((vmapwidth*tilesizex)/2-155+110,(vmapheight*tilesizey)/2-155+120)
+                    elif shopshow:
+                        if coins >= 9:
+                            coins -= 9
+                            inventory[BRICKS] += 1
+                        else:
+                            msg(["You need 9 Credits to buy Brick."])
+    
+                if mx >= 50 and mx <= 60 and my >= 15 and my <= 25 and opt == True:
+                    if silence == True:
+                        initMusic()
+                    elif silence == False:
+                        silence = True
+                        pygame.mixer.music.stop()
+                if mx >= 50 and mx <= 60 and my >= 55 and my <= 65 and opt == True:
+                    if activeoverlay == True:
+                        activeoverlay = False
+                    elif activeoverlay == False:
+                        activeoverlay = True
+                if mx >= 50 and mx <= 60 and my >= 75 and my <= 85 and opt:
+                    if seamless:
+                        seamless = False
+                    else:
+                        seamless = True
+                if mx >= 50 and mx <= 60 and my >= 95 and my <= 105 and opt:
+                    if smoothwalk:
+                        smoothwalk = False
+                    else:
+                        smoothwalk = True
             if event.type == KEYDOWN:
                 if event.key == K_F3:
                     debug = not debug
@@ -788,6 +975,10 @@ try:
                 if event.key == K_r:
                     changedz = []
                     pickup = True
+                if event.key == K_i:
+                    invshow = not invshow
+                if event.key == K_h:
+                    shopshow = not shopshow
                 if event.key == K_TAB:
                     if tilesizex == 64:
                         tilesizex, tilesizey = 16,16
@@ -920,6 +1111,72 @@ try:
 
             rtext = gamefont.render("Realm: "+str(realm), True, white)
             display.blit(rtext, (0,72))
+
+        if shopshow:
+            pygame.draw.rect(DISPLAYSURF, BLUE, ((MAPWIDTH*TILESIZEX)/2-155,(MAPHEIGHT*TILESIZEY)/2-155,310,310))
+            text = NPCfont.render("Shop", True, WHITE)
+            DISPLAYSURF.blit(text, ((MAPWIDTH*TILESIZEX)/2-154,(MAPHEIGHT*TILESIZEY)/2-154))
+            #display the inventory, starting 10 pixels in
+            placePosition = 10
+            yoff = 20
+            newrow = 6
+            curitem = 1
+            for item in resources:
+                #add the image
+                if item == AIR or item == BPORT or item == FPORT or item == WOODT or item == GLASST or item == BRICKT:
+                    continue
+                if curitem <= newrow:
+                    DISPLAYSURF.blit(textures[item],((MAPWIDTH*TILESIZEX)/2-155+placePosition,(MAPHEIGHT*TILESIZEY)/2-155+yoff))
+                    placePosition += 0
+                    #add the text showing the amount in the inventory:
+                    textObj = INVFONT.render(str(inventory[item]), True, WHITE)
+                    DISPLAYSURF.blit(textObj,((MAPWIDTH*TILESIZEX)/2-155+placePosition,(MAPHEIGHT*TILESIZEY)/2-155+yoff+20)) 
+                    placePosition += 50
+                    if curitem == newrow:
+                        curitem = 1
+                        yoff += 50
+                        placePosition = 10
+                    else:
+                        curitem += 1
+    
+        if invshow:
+            pygame.draw.rect(DISPLAYSURF, BLUE, ((MAPWIDTH*TILESIZEX)/2-155,(MAPHEIGHT*TILESIZEY)/2-155,310,310))
+            text = NPCfont.render("Inventory", True, WHITE)
+            DISPLAYSURF.blit(text, ((MAPWIDTH*TILESIZEX)/2-154,(MAPHEIGHT*TILESIZEY)/2-154))
+            #display the inventory, starting 10 pixels in
+            placePosition = 10
+            yoff = 20
+            newrow = 6
+            curitem = 1
+            for item in resources:
+    ##      ANIMATION CODE - ADAPT FOR ANIMATED BLOCKS :)
+    ##        if item == WATER:
+    ##            if wateranim == 1:
+    ##                textures[WATER] = pygame.image.load("graphics/water_2.jpg")
+    ##                wateranim = 2
+    ##            elif wateranim == 2:
+    ##                textures[WATER] = pygame.image.load("graphics/water_1.jpg")
+    ##                wateranim = 1
+    ############################################################################################### THIS LINE IS WELL COMMENTED, ACCORDING TO PYTHON!
+                #add the image
+                if item == AIR or item == BPORT or item == FPORT or item == WOODT or item == GLASST or item == BRICKT:
+                    continue
+                if curitem <= newrow:
+                    DISPLAYSURF.blit(textures[item],((MAPWIDTH*TILESIZEX)/2-155+placePosition,(MAPHEIGHT*TILESIZEY)/2-155+yoff))
+                    placePosition += 0
+                    #add the text showing the amount in the inventory:
+                    textObj = INVFONT.render(str(inventory[item]), True, WHITE)
+                    DISPLAYSURF.blit(textObj,((MAPWIDTH*TILESIZEX)/2-155+placePosition,(MAPHEIGHT*TILESIZEY)/2-155+yoff+20)) 
+                    placePosition += 50
+                    if curitem == newrow:
+                        curitem = 1
+                        yoff += 50
+                        placePosition = 10
+                    else:
+                        curitem += 1
+            if activeoverlay == True:
+                DISPLAYSURF.blit(textures[SEL], sel)
+                DISPLAYSURF.blit(textures[SEL], sel2)
 
         pygame.event.pump()
 

@@ -267,3 +267,16 @@ mysql.connector.errors.ProgrammingError: 1142 (42000): UPDATE command denied to 
 2015-04-30 21:40:16,046 - DEBUGGER - INFO: Successfully logged in to account!
 2015-04-30 21:40:16,055 - DEBUGGER - INFO: Logged in on 09:40 PM on April 30, 2015
 2015-04-30 21:40:16,055 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 22:15:25,677 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 22:15:25,788 - DEBUGGER - INFO: Authorisation Server returned: ['09:40 PM on April 30, 2015']
+2015-04-30 22:15:25,798 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 22:15:25,808 - DEBUGGER - INFO: Logged in on 10:15 PM on April 30, 2015
+2015-04-30 22:15:25,818 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 22:15:36,459 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 23:54:50,328 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 23:54:50,615 - DEBUGGER - INFO: Authorisation Server returned: ['10:15 PM on April 30, 2015']
+2015-04-30 23:54:50,634 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 23:54:50,651 - DEBUGGER - INFO: Logged in on 11:54 PM on April 30, 2015
+2015-04-30 23:54:50,674 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 23:55:03,233 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 23:55:13,253 - DEBUGGER - INFO: Changing the following layers: [0, 1, 2, 3]

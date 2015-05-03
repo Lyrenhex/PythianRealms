@@ -99,3 +99,184 @@ KeyError: 1
 2015-04-30 18:25:50,555 - DEBUGGER - INFO: Can we connect to the server? True
 2015-04-30 18:25:54,089 - DEBUGGER - INFO: Operating System Environment: win32.
 2015-04-30 18:25:57,592 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 20:27:52,242 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 20:28:13,315 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 20:28:17,221 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 20:29:51,109 - DEBUGGER - INFO: Can we connect to the server? False
+2015-04-30 20:29:51,109 - DEBUGGER - WARNING: Cannot connect to the Auth Server! Any online data will not be available and any purchased items will also not be available!
+2015-04-30 20:29:53,331 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 20:29:58,450 - DEBUGGER - INFO: Can we connect to the server? False
+2015-04-30 20:29:58,450 - DEBUGGER - WARNING: Cannot connect to the Auth Server! Any online data will not be available and any purchased items will also not be available!
+2015-04-30 20:30:23,953 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:16:02,154 - DEBUGGER - INFO: Authorisation Server returned: []
+2015-04-30 21:16:02,154 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 21:16:02,164 - DEBUGGER - INFO: Logged in on 2015-04-30
+2015-04-30 21:16:02,164 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 21:16:03,742 - DEBUGGER - ERROR: Traceback (most recent call last):
+  File "C:\Users\Scratso\Documents\GitHub\PythianRealms-Dev\PythianRealms.py", line 654, in <module>
+    startupnotes[0] = "Hey, "+str(username)+", welcome back to PythianRealms! You last logged in on "+str(dbd[16])+"."
+IndexError: list index out of range
+
+2015-04-30 21:20:18,979 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:20:25,259 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 21:20:35,552 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:21:15,279 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:21:18,519 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 21:23:01,747 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:23:18,313 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:23:49,036 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 21:24:01,256 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:24:10,186 - DEBUGGER - INFO: Authorisation Server returned: ['Never']
+2015-04-30 21:24:10,186 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 21:24:10,196 - DEBUGGER - INFO: Logged in on 2015-04-30
+2015-04-30 21:24:10,196 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 21:24:57,092 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:25:26,296 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:26:04,256 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:26:07,703 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 21:26:35,723 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:26:44,977 - DEBUGGER - INFO: Authorisation Server returned: ['Never']
+2015-04-30 21:26:45,038 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 21:26:45,148 - DEBUGGER - INFO: Logged in on 2015-04-30
+2015-04-30 21:26:45,148 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 21:27:09,888 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:27:10,010 - DEBUGGER - INFO: Authorisation Server returned: ['Never']
+2015-04-30 21:27:10,020 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 21:27:10,030 - DEBUGGER - INFO: Logged in on 2015-04-30
+2015-04-30 21:27:10,030 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 21:27:40,963 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:27:41,053 - DEBUGGER - INFO: Authorisation Server returned: ['Never']
+2015-04-30 21:27:41,073 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 21:27:41,073 - DEBUGGER - INFO: Logged in on 2015-04-30
+2015-04-30 21:27:41,073 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 21:27:48,075 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 21:27:50,898 - DEBUGGER - ERROR: Traceback (most recent call last):
+  File "C:\Users\Scratso\Documents\GitHub\PythianRealms-Dev\PythianRealms.py", line 769, in <module>
+    dba.execute("UPDATE users SET `LastLogin` = '"+str(logintime)+"'")
+  File "C:\Python32\lib\site-packages\mysql\connector\cursor.py", line 518, in execute
+    self._handle_result(self._connection.cmd_query(stmt))
+  File "C:\Python32\lib\site-packages\mysql\connector\connection.py", line 684, in cmd_query
+    result = self._handle_result(self._send_cmd(ServerCmd.QUERY, query))
+  File "C:\Python32\lib\site-packages\mysql\connector\connection.py", line 602, in _handle_result
+    raise errors.get_exception(packet)
+mysql.connector.errors.ProgrammingError: 1142 (42000): UPDATE command denied to user 'PYTH_TestingDB9'@'cpc4-pres15-2-0-cust232.pres.cable.virginm.net' for table 'users'
+
+2015-04-30 21:28:20,940 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:28:21,039 - DEBUGGER - INFO: Authorisation Server returned: ['Never']
+2015-04-30 21:28:21,109 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 21:28:21,109 - DEBUGGER - INFO: Logged in on 2015-04-30
+2015-04-30 21:28:21,109 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 21:28:24,286 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 21:28:32,556 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:28:32,677 - DEBUGGER - INFO: Authorisation Server returned: ['Never']
+2015-04-30 21:28:32,687 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 21:28:32,697 - DEBUGGER - INFO: Logged in on 2015-04-30
+2015-04-30 21:28:32,697 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 21:28:59,539 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:28:59,678 - DEBUGGER - INFO: Authorisation Server returned: ['Never']
+2015-04-30 21:28:59,688 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 21:28:59,688 - DEBUGGER - INFO: Logged in on 2015-04-30
+2015-04-30 21:28:59,698 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 21:29:03,548 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 21:29:24,743 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:29:24,842 - DEBUGGER - INFO: Authorisation Server returned: ['Never']
+2015-04-30 21:29:24,865 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 21:29:24,869 - DEBUGGER - INFO: Logged in on 2015-04-30
+2015-04-30 21:29:24,878 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 21:31:32,016 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:31:32,367 - DEBUGGER - INFO: Authorisation Server returned: ['Never']
+2015-04-30 21:31:32,387 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 21:31:32,407 - DEBUGGER - INFO: Logged in on 2015-04-30
+2015-04-30 21:31:32,427 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 21:31:36,361 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 21:31:50,174 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:31:50,434 - DEBUGGER - INFO: Authorisation Server returned: ['Never']
+2015-04-30 21:31:50,463 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 21:31:50,473 - DEBUGGER - INFO: Logged in on 2015-04-30
+2015-04-30 21:31:50,493 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 21:32:59,361 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:32:59,581 - DEBUGGER - INFO: Authorisation Server returned: ['Never']
+2015-04-30 21:32:59,611 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 21:32:59,631 - DEBUGGER - INFO: Logged in on 2015-04-30
+2015-04-30 21:32:59,641 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 21:33:03,411 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 21:33:26,282 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:33:26,513 - DEBUGGER - INFO: Authorisation Server returned: ['Never']
+2015-04-30 21:33:26,542 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 21:33:26,552 - DEBUGGER - INFO: Logged in on 2015-04-30
+2015-04-30 21:33:26,572 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 21:33:29,598 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 21:33:36,369 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:33:36,619 - DEBUGGER - INFO: Authorisation Server returned: ['Never']
+2015-04-30 21:33:36,640 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 21:33:36,650 - DEBUGGER - INFO: Logged in on 2015-04-30
+2015-04-30 21:33:36,670 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 21:34:29,476 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:34:29,576 - DEBUGGER - INFO: Authorisation Server returned: ['Never']
+2015-04-30 21:34:29,596 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 21:34:29,607 - DEBUGGER - INFO: Logged in on 2015-04-30
+2015-04-30 21:34:29,607 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 21:34:32,979 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 21:34:40,246 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:34:40,496 - DEBUGGER - INFO: Authorisation Server returned: ['Never']
+2015-04-30 21:34:40,536 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 21:34:40,556 - DEBUGGER - INFO: Logged in on 2015-04-30
+2015-04-30 21:34:40,576 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 21:35:01,720 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:35:01,821 - DEBUGGER - INFO: Authorisation Server returned: ['Never']
+2015-04-30 21:35:01,841 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 21:35:01,851 - DEBUGGER - INFO: Logged in on 2015-04-30
+2015-04-30 21:35:01,851 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 21:35:05,115 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 21:35:10,911 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:35:11,030 - DEBUGGER - INFO: Authorisation Server returned: ['Never']
+2015-04-30 21:35:11,292 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 21:35:11,292 - DEBUGGER - INFO: Logged in on 2015-04-30
+2015-04-30 21:35:11,302 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 21:36:35,752 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:37:03,082 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:37:03,322 - DEBUGGER - INFO: Authorisation Server returned: ['Never']
+2015-04-30 21:37:03,342 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 21:37:03,361 - DEBUGGER - INFO: Logged in on 2015-04-30
+2015-04-30 21:37:03,371 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 21:37:06,803 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 21:37:13,207 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:37:13,306 - DEBUGGER - INFO: Authorisation Server returned: ['2015-04-30']
+2015-04-30 21:37:13,316 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 21:37:13,326 - DEBUGGER - INFO: Logged in on 2015-04-30
+2015-04-30 21:37:13,326 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 21:39:07,821 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:39:07,990 - DEBUGGER - INFO: Authorisation Server returned: ['2015-04-30']
+2015-04-30 21:39:07,990 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 21:39:08,000 - DEBUGGER - INFO: Logged in on 09:39PM on April 30, 2015
+2015-04-30 21:39:08,000 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 21:39:10,799 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 21:39:18,236 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:39:18,387 - DEBUGGER - INFO: Authorisation Server returned: ['09:39PM on April 30, 2015']
+2015-04-30 21:39:18,397 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 21:39:18,397 - DEBUGGER - INFO: Logged in on 09:39PM on April 30, 2015
+2015-04-30 21:39:18,407 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 21:40:01,019 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:40:01,130 - DEBUGGER - INFO: Authorisation Server returned: ['09:39PM on April 30, 2015']
+2015-04-30 21:40:01,140 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 21:40:01,150 - DEBUGGER - INFO: Logged in on 09:40 PM on April 30, 2015
+2015-04-30 21:40:01,150 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 21:40:07,680 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 21:40:15,926 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 21:40:16,026 - DEBUGGER - INFO: Authorisation Server returned: ['09:40 PM on April 30, 2015']
+2015-04-30 21:40:16,046 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 21:40:16,055 - DEBUGGER - INFO: Logged in on 09:40 PM on April 30, 2015
+2015-04-30 21:40:16,055 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 22:15:25,677 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 22:15:25,788 - DEBUGGER - INFO: Authorisation Server returned: ['09:40 PM on April 30, 2015']
+2015-04-30 22:15:25,798 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 22:15:25,808 - DEBUGGER - INFO: Logged in on 10:15 PM on April 30, 2015
+2015-04-30 22:15:25,818 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 22:15:36,459 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 23:54:50,328 - DEBUGGER - INFO: Can we connect to the server? True
+2015-04-30 23:54:50,615 - DEBUGGER - INFO: Authorisation Server returned: ['10:15 PM on April 30, 2015']
+2015-04-30 23:54:50,634 - DEBUGGER - INFO: Successfully logged in to account!
+2015-04-30 23:54:50,651 - DEBUGGER - INFO: Logged in on 11:54 PM on April 30, 2015
+2015-04-30 23:54:50,674 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-04-30 23:55:03,233 - DEBUGGER - INFO: Changing the following layers: []
+2015-04-30 23:55:13,253 - DEBUGGER - INFO: Changing the following layers: [0, 1, 2, 3]

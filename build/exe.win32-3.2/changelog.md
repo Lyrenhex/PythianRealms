@@ -13,6 +13,10 @@ Changelog:
 - TechnoMagic Accounts Login info now saves! Yaaay! :D
 - Moved settings.txt file to the data folder.
 - Optimized NPC rendering.
+- Made Database more secure, by splitting PythianRealms' users' data off from all other database data. *** IF YOU ALREADY HAD A TECHNOMAGIC ACCOUNT, PLEASE CONTACT ME, AS THE NEW DATABASES ARE ONLY MADE DURING REGISTRATION ***
+- The game now also reports the time that you last logged in.
+- Linux users have a much easier play. I now distribute PythianRealms as a .exe and a .py, meaning that any version of Python (3.0 and above) will work. Launcher updated to fit, please redownload from http://scratso.itch.io/pythianrealms .
+- === If anyone can donate, please do! Pushing for a graphics overhaul, but I need money for the graphics! Thank you! :) ===
 
 0.0.0.1 -> 0.0.0.2:
 - Created a framework for myself, so that I can easily make messages appear on the screen.
