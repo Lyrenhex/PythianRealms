@@ -652,7 +652,7 @@ try:
          "",
          "Please make sure that you have fun, and spread the word!",
          "",
-         "PROTIP: You can find a load of helpful guides by typing (without quotes) \"%APPDATA%\PythianRealms\" into run (Windows key + R), selecting the folder of the latest build, and going into the Docs folder."]
+         "PROTIP: You can find a load of helpful guides by typing (without quotes) \"%APPDATA%\PythianRealms\\Game\\Docs\" into run (Windows key + R)."]
     if online:
         startupnotes[0] = "Hey, "+str(username)+", welcome back to PythianRealms! You last logged in at "+str(dbd[0])+"."
     msg(startupnotes)
