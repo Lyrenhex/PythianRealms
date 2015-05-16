@@ -9,6 +9,7 @@ Changelog:
 - Overhauled inventory and shop GUIs to be translucent.
 - Added back coin system.
 - Easter eggs in the shop are back. ;) And this time they're utilising the huge-screen message system. :D
+- Added Music. Music is randomized.
 
 0.0.0.2 -> 0.0.0.3:
 - Game will now ask if you really want to quit. Just press "No" if you don't.

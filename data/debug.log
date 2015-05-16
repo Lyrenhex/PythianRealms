@@ -599,3 +599,69 @@ NameError: name 'coins' is not defined
 2015-05-16 17:44:00,523 - DEBUGGER - WARNING: Cannot connect to the Auth Server! Any online data will not be available and any purchased items will also not be available!
 2015-05-16 17:44:07,316 - DEBUGGER - INFO: Operating System Environment: win32.
 2015-05-16 17:44:19,463 - DEBUGGER - INFO: Changing the following layers: []
+2015-05-16 18:21:27,714 - DEBUGGER - INFO: Can we connect to the server? True
+2015-05-16 18:21:27,855 - DEBUGGER - INFO: Authorisation Server returned: ['05:18 PM on May 16, 2015', '05:18 PM on May 16, 2015']
+2015-05-16 18:21:27,868 - DEBUGGER - INFO: Successfully logged in to account!
+2015-05-16 18:21:27,871 - DEBUGGER - INFO: Logged in on 06:21 PM on May 16, 2015
+2015-05-16 18:21:27,872 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-05-16 18:21:33,615 - DEBUGGER - INFO: Initializing Music...
+2015-05-16 18:21:33,651 - DEBUGGER - ERROR: Traceback (most recent call last):
+  File "C:\Users\Scratso\Documents\GitHub\PythianRealms-Dev\PythianRealms.py", line 749, in <module>
+    initMusic()
+  File "C:\Users\Scratso\Documents\GitHub\PythianRealms-Dev\PythianRealms.py", line 649, in initMusic
+    pygame.mixer.music.set_endevent(MUSIC_END)
+NameError: global name 'MUSIC_END' is not defined
+
+2015-05-16 18:22:47,005 - DEBUGGER - INFO: Can we connect to the server? True
+2015-05-16 18:22:49,611 - DEBUGGER - INFO: Authorisation Server returned: ['05:18 PM on May 16, 2015', '05:18 PM on May 16, 2015']
+2015-05-16 18:22:49,621 - DEBUGGER - INFO: Successfully logged in to account!
+2015-05-16 18:22:49,627 - DEBUGGER - INFO: Logged in on 06:22 PM on May 16, 2015
+2015-05-16 18:22:49,631 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-05-16 18:22:52,914 - DEBUGGER - INFO: Initializing Music...
+2015-05-16 18:22:53,046 - DEBUGGER - INFO: Changing the following layers: []
+2015-05-16 18:25:00,895 - DEBUGGER - INFO: Can we connect to the server? True
+2015-05-16 18:25:01,184 - DEBUGGER - INFO: Authorisation Server returned: ['05:18 PM on May 16, 2015', '05:18 PM on May 16, 2015']
+2015-05-16 18:25:01,194 - DEBUGGER - INFO: Successfully logged in to account!
+2015-05-16 18:25:01,203 - DEBUGGER - INFO: Logged in on 06:25 PM on May 16, 2015
+2015-05-16 18:25:01,219 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-05-16 18:25:03,969 - DEBUGGER - INFO: Initializing Music...
+2015-05-16 18:25:03,993 - DEBUGGER - INFO: Running music #0
+2015-05-16 18:25:04,026 - DEBUGGER - INFO: Changing the following layers: []
+2015-05-16 18:26:01,052 - DEBUGGER - INFO: Can we connect to the server? True
+2015-05-16 18:26:01,154 - DEBUGGER - INFO: Authorisation Server returned: ['05:18 PM on May 16, 2015', '05:18 PM on May 16, 2015']
+2015-05-16 18:26:01,187 - DEBUGGER - INFO: Successfully logged in to account!
+2015-05-16 18:26:01,197 - DEBUGGER - INFO: Logged in on 06:26 PM on May 16, 2015
+2015-05-16 18:26:01,204 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-05-16 18:26:03,529 - DEBUGGER - INFO: Initializing Music...
+2015-05-16 18:26:03,535 - DEBUGGER - INFO: Running music #4
+2015-05-16 18:26:03,563 - DEBUGGER - INFO: Changing the following layers: []
+2015-05-16 18:27:12,880 - DEBUGGER - INFO: Initializing Music...
+2015-05-16 18:27:12,898 - DEBUGGER - INFO: Running music #0
+2015-05-16 18:27:48,904 - DEBUGGER - INFO: Initializing Music...
+2015-05-16 18:27:48,921 - DEBUGGER - INFO: Running music #3
+2015-05-16 18:28:09,920 - DEBUGGER - INFO: Can we connect to the server? False
+2015-05-16 18:28:09,966 - DEBUGGER - WARNING: Cannot connect to the Auth Server! Any online data will not be available and any purchased items will also not be available!
+2015-05-16 18:28:11,608 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-05-16 18:28:14,131 - DEBUGGER - INFO: Initializing Music...
+2015-05-16 18:28:14,138 - DEBUGGER - INFO: Running music #5
+2015-05-16 18:28:14,289 - DEBUGGER - INFO: Changing the following layers: []
+2015-05-16 18:31:31,805 - DEBUGGER - INFO: Can we connect to the server? True
+2015-05-16 18:31:32,071 - DEBUGGER - INFO: Authorisation Server returned: ['05:18 PM on May 16, 2015', '05:18 PM on May 16, 2015']
+2015-05-16 18:31:32,091 - DEBUGGER - INFO: Successfully logged in to account!
+2015-05-16 18:31:32,098 - DEBUGGER - INFO: Logged in on 06:31 PM on May 16, 2015
+2015-05-16 18:31:32,105 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-05-16 18:31:35,144 - DEBUGGER - INFO: Initializing Music...
+2015-05-16 18:31:35,203 - DEBUGGER - INFO: Running music #7
+2015-05-16 18:31:35,397 - DEBUGGER - INFO: Changing the following layers: []
+2015-05-16 18:35:35,818 - DEBUGGER - INFO: Initializing Music...
+2015-05-16 18:35:35,882 - DEBUGGER - INFO: Running music #2
+2015-05-16 18:35:39,818 - DEBUGGER - INFO: Can we connect to the server? True
+2015-05-16 18:35:39,943 - DEBUGGER - INFO: Authorisation Server returned: ['05:18 PM on May 16, 2015', '05:18 PM on May 16, 2015']
+2015-05-16 18:35:39,960 - DEBUGGER - INFO: Successfully logged in to account!
+2015-05-16 18:35:39,970 - DEBUGGER - INFO: Logged in on 06:35 PM on May 16, 2015
+2015-05-16 18:35:39,993 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-05-16 18:35:43,546 - DEBUGGER - INFO: Initializing Music...
+2015-05-16 18:35:43,581 - DEBUGGER - INFO: Running music #6
+2015-05-16 18:35:43,992 - DEBUGGER - INFO: Changing the following layers: []
+2015-05-16 18:36:21,059 - DEBUGGER - INFO: Initializing Music...
+2015-05-16 18:36:21,085 - DEBUGGER - INFO: Running music #7

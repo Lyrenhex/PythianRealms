@@ -642,6 +642,71 @@ try:
     fps = 0
     cachedscreen = []
 
+    def initMusic():
+        global silence
+        logger.info("Initializing Music...") # if this process fails and it starts in silent mode, you screwed something up... or you don't have speakers, ofc.
+        music = random.randint(1,7)
+        logger.info("Running music #"+str(music))
+        pygame.mixer.music.set_endevent(USEREVENT)
+        try:
+            pygame.mixer.music.load('music/'+str(music)+'.mp3')
+            pygame.mixer.music.set_volume(0.2)
+            pygame.mixer.music.play()
+        except Exception:
+            try:
+                pygame.mixer.music.load('music/'+str(music)+'.mid')
+                pygame.mixer.music.set_volume(0.2)
+                pygame.mixer.music.play()
+            except Exception as e:
+                logger.error("Music failed to Initialize. Game will run in silence instead. Error: %s" % e)
+                silence = True
+##        if realm == 1:
+##            try:
+##                if OS == "windows":
+##                    pygame.mixer.music.load('music/No-Survivors.mid')
+##                    pygame.mixer.music.play(-1)
+##                    silence = False
+##                elif OS == "linux":
+##                    print("Due to issues with MIDIs on Linux, trying alternative. *This may impact on game feel.*")
+##                    pygame.mixer.music.load('music/Bustling-Ancient-City.mp3')
+##                    pygame.mixer.music.play(-1)
+##                    silence = False
+##            except Exception as e:
+##                logger.error("Music failed to Initialize. Game will run in silence instead. Error: %s" % e)
+##                silence = True
+##        elif realm == 2:
+##            try:
+##                pygame.mixer.music.load('music/Running Freedom.mp3')
+##                pygame.mixer.music.play(-1)
+##                silence = False
+##            except Exception as e:
+##                logger.error("Music failed to Initialize. Game will run in silence instead. Error: %s" % e)
+##                silence = True
+##        elif realm == 3:
+##            try:
+##                pygame.mixer.music.load('music/Bustling-Ancient-City.mp3')
+##                pygame.mixer.music.play(-1)
+##                silence = False
+##            except Exception as e:
+##                logger.error("Music failed to Initialize. Game will run in silence instead. Error: %s" % e)
+##                silence = True
+##        elif realm == 4:
+##            try:
+##                pygame.mixer.music.load('music/Across-the-Moat.mp3')
+##                pygame.mixer.music.play(-1)
+##                silence = False
+##            except Exception as e:
+##                logger.error("Music failed to Initialize. Game will run in silence instead. Error: %s" % e)
+##                silence = True
+##        elif realm == 5:
+##            try:
+##                pygame.mixer.music.load('music/History-Piano.mp3')
+##                pygame.mixer.music.play(-1)
+##                silence = False
+##            except Exception as e:
+##                logger.error("Music failed to Initialize. Game will run in silence instead. Error: %s" % e)
+##                silence = True
+
     def msg(message = ["A message wasn't found! Tell Scratso!"]):
         message.append("")
         message.append("Press E to continue")
@@ -683,6 +748,8 @@ try:
 
     oldNPCposX = None
     oldNPCposY = None
+
+    initMusic()
     
     while True:
         # msg(["Test"])
@@ -784,6 +851,8 @@ try:
                     pass
 
         for event in pygame.event.get():
+            if event.type == USEREVENT:
+                initMusic()
             if event.type == QUIT:
                 if(easygui.ynbox("Are you sure you want to quit? Your game WILL be saved!")):
                     try:

@@ -9,6 +9,6 @@ I'd like to thank the following people for their contributions to PythianRealms:
 Musicians:
 
 - LiteratureBeast - https://soundcloud.com/literature-corner: Thank you for "Running Freedom".
-- Eric Matyas - http://soundimage.org: Thank you for "Medieval Halloween", "Across the Moat", "The Oppressed", "History Piano", and "Bustling Ancient City".
+- Eric Matyas - http://soundimage.org: Thank you for "Medieval Halloween", "The Oppressed", "History Piano", and "Bustling Ancient City".
 - Eric A Schaefer - https://soundcloud.com/easchaefer: Thank you for "Chivalry Theme".
 - AlexRufire - https://soundcloud.com/alexrufire: Thank you for "Irish Dance".
