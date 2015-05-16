@@ -102,7 +102,7 @@ try:
 
     if online:
         if settings.username == None:
-            if easygui.ynbox("Do you have a TechnoMagic Account? (An account at http://www.technomagic.net)", "Login"):
+            if easygui.ynbox("Do you have a TechnoMagic Account? (An account at http://www.tmcore.co.uk)", "Login"):
                 username = easygui.enterbox("TechnoMagic Account Username", "Login")
                 password = easygui.passwordbox("TechnoMagic Account Password", "Login")
                 try:
@@ -132,7 +132,7 @@ try:
                     online = False
                     username = "Offline User"
             else:
-                webbrowser.open("http://www.technomagic.net/accounts/register.php")
+                webbrowser.open("http://www.tmcore.co.uk/accounts/register.php")
                 username = easygui.enterbox("TechnoMagic Account Username", "Login")
         else:
             username = settings.username
