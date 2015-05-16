@@ -477,3 +477,61 @@ NameError: name 'WOODS' is not defined
 2015-05-16 13:54:59,825 - DEBUGGER - INFO: Changing the following layers: [0]
 2015-05-16 13:55:17,296 - DEBUGGER - INFO: Changing the following layers: [0]
 2015-05-16 13:55:30,530 - DEBUGGER - INFO: Changing the following layers: [0]
+2015-05-16 14:21:46,244 - DEBUGGER - INFO: Can we connect to the server? True
+2015-05-16 14:21:46,726 - DEBUGGER - INFO: Authorisation Server returned: ['01:52 PM on May 16, 2015', '01:52 PM on May 16, 2015']
+2015-05-16 14:21:46,733 - DEBUGGER - INFO: Successfully logged in to account!
+2015-05-16 14:21:46,737 - DEBUGGER - INFO: Logged in on 02:21 PM on May 16, 2015
+2015-05-16 14:21:46,742 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-05-16 14:21:59,161 - DEBUGGER - INFO: Changing the following layers: []
+2015-05-16 14:23:14,984 - DEBUGGER - ERROR: Traceback (most recent call last):
+  File "C:\Users\Scratso\Documents\GitHub\PythianRealms-Dev\PythianRealms.py", line 1131, in <module>
+    text = NPCfont.render("Shop", True, WHITE)
+NameError: name 'NPCfont' is not defined
+
+2015-05-16 14:24:16,375 - DEBUGGER - INFO: Can we connect to the server? True
+2015-05-16 14:24:16,815 - DEBUGGER - INFO: Authorisation Server returned: ['01:52 PM on May 16, 2015', '01:52 PM on May 16, 2015']
+2015-05-16 14:24:16,867 - DEBUGGER - INFO: Successfully logged in to account!
+2015-05-16 14:24:16,874 - DEBUGGER - INFO: Logged in on 02:24 PM on May 16, 2015
+2015-05-16 14:24:16,882 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-05-16 14:24:19,650 - DEBUGGER - INFO: Changing the following layers: []
+2015-05-16 14:25:52,740 - DEBUGGER - INFO: Can we connect to the server? True
+2015-05-16 14:25:52,855 - DEBUGGER - INFO: Authorisation Server returned: ['01:52 PM on May 16, 2015', '01:52 PM on May 16, 2015']
+2015-05-16 14:25:52,868 - DEBUGGER - INFO: Successfully logged in to account!
+2015-05-16 14:25:52,874 - DEBUGGER - INFO: Logged in on 02:25 PM on May 16, 2015
+2015-05-16 14:25:52,878 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-05-16 14:25:55,279 - DEBUGGER - INFO: Changing the following layers: []
+2015-05-16 14:27:12,059 - DEBUGGER - INFO: Can we connect to the server? True
+2015-05-16 14:27:12,173 - DEBUGGER - INFO: Authorisation Server returned: ['01:52 PM on May 16, 2015', '01:52 PM on May 16, 2015']
+2015-05-16 14:27:12,194 - DEBUGGER - INFO: Successfully logged in to account!
+2015-05-16 14:27:12,209 - DEBUGGER - INFO: Logged in on 02:27 PM on May 16, 2015
+2015-05-16 14:27:12,217 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-05-16 14:27:15,138 - DEBUGGER - INFO: Changing the following layers: []
+2015-05-16 14:27:36,539 - DEBUGGER - INFO: Changing the following layers: [0]
+2015-05-16 14:27:44,132 - DEBUGGER - INFO: Changing the following layers: [0]
+2015-05-16 14:28:18,134 - DEBUGGER - INFO: Can we connect to the server? True
+2015-05-16 14:28:18,424 - DEBUGGER - INFO: Authorisation Server returned: ['01:52 PM on May 16, 2015', '01:52 PM on May 16, 2015']
+2015-05-16 14:28:18,436 - DEBUGGER - INFO: Successfully logged in to account!
+2015-05-16 14:28:18,440 - DEBUGGER - INFO: Logged in on 02:28 PM on May 16, 2015
+2015-05-16 14:28:18,447 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-05-16 14:28:20,697 - DEBUGGER - INFO: Changing the following layers: []
+2015-05-16 14:31:31,552 - DEBUGGER - INFO: Can we connect to the server? True
+2015-05-16 14:31:31,825 - DEBUGGER - INFO: Authorisation Server returned: ['01:52 PM on May 16, 2015', '01:52 PM on May 16, 2015']
+2015-05-16 14:31:31,851 - DEBUGGER - INFO: Successfully logged in to account!
+2015-05-16 14:31:31,867 - DEBUGGER - INFO: Logged in on 02:31 PM on May 16, 2015
+2015-05-16 14:31:31,884 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-05-16 14:31:38,026 - DEBUGGER - INFO: Changing the following layers: []
+2015-05-16 14:31:47,664 - DEBUGGER - INFO: Changing the following layers: [0]
+2015-05-16 14:31:55,536 - DEBUGGER - INFO: Changing the following layers: [1]
+2015-05-16 14:32:37,246 - DEBUGGER - INFO: Changing the following layers: [2]
+2015-05-16 14:35:02,638 - DEBUGGER - INFO: Can we connect to the server? True
+2015-05-16 14:35:02,740 - DEBUGGER - INFO: Authorisation Server returned: ['02:31 PM on May 16, 2015', '02:31 PM on May 16, 2015']
+2015-05-16 14:35:02,759 - DEBUGGER - INFO: Successfully logged in to account!
+2015-05-16 14:35:02,763 - DEBUGGER - INFO: Logged in on 02:35 PM on May 16, 2015
+2015-05-16 14:35:02,766 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-05-16 14:35:05,594 - DEBUGGER - INFO: Changing the following layers: []
+2015-05-16 14:38:14,002 - DEBUGGER - INFO: Can we connect to the server? True
+2015-05-16 14:38:14,242 - DEBUGGER - INFO: Authorisation Server returned: ['02:31 PM on May 16, 2015', '02:31 PM on May 16, 2015']
+2015-05-16 14:38:14,272 - DEBUGGER - INFO: Successfully logged in to account!
+2015-05-16 14:38:14,282 - DEBUGGER - INFO: Logged in on 02:38 PM on May 16, 2015
+2015-05-16 14:38:14,302 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-05-16 14:38:16,905 - DEBUGGER - INFO: Changing the following layers: []

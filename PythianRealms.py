@@ -375,22 +375,22 @@ try:
                }
     NPCrealm = {
                 0 : 0,
-                1 : 1,
-                2 : 2,
-                3 : 1,
-                4 : 1,
-                5 : 1,
-                6 : 1,
-                7 : 1,
-                8 : 1,
-                9 : 1,
-                10: 1,
-                11: 1,
-                12: 1,
-                13: 1,
-                14: 1,
-                15: 1,
-                16: 1,
+                1 : 0,
+                2 : 1,
+                3 : 0,
+                4 : 0,
+                5 : 0,
+                6 : 0,
+                7 : 0,
+                8 : 0,
+                9 : 0,
+                10: 0,
+                11: 0,
+                12: 0,
+                13: 0,
+                14: 0,
+                15: 0,
+                16: 0,
                }
     NPCtype = {
                 0 : "Friendly",
@@ -620,9 +620,9 @@ try:
                     RUBY  : pygame.transform.scale(pygame.image.load('graphics/ruby.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
                     GOLD  : pygame.transform.scale(pygame.image.load('graphics/gold.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
                     AIR   : pygame.transform.scale(pygame.image.load('graphics/air.png'), (tilesizex,tilesizey+round(tilesizey/2))),
-                    WOOD  : pygame.transform.scale(pygame.image.load('graphics/wood.jpg'), (tilesizex*2,tilesizey*2+round(tilesizey/2))),
-                    GLASS : pygame.transform.scale(pygame.image.load('graphics/glass.png'), (tilesizex*2,tilesizey*2+round(tilesizey/2))),
-                    BRICK : pygame.transform.scale(pygame.image.load('graphics/brick.jpg'), (tilesizex*2,tilesizey*2+round(tilesizey/2))),
+                    WOOD  : pygame.transform.scale(pygame.image.load('graphics/wood.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
+                    GLASS : pygame.transform.scale(pygame.image.load('graphics/glass.png'), (tilesizex,tilesizey+round(tilesizey/2))),
+                    BRICK : pygame.transform.scale(pygame.image.load('graphics/brick.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
                     CARP  : pygame.transform.scale(pygame.image.load('graphics/carpet/mid.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
                     SNOW  : pygame.transform.scale(pygame.image.load('graphics/snow.jpg'), (tilesizex,tilesizey+round(tilesizey/2))), # NTS: Limited edition Item! To be removed on New Year's Day.
                     SEL   : pygame.transform.scale(pygame.image.load('graphics/sel.png'), (tilesizex,tilesizey+round(tilesizey/2))),
@@ -920,7 +920,7 @@ try:
                 elif mx >= (vmapwidth*tilesizex)/2-155+10 and mx <= (vmapwidth*tilesizex)/2-155+50 and my >= (vmapheight*tilesizey)/2-155+120 and my <= (vmapheight*tilesizey)/2-155+160:
                     if invshow:
                         active = WOOD
-                        sel2 = ((vmapwidth*tilesizex)/2-155+10,(vmapheight*tilesizey)/2-155+120)
+                        sel = ((vmapwidth*tilesizex)/2-155+10,(vmapheight*tilesizey)/2-155+120)
                     elif shopshow:
                         if coins >= 7:
                             coins -= 7
@@ -931,7 +931,7 @@ try:
                 elif mx >= (vmapwidth*tilesizex)/2-155+60 and mx <= (vmapwidth*tilesizex)/2-155+100 and my >= (vmapheight*tilesizey)/2-155+120 and my <= (vmapheight*tilesizey)/2-155+160:
                     if invshow:
                         active = GLASS
-                        sel2 = ((vmapwidth*tilesizex)/2-155+60,(vmapheight*tilesizey)/2-155+120)
+                        sel = ((vmapwidth*tilesizex)/2-155+60,(vmapheight*tilesizey)/2-155+120)
                     elif shopshow:
                         if coins >= 8:
                             coins -= 8
@@ -942,7 +942,7 @@ try:
                 elif mx >= (vmapwidth*tilesizex)/2-155+110 and mx <= (vmapwidth*tilesizex)/2-155+150 and my >= (vmapheight*tilesizey)/2-155+120 and my <= (vmapheight*tilesizey)/2-155+160:
                     if invshow:
                         active = BRICK
-                        sel2 = ((vmapwidth*tilesizex)/2-155+110,(vmapheight*tilesizey)/2-155+120)
+                        sel = ((vmapwidth*tilesizex)/2-155+110,(vmapheight*tilesizey)/2-155+120)
                     elif shopshow:
                         if coins >= 9:
                             coins -= 9
@@ -1069,6 +1069,7 @@ try:
             if layersurfs.index(layersurf) in shownz:
                 display.blit(layersurfs[layersurfs.index(layersurf)], (xoffset,yoffset))
         if oldNPCposX != npcPosX or oldNPCposY != npcPosY:
+            print("npc render")
             #for each NPC
             for item in NPCs:
                 if settings.realm == NPCrealm[item]:
@@ -1173,7 +1174,7 @@ try:
     ##                wateranim = 1
     ############################################################################################### THIS LINE IS WELL COMMENTED, ACCORDING TO PYTHON!
                 #add the image
-                if item == AIR or item == BPORT or item == FPORT or item == WOOD or item == GLASS or item == BRICK:
+                if item == AIR or item == BPORT or item == FPORT:
                     continue
                 if curitem <= newrow:
                     display.blit(textures[item],((vmapwidth*tilesizex)/2-155+placePosition,(vmapheight*tilesizey)/2-155+yoff))
@@ -1190,7 +1191,6 @@ try:
                         curitem += 1
             if activeoverlay == True:
                 display.blit(textures[SEL], sel)
-                display.blit(textures[SEL], sel2)
 
         pygame.event.pump()
 
