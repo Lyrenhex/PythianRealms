@@ -3,6 +3,8 @@ Changelog:
 0.0.0.3 -> 0.0.0.4:
 - Added inventory gui back. Background due to change from blue, since I'm adding translucency to make it look better.
 - Added active block gui element at top-right corner of screen.
+- Overhauled majority of block graphics to fit with the new rendering methods (all blocks have sides, and all sides are part of the block's graphics, so the blocks from the old PythianRealms render oddly now (stretched)).
+- Added CREDITS.md file in Docs folder.
 
 0.0.0.2 -> 0.0.0.3:
 - Game will now ask if you really want to quit. Just press "No" if you don't.
