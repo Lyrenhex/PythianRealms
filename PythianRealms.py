@@ -2,7 +2,7 @@
 
 # Copyright (c) 2015 Damian Heaton and TechnoMagic Enterprises. ALL RIGHTS RESERVED.
 
-version = "0.0.0.3"
+version = "0.0.0.4"
 
 import sys, os, time, random, math, traceback, webbrowser, datetime as dt
 
@@ -204,6 +204,8 @@ try:
     invshow = False
     shopshow = False
 
+    activeoverlay = True
+
     # visible map sizes. There is always hidden map.
     vmapwidth = round(75/(tilesizex/16))
     vmapheight = round(40/(tilesizey/16))
@@ -230,13 +232,16 @@ try:
     white = (255,255,255)
     yellow = (255,255,0)
 
-    # set up the display
+    # set up the displays
     pygame.init()
     display = pygame.display.set_mode((vmapwidth*tilesizex, vmapheight*tilesizey), HWSURFACE|DOUBLEBUF) #|RESIZABLE later
     mapsurf = pygame.Surface((mapwidth*tilesizex, mapheight*tilesizey))
     mapsurf.fill(brown)
     prevsurf = pygame.Surface((mapwidth*tilesizex, mapheight*tilesizey), pygame.SRCALPHA, 32).convert_alpha()
     npcsurf = pygame.Surface((mapwidth*tilesizex, mapheight*tilesizey), pygame.SRCALPHA, 32).convert_alpha()
+    activesurf = pygame.Surface((tilesizex+10, tilesizey+27), pygame.SRCALPHA, 32).convert_alpha()
+    activesurf.fill((23, 100, 255, 50))
+    activeblock = pygame.Surface((tilesizex, tilesizey))
 
     layersurfs = []
     for layer in range(mapz):
@@ -244,6 +249,9 @@ try:
 
     # fonts
     gamefont = pygame.font.Font("graphics/gameFont.ttf", 12)
+
+    activetxt = gamefont.render("Active", True, white)
+    activesurf.blit(activetxt, (5,5))
 
     # set up loading screen
     display.fill(white)
@@ -287,6 +295,9 @@ try:
     ORB   = 20
 
     active = DIRT
+
+    sel = ((vmapwidth*tilesizex)/2-155+10,(vmapheight*tilesizey)/2-155+20)
+    sel2 = ((vmapwidth*tilesizex)/2-155+10,(vmapheight*tilesizey)/2-155+120)
 
     seamless = False
 
@@ -598,12 +609,12 @@ try:
 
     #a dictionary linking resources to textures
     textures =   {
-                    DIRT  : pygame.transform.scale(pygame.image.load('graphics/0/dirt.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
+                    DIRT  : pygame.transform.scale(pygame.image.load('graphics/dirt.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
                     GRASS : pygame.transform.scale(pygame.image.load('graphics/grass.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
-                    WATER : pygame.transform.scale(pygame.image.load('graphics/water_1.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
+                    WATER : pygame.transform.scale(pygame.image.load('graphics/water.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
                     COAL  : pygame.transform.scale(pygame.image.load('graphics/coal.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
                     LAVA  : pygame.transform.scale(pygame.image.load('graphics/lava.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
-                    ROCK  : pygame.transform.scale(pygame.image.load('graphics/stone.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
+                    ROCK  : pygame.transform.scale(pygame.image.load('graphics/rock.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
                     DIAM  : pygame.transform.scale(pygame.image.load('graphics/diamond.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
                     SAPP  : pygame.transform.scale(pygame.image.load('graphics/sapphire.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
                     RUBY  : pygame.transform.scale(pygame.image.load('graphics/ruby.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
@@ -612,9 +623,9 @@ try:
                     WOOD  : pygame.transform.scale(pygame.image.load('graphics/wood.jpg'), (tilesizex*2,tilesizey*2+round(tilesizey/2))),
                     GLASS : pygame.transform.scale(pygame.image.load('graphics/glass.png'), (tilesizex*2,tilesizey*2+round(tilesizey/2))),
                     BRICK : pygame.transform.scale(pygame.image.load('graphics/brick.jpg'), (tilesizex*2,tilesizey*2+round(tilesizey/2))),
-                    CARP  : pygame.transform.scale(pygame.image.load('graphics/carpet.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
+                    CARP  : pygame.transform.scale(pygame.image.load('graphics/carpet/mid.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
                     SNOW  : pygame.transform.scale(pygame.image.load('graphics/snow.jpg'), (tilesizex,tilesizey+round(tilesizey/2))), # NTS: Limited edition Item! To be removed on New Year's Day.
-                    SEL   : pygame.transform.scale(pygame.image.load('graphics/grass.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
+                    SEL   : pygame.transform.scale(pygame.image.load('graphics/sel.png'), (tilesizex,tilesizey+round(tilesizey/2))),
                     GSWORD: pygame.transform.scale(pygame.image.load('graphics/gsword.png'), (tilesizex,tilesizey+round(tilesizey/2))),
                     FPORT : pygame.transform.scale(pygame.image.load('graphics/forportal.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
                     BPORT : pygame.transform.scale(pygame.image.load('graphics/backportal.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
@@ -908,34 +919,34 @@ try:
                 #row 3
                 elif mx >= (vmapwidth*tilesizex)/2-155+10 and mx <= (vmapwidth*tilesizex)/2-155+50 and my >= (vmapheight*tilesizey)/2-155+120 and my <= (vmapheight*tilesizey)/2-155+160:
                     if invshow:
-                        active = WOODS
+                        active = WOOD
                         sel2 = ((vmapwidth*tilesizex)/2-155+10,(vmapheight*tilesizey)/2-155+120)
                     elif shopshow:
                         if coins >= 7:
                             coins -= 7
-                            inventory[WOODS] += 1
+                            inventory[WOOD] += 1
                         else:
                             msg(["You need 7 Credits to buy Wood."])
                             
                 elif mx >= (vmapwidth*tilesizex)/2-155+60 and mx <= (vmapwidth*tilesizex)/2-155+100 and my >= (vmapheight*tilesizey)/2-155+120 and my <= (vmapheight*tilesizey)/2-155+160:
                     if invshow:
-                        active = GLASSS
+                        active = GLASS
                         sel2 = ((vmapwidth*tilesizex)/2-155+60,(vmapheight*tilesizey)/2-155+120)
                     elif shopshow:
                         if coins >= 8:
                             coins -= 8
-                            inventory[GLASSS] += 1
+                            inventory[GLASS] += 1
                         else:
                             msg(["The Value of Glass is 8 Credits."])
                             
                 elif mx >= (vmapwidth*tilesizex)/2-155+110 and mx <= (vmapwidth*tilesizex)/2-155+150 and my >= (vmapheight*tilesizey)/2-155+120 and my <= (vmapheight*tilesizey)/2-155+160:
                     if invshow:
-                        active = BRICKS
+                        active = BRICK
                         sel2 = ((vmapwidth*tilesizex)/2-155+110,(vmapheight*tilesizey)/2-155+120)
                     elif shopshow:
                         if coins >= 9:
                             coins -= 9
-                            inventory[BRICKS] += 1
+                            inventory[BRICK] += 1
                         else:
                             msg(["You need 9 Credits to buy Brick."])
     
@@ -1089,6 +1100,9 @@ try:
         display.blit(npcsurf, (xoffset, yoffset))
         display.blit(prevsurf, (xoffset, yoffset))
         display.blit(player, (vmapwidth*tilesizex/2-(tilesizex/2),vmapheight*tilesizey/2-(tilesizey/2)-playerz*16))
+        display.blit(activesurf, (vmapwidth*tilesizex-tilesizex-10, 0))
+        activeblock.blit(textures[active], (0,0))
+        display.blit(activeblock, (vmapwidth*tilesizex-tilesizex-5, 22))
 
         ztext = gamefont.render("Z-Axis Lock: "+str(zaxis), True, white)
         display.blit(ztext, (0,0))
@@ -1113,9 +1127,9 @@ try:
             display.blit(rtext, (0,72))
 
         if shopshow:
-            pygame.draw.rect(DISPLAYSURF, BLUE, ((MAPWIDTH*TILESIZEX)/2-155,(MAPHEIGHT*TILESIZEY)/2-155,310,310))
+            pygame.draw.rect(display, blue, ((mapwidth*tilesizex)/2-155,(mapheight*tilesizey)/2-155,310,310))
             text = NPCfont.render("Shop", True, WHITE)
-            DISPLAYSURF.blit(text, ((MAPWIDTH*TILESIZEX)/2-154,(MAPHEIGHT*TILESIZEY)/2-154))
+            display.blit(text, ((mapwidth*tilesizex)/2-154,(mapheight*tilesizey)/2-154))
             #display the inventory, starting 10 pixels in
             placePosition = 10
             yoff = 20
@@ -1126,11 +1140,11 @@ try:
                 if item == AIR or item == BPORT or item == FPORT or item == WOODT or item == GLASST or item == BRICKT:
                     continue
                 if curitem <= newrow:
-                    DISPLAYSURF.blit(textures[item],((MAPWIDTH*TILESIZEX)/2-155+placePosition,(MAPHEIGHT*TILESIZEY)/2-155+yoff))
+                    display.blit(textures[item],((mapwidth*tilesizex)/2-155+placePosition,(mapheight*tilesizey)/2-155+yoff))
                     placePosition += 0
                     #add the text showing the amount in the inventory:
                     textObj = INVFONT.render(str(inventory[item]), True, WHITE)
-                    DISPLAYSURF.blit(textObj,((MAPWIDTH*TILESIZEX)/2-155+placePosition,(MAPHEIGHT*TILESIZEY)/2-155+yoff+20)) 
+                    display.blit(textObj,((mapwidth*tilesizex)/2-155+placePosition,(mapheight*tilesizey)/2-155+yoff+20)) 
                     placePosition += 50
                     if curitem == newrow:
                         curitem = 1
@@ -1140,9 +1154,9 @@ try:
                         curitem += 1
     
         if invshow:
-            pygame.draw.rect(DISPLAYSURF, BLUE, ((MAPWIDTH*TILESIZEX)/2-155,(MAPHEIGHT*TILESIZEY)/2-155,310,310))
-            text = NPCfont.render("Inventory", True, WHITE)
-            DISPLAYSURF.blit(text, ((MAPWIDTH*TILESIZEX)/2-154,(MAPHEIGHT*TILESIZEY)/2-154))
+            pygame.draw.rect(display, blue, ((vmapwidth*tilesizex)/2-155,(vmapheight*tilesizey)/2-155,310,310))
+            text = gamefont.render("Inventory", True, white)
+            display.blit(text, ((vmapwidth*tilesizex)/2-154,(vmapheight*tilesizey)/2-154))
             #display the inventory, starting 10 pixels in
             placePosition = 10
             yoff = 20
@@ -1159,14 +1173,14 @@ try:
     ##                wateranim = 1
     ############################################################################################### THIS LINE IS WELL COMMENTED, ACCORDING TO PYTHON!
                 #add the image
-                if item == AIR or item == BPORT or item == FPORT or item == WOODT or item == GLASST or item == BRICKT:
+                if item == AIR or item == BPORT or item == FPORT or item == WOOD or item == GLASS or item == BRICK:
                     continue
                 if curitem <= newrow:
-                    DISPLAYSURF.blit(textures[item],((MAPWIDTH*TILESIZEX)/2-155+placePosition,(MAPHEIGHT*TILESIZEY)/2-155+yoff))
+                    display.blit(textures[item],((vmapwidth*tilesizex)/2-155+placePosition,(vmapheight*tilesizey)/2-155+yoff))
                     placePosition += 0
                     #add the text showing the amount in the inventory:
-                    textObj = INVFONT.render(str(inventory[item]), True, WHITE)
-                    DISPLAYSURF.blit(textObj,((MAPWIDTH*TILESIZEX)/2-155+placePosition,(MAPHEIGHT*TILESIZEY)/2-155+yoff+20)) 
+                    textObj = gamefont.render(str(inventory[item]), True, white)
+                    display.blit(textObj,((vmapwidth*tilesizex)/2-155+placePosition,(vmapheight*tilesizey)/2-155+yoff+20)) 
                     placePosition += 50
                     if curitem == newrow:
                         curitem = 1
@@ -1175,8 +1189,8 @@ try:
                     else:
                         curitem += 1
             if activeoverlay == True:
-                DISPLAYSURF.blit(textures[SEL], sel)
-                DISPLAYSURF.blit(textures[SEL], sel2)
+                display.blit(textures[SEL], sel)
+                display.blit(textures[SEL], sel2)
 
         pygame.event.pump()
 
