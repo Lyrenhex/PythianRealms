@@ -464,3 +464,16 @@ NameError: name 'WOODS' is not defined
 2015-05-16 13:38:59,901 - DEBUGGER - INFO: Changing the following layers: [0]
 2015-05-16 13:39:03,584 - DEBUGGER - INFO: Changing the following layers: [0]
 2015-05-16 13:39:04,273 - DEBUGGER - INFO: Changing the following layers: [0]
+2015-05-16 13:52:53,085 - DEBUGGER - INFO: Can we connect to the server? True
+2015-05-16 13:52:53,214 - DEBUGGER - INFO: Authorisation Server returned: ['01:38 PM on May 16, 2015', '01:38 PM on May 16, 2015']
+2015-05-16 13:52:53,224 - DEBUGGER - INFO: Successfully logged in to account!
+2015-05-16 13:52:53,236 - DEBUGGER - INFO: Logged in on 01:52 PM on May 16, 2015
+2015-05-16 13:52:53,247 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-05-16 13:52:56,211 - DEBUGGER - INFO: Changing the following layers: []
+2015-05-16 13:53:11,846 - DEBUGGER - INFO: Changing the following layers: [0]
+2015-05-16 13:53:31,443 - DEBUGGER - INFO: Changing the following layers: [0]
+2015-05-16 13:53:37,282 - DEBUGGER - INFO: Changing the following layers: []
+2015-05-16 13:53:50,407 - DEBUGGER - INFO: Changing the following layers: [1]
+2015-05-16 13:54:59,825 - DEBUGGER - INFO: Changing the following layers: [0]
+2015-05-16 13:55:17,296 - DEBUGGER - INFO: Changing the following layers: [0]
+2015-05-16 13:55:30,530 - DEBUGGER - INFO: Changing the following layers: [0]
