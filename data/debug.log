@@ -535,3 +535,67 @@ NameError: name 'NPCfont' is not defined
 2015-05-16 14:38:14,282 - DEBUGGER - INFO: Logged in on 02:38 PM on May 16, 2015
 2015-05-16 14:38:14,302 - DEBUGGER - INFO: Operating System Environment: win32.
 2015-05-16 14:38:16,905 - DEBUGGER - INFO: Changing the following layers: []
+2015-05-16 17:14:25,494 - DEBUGGER - INFO: Can we connect to the server? True
+2015-05-16 17:14:25,615 - DEBUGGER - INFO: Authorisation Server returned: ['02:38 PM on May 16, 2015', '02:38 PM on May 16, 2015']
+2015-05-16 17:14:25,644 - DEBUGGER - INFO: Successfully logged in to account!
+2015-05-16 17:14:25,654 - DEBUGGER - INFO: Logged in on 05:14 PM on May 16, 2015
+2015-05-16 17:14:25,664 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-05-16 17:16:24,967 - DEBUGGER - INFO: Can we connect to the server? True
+2015-05-16 17:16:25,187 - DEBUGGER - INFO: Authorisation Server returned: ['02:38 PM on May 16, 2015', '02:38 PM on May 16, 2015']
+2015-05-16 17:16:25,236 - DEBUGGER - INFO: Successfully logged in to account!
+2015-05-16 17:16:25,236 - DEBUGGER - INFO: Logged in on 05:16 PM on May 16, 2015
+2015-05-16 17:16:25,246 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-05-16 17:16:27,453 - DEBUGGER - INFO: Changing the following layers: []
+2015-05-16 17:16:57,239 - DEBUGGER - INFO: Changing the following layers: [0]
+2015-05-16 17:18:04,766 - DEBUGGER - INFO: Can we connect to the server? True
+2015-05-16 17:18:04,867 - DEBUGGER - INFO: Authorisation Server returned: ['05:16 PM on May 16, 2015', '05:16 PM on May 16, 2015']
+2015-05-16 17:18:04,887 - DEBUGGER - INFO: Successfully logged in to account!
+2015-05-16 17:18:04,897 - DEBUGGER - INFO: Logged in on 05:18 PM on May 16, 2015
+2015-05-16 17:18:04,897 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-05-16 17:18:07,168 - DEBUGGER - INFO: Changing the following layers: []
+2015-05-16 17:25:07,036 - DEBUGGER - INFO: Can we connect to the server? False
+2015-05-16 17:25:07,046 - DEBUGGER - WARNING: Cannot connect to the Auth Server! Any online data will not be available and any purchased items will also not be available!
+2015-05-16 17:25:15,959 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-05-16 17:25:16,963 - DEBUGGER - ERROR: Traceback (most recent call last):
+  File "C:\Users\Scratso\Documents\GitHub\PythianRealms-Dev\PythianRealms.py", line 245, in <module>
+    invsurf = pygame.Surface((310, 310), pygame.SCRALPHA, 32).convert_alpha()
+AttributeError: 'module' object has no attribute 'SCRALPHA'
+
+2015-05-16 17:25:41,217 - DEBUGGER - INFO: Can we connect to the server? False
+2015-05-16 17:25:41,257 - DEBUGGER - WARNING: Cannot connect to the Auth Server! Any online data will not be available and any purchased items will also not be available!
+2015-05-16 17:25:50,915 - DEBUGGER - INFO: Can we connect to the server? True
+2015-05-16 17:25:54,017 - DEBUGGER - INFO: Authorisation Server returned: ['05:18 PM on May 16, 2015', '05:18 PM on May 16, 2015']
+2015-05-16 17:25:54,028 - DEBUGGER - INFO: Successfully logged in to account!
+2015-05-16 17:25:54,038 - DEBUGGER - INFO: Logged in on 05:25 PM on May 16, 2015
+2015-05-16 17:25:54,058 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-05-16 17:25:58,563 - DEBUGGER - INFO: Changing the following layers: []
+2015-05-16 17:26:59,696 - DEBUGGER - INFO: Can we connect to the server? True
+2015-05-16 17:26:59,819 - DEBUGGER - INFO: Authorisation Server returned: ['05:18 PM on May 16, 2015', '05:18 PM on May 16, 2015']
+2015-05-16 17:26:59,825 - DEBUGGER - INFO: Successfully logged in to account!
+2015-05-16 17:26:59,829 - DEBUGGER - INFO: Logged in on 05:26 PM on May 16, 2015
+2015-05-16 17:26:59,834 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-05-16 17:27:02,165 - DEBUGGER - INFO: Changing the following layers: []
+2015-05-16 17:37:05,671 - DEBUGGER - INFO: Can we connect to the server? False
+2015-05-16 17:37:05,711 - DEBUGGER - WARNING: Cannot connect to the Auth Server! Any online data will not be available and any purchased items will also not be available!
+2015-05-16 17:37:07,601 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-05-16 17:38:02,885 - DEBUGGER - INFO: Can we connect to the server? False
+2015-05-16 17:38:02,936 - DEBUGGER - WARNING: Cannot connect to the Auth Server! Any online data will not be available and any purchased items will also not be available!
+2015-05-16 17:38:08,674 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-05-16 17:38:14,272 - DEBUGGER - INFO: Changing the following layers: []
+2015-05-16 17:38:50,542 - DEBUGGER - ERROR: Traceback (most recent call last):
+  File "C:\Users\Scratso\Documents\GitHub\PythianRealms-Dev\PythianRealms.py", line 806, in <module>
+    if coins >= 1:
+NameError: name 'coins' is not defined
+
+2015-05-16 17:42:09,644 - DEBUGGER - INFO: Can we connect to the server? False
+2015-05-16 17:42:09,664 - DEBUGGER - WARNING: Cannot connect to the Auth Server! Any online data will not be available and any purchased items will also not be available!
+2015-05-16 17:42:11,520 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-05-16 17:42:14,155 - DEBUGGER - INFO: Changing the following layers: []
+2015-05-16 17:42:56,526 - DEBUGGER - INFO: Can we connect to the server? False
+2015-05-16 17:42:56,565 - DEBUGGER - WARNING: Cannot connect to the Auth Server! Any online data will not be available and any purchased items will also not be available!
+2015-05-16 17:43:00,292 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-05-16 17:43:03,345 - DEBUGGER - INFO: Changing the following layers: []
+2015-05-16 17:44:00,523 - DEBUGGER - INFO: Can we connect to the server? False
+2015-05-16 17:44:00,523 - DEBUGGER - WARNING: Cannot connect to the Auth Server! Any online data will not be available and any purchased items will also not be available!
+2015-05-16 17:44:07,316 - DEBUGGER - INFO: Operating System Environment: win32.
+2015-05-16 17:44:19,463 - DEBUGGER - INFO: Changing the following layers: []

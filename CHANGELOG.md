@@ -5,6 +5,10 @@ Changelog:
 - Added active block gui element at top-right corner of screen.
 - Overhauled majority of block graphics to fit with the new rendering methods (all blocks have sides, and all sides are part of the block's graphics, so the blocks from the old PythianRealms render oddly now (stretched)).
 - Added CREDITS.md file in Docs folder.
+- Added shop back.
+- Overhauled inventory and shop GUIs to be translucent.
+- Added back coin system.
+- Easter eggs in the shop are back. ;) And this time they're utilising the huge-screen message system. :D
 
 0.0.0.2 -> 0.0.0.3:
 - Game will now ask if you really want to quit. Just press "No" if you don't.

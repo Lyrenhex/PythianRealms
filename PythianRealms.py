@@ -178,7 +178,7 @@ try:
         logger.error("""*** Please note that PythianRealms may be very buggy on Linux as it is not natively programmed in it. Please report any bugs you find. Thanks. :) ***""")
 
     #####################
-    # mapsurf SIZES ETC #
+    # VARIABLE DECLARES #
     #####################
 
     tilesizex = 32
@@ -205,6 +205,8 @@ try:
     shopshow = False
 
     activeoverlay = True
+
+    coins = 100
 
     # visible map sizes. There is always hidden map.
     vmapwidth = round(75/(tilesizex/16))
@@ -242,6 +244,10 @@ try:
     activesurf = pygame.Surface((tilesizex+10, tilesizey+27), pygame.SRCALPHA, 32).convert_alpha()
     activesurf.fill((23, 100, 255, 50))
     activeblock = pygame.Surface((tilesizex, tilesizey))
+    invsurf = pygame.Surface((310, 310), pygame.SRCALPHA, 32).convert_alpha()
+    invsurf.fill((23, 100, 255, 50))
+    shopsurf = pygame.Surface((310, 310), pygame.SRCALPHA, 32).convert_alpha()
+    shopsurf.fill((23, 100, 255, 50))
 
     layersurfs = []
     for layer in range(mapz):
@@ -1069,7 +1075,6 @@ try:
             if layersurfs.index(layersurf) in shownz:
                 display.blit(layersurfs[layersurfs.index(layersurf)], (xoffset,yoffset))
         if oldNPCposX != npcPosX or oldNPCposY != npcPosY:
-            print("npc render")
             #for each NPC
             for item in NPCs:
                 if settings.realm == NPCrealm[item]:
@@ -1108,29 +1113,32 @@ try:
         ztext = gamefont.render("Z-Axis Lock: "+str(zaxis), True, white)
         display.blit(ztext, (0,0))
 
+        ctext = gamefont.render("You have "+str(coins)+" coins.", True, white)
+        display.blit(ctext, (0,12))
+
         if debug:
             ptext = gamefont.render("Player Tile: "+str(playerTile), True, white)
-            display.blit(ptext, (0,12))
+            display.blit(ptext, (0,24))
 
             etext = gamefont.render("FPS: "+str(fps), True, white)
-            display.blit(etext, (0,24))
+            display.blit(etext, (0,36))
 
             qtext = gamefont.render("Image Quality: "+str(tilesizex)+"bit (Tab to cycle) (32bit recommended)", True, white)
-            display.blit(qtext, (0,36))
+            display.blit(qtext, (0,48))
 
             pztext = gamefont.render("Player Z Pos: "+str(playerz), True, white)
-            display.blit(pztext, (0,48))
+            display.blit(pztext, (0,60))
 
             pptext = gamefont.render("Map Offset: ("+str(xoffset)+", "+str(yoffset)+")", True, white)
-            display.blit(pptext, (0,60))
+            display.blit(pptext, (0,72))
 
             rtext = gamefont.render("Realm: "+str(realm), True, white)
-            display.blit(rtext, (0,72))
+            display.blit(rtext, (0,84))
 
         if shopshow:
-            pygame.draw.rect(display, blue, ((mapwidth*tilesizex)/2-155,(mapheight*tilesizey)/2-155,310,310))
-            text = NPCfont.render("Shop", True, WHITE)
-            display.blit(text, ((mapwidth*tilesizex)/2-154,(mapheight*tilesizey)/2-154))
+            shopsurf.fill((23, 100, 255, 50))
+            text = gamefont.render("Shop", True, white)
+            shopsurf.blit(text, (1,1))
             #display the inventory, starting 10 pixels in
             placePosition = 10
             yoff = 20
@@ -1138,14 +1146,14 @@ try:
             curitem = 1
             for item in resources:
                 #add the image
-                if item == AIR or item == BPORT or item == FPORT or item == WOODT or item == GLASST or item == BRICKT:
+                if item == AIR or item == BPORT or item == FPORT:
                     continue
                 if curitem <= newrow:
-                    display.blit(textures[item],((mapwidth*tilesizex)/2-155+placePosition,(mapheight*tilesizey)/2-155+yoff))
+                    shopsurf.blit(textures[item],(placePosition,yoff))
                     placePosition += 0
                     #add the text showing the amount in the inventory:
-                    textObj = INVFONT.render(str(inventory[item]), True, WHITE)
-                    display.blit(textObj,((mapwidth*tilesizex)/2-155+placePosition,(mapheight*tilesizey)/2-155+yoff+20)) 
+                    textObj = gamefont.render(str(inventory[item]), True, white)
+                    shopsurf.blit(textObj,(placePosition,yoff+20))
                     placePosition += 50
                     if curitem == newrow:
                         curitem = 1
@@ -1153,11 +1161,12 @@ try:
                         placePosition = 10
                     else:
                         curitem += 1
+            display.blit(shopsurf, ((vmapwidth*tilesizex)/2-155,(vmapheight*tilesizey)/2-155))
     
         if invshow:
-            pygame.draw.rect(display, blue, ((vmapwidth*tilesizex)/2-155,(vmapheight*tilesizey)/2-155,310,310))
-            text = gamefont.render("Inventory", True, white)
-            display.blit(text, ((vmapwidth*tilesizex)/2-154,(vmapheight*tilesizey)/2-154))
+            invsurf.fill((23, 100, 255, 50))
+            text = gamefont.render("Inventory", True, black)
+            invsurf.blit(text, (1,1))
             #display the inventory, starting 10 pixels in
             placePosition = 10
             yoff = 20
@@ -1177,11 +1186,11 @@ try:
                 if item == AIR or item == BPORT or item == FPORT:
                     continue
                 if curitem <= newrow:
-                    display.blit(textures[item],((vmapwidth*tilesizex)/2-155+placePosition,(vmapheight*tilesizey)/2-155+yoff))
+                    invsurf.blit(textures[item],(placePosition,yoff))
                     placePosition += 0
                     #add the text showing the amount in the inventory:
                     textObj = gamefont.render(str(inventory[item]), True, white)
-                    display.blit(textObj,((vmapwidth*tilesizex)/2-155+placePosition,(vmapheight*tilesizey)/2-155+yoff+20)) 
+                    invsurf.blit(textObj,(placePosition,yoff+20)) 
                     placePosition += 50
                     if curitem == newrow:
                         curitem = 1
@@ -1189,6 +1198,7 @@ try:
                         placePosition = 10
                     else:
                         curitem += 1
+            display.blit(invsurf, ((vmapwidth*tilesizex)/2-155,(vmapheight*tilesizey)/2-155))
             if activeoverlay == True:
                 display.blit(textures[SEL], sel)
 
