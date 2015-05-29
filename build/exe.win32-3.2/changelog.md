@@ -1,5 +1,21 @@
 Changelog:
 
+0.0.0.3 -> 0.0.0.4:
+- Added inventory gui back. Background due to change from blue, since I'm adding translucency to make it look better.
+- Added active block gui element at top-right corner of screen.
+- Overhauled majority of block graphics to fit with the new rendering methods (all blocks have sides, and all sides are part of the block's graphics, so the blocks from the old PythianRealms render oddly now (stretched)).
+- Added CREDITS.md file in Docs folder.
+- Added shop back.
+- Overhauled inventory and shop GUIs to be translucent.
+- Added back coin system.
+- Easter eggs in the shop are back. ;) And this time they're utilising the huge-screen message system. :D
+- Added Music. Music is randomized.
+- Fixed horrible FPS drop when randomly meddling with events for no reason.
+- Fixed issues with going to the far right or bottom of map and game crashing.
+- Added coin boosts system. Initial coin amount is 1000, and every 5 minutes of playing you will be credited 1000 additional coins.
+- Started doing some rendering optimisations. The game screen will only properly update the visible game screen, and not the surrounding area.
+- NPC Movement! I've pushed NPCs back into the 0.0.0.4 release (indev lacked NPCs for a while), and they now move every 2 seconds. Currently no interaction.
+
 0.0.0.2 -> 0.0.0.3:
 - Game will now ask if you really want to quit. Just press "No" if you don't.
 - Game will now attempt to connect to an "Auth Server" at startup.

@@ -1,5 +1,10 @@
 Changelog:
 
+0.0.0.4 -> 0.0.0.5:
+- Changed default inventory. You spawn with absolutely nothing. May change in future.
+- Begun working on Online Saving to the Auth Server. The previous database tables are deleted, so all PythianRealms users will need to simply log in to their TechnoMagic Account for it to regenerate a table. They were deleted because I changed the table columns, adding inventory options. Every time new items are added, this will happen. Sorry! But, every time I need to delete the database I'll keep a log of who has what, so that soon I'll just be able to drop your items back into the database again.
+- Inventory and Coins now Save to and load from the Auth Server when the game is in online mode. Maps are due to only save offline, allowing for better saving and more flexibility, such as sharing your maps with others.
+
 0.0.0.3 -> 0.0.0.4:
 - Added inventory gui back. Background due to change from blue, since I'm adding translucency to make it look better.
 - Added active block gui element at top-right corner of screen.
@@ -10,6 +15,11 @@ Changelog:
 - Added back coin system.
 - Easter eggs in the shop are back. ;) And this time they're utilising the huge-screen message system. :D
 - Added Music. Music is randomized.
+- Fixed horrible FPS drop when randomly meddling with events for no reason.
+- Fixed issues with going to the far right or bottom of map and game crashing.
+- Added coin boosts system. Initial coin amount is 1000, and every 5 minutes of playing you will be credited 1000 additional coins.
+- Started doing some rendering optimisations. The game screen will only properly update the visible game screen, and not the surrounding area.
+- NPC Movement! I've pushed NPCs back into the 0.0.0.4 release (indev lacked NPCs for a while), and they now move every 2 seconds. Currently no interaction.
 
 0.0.0.2 -> 0.0.0.3:
 - Game will now ask if you really want to quit. Just press "No" if you don't.

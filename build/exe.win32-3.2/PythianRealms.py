@@ -2,7 +2,7 @@
 
 # Copyright (c) 2015 Damian Heaton and TechnoMagic Enterprises. ALL RIGHTS RESERVED.
 
-version = "0.0.0.3"
+version = "0.0.0.4"
 
 import sys, os, time, random, math, traceback, webbrowser, datetime as dt
 
@@ -67,7 +67,7 @@ try:
     try:
         response=urllib2.urlopen('http://92.234.196.233',timeout=10)
         online = True
-    except urllib2.URLError as err:
+    except:
         online = False
         pass
     logger.info("Can we connect to the server? "+str(online))
@@ -102,7 +102,7 @@ try:
 
     if online:
         if settings.username == None:
-            if easygui.ynbox("Do you have a TechnoMagic Account? (An account at http://www.technomagic.net)", "Login"):
+            if easygui.ynbox("Do you have a TechnoMagic Account? (An account at http://www.tmcore.co.uk)", "Login"):
                 username = easygui.enterbox("TechnoMagic Account Username", "Login")
                 password = easygui.passwordbox("TechnoMagic Account Password", "Login")
                 try:
@@ -132,7 +132,7 @@ try:
                     online = False
                     username = "Offline User"
             else:
-                webbrowser.open("http://www.technomagic.net/accounts/register.php")
+                webbrowser.open("http://www.tmcore.co.uk/accounts/register.php")
                 username = easygui.enterbox("TechnoMagic Account Username", "Login")
         else:
             username = settings.username
@@ -178,7 +178,7 @@ try:
         logger.error("""*** Please note that PythianRealms may be very buggy on Linux as it is not natively programmed in it. Please report any bugs you find. Thanks. :) ***""")
 
     #####################
-    # mapsurf SIZES ETC #
+    # VARIABLE DECLARES #
     #####################
 
     tilesizex = 32
@@ -203,6 +203,10 @@ try:
 
     invshow = False
     shopshow = False
+
+    activeoverlay = True
+
+    coins = 1000 # 1000 coins to start, and per boost
 
     # visible map sizes. There is always hidden map.
     vmapwidth = round(75/(tilesizex/16))
@@ -230,13 +234,20 @@ try:
     white = (255,255,255)
     yellow = (255,255,0)
 
-    # set up the display
+    # set up the displays
     pygame.init()
     display = pygame.display.set_mode((vmapwidth*tilesizex, vmapheight*tilesizey), HWSURFACE|DOUBLEBUF) #|RESIZABLE later
     mapsurf = pygame.Surface((mapwidth*tilesizex, mapheight*tilesizey))
     mapsurf.fill(brown)
     prevsurf = pygame.Surface((mapwidth*tilesizex, mapheight*tilesizey), pygame.SRCALPHA, 32).convert_alpha()
     npcsurf = pygame.Surface((mapwidth*tilesizex, mapheight*tilesizey), pygame.SRCALPHA, 32).convert_alpha()
+    activesurf = pygame.Surface((tilesizex+10, tilesizey+27), pygame.SRCALPHA, 32).convert_alpha()
+    activesurf.fill((23, 100, 255, 50))
+    activeblock = pygame.Surface((tilesizex, tilesizey))
+    invsurf = pygame.Surface((310, 310), pygame.SRCALPHA, 32).convert_alpha()
+    invsurf.fill((23, 100, 255, 50))
+    shopsurf = pygame.Surface((310, 310), pygame.SRCALPHA, 32).convert_alpha()
+    shopsurf.fill((23, 100, 255, 50))
 
     layersurfs = []
     for layer in range(mapz):
@@ -244,6 +255,9 @@ try:
 
     # fonts
     gamefont = pygame.font.Font("graphics/gameFont.ttf", 12)
+
+    activetxt = gamefont.render("Active", True, white)
+    activesurf.blit(activetxt, (5,5))
 
     # set up loading screen
     display.fill(white)
@@ -287,6 +301,9 @@ try:
     ORB   = 20
 
     active = DIRT
+
+    sel = ((vmapwidth*tilesizex)/2-155+10,(vmapheight*tilesizey)/2-155+20)
+    sel2 = ((vmapwidth*tilesizex)/2-155+10,(vmapheight*tilesizey)/2-155+120)
 
     seamless = False
 
@@ -364,22 +381,22 @@ try:
                }
     NPCrealm = {
                 0 : 0,
-                1 : 1,
-                2 : 2,
-                3 : 1,
-                4 : 1,
-                5 : 1,
-                6 : 1,
-                7 : 1,
-                8 : 1,
-                9 : 1,
-                10: 1,
-                11: 1,
-                12: 1,
-                13: 1,
-                14: 1,
-                15: 1,
-                16: 1,
+                1 : 0,
+                2 : 1,
+                3 : 0,
+                4 : 0,
+                5 : 0,
+                6 : 0,
+                7 : 0,
+                8 : 0,
+                9 : 0,
+                10: 0,
+                11: 0,
+                12: 0,
+                13: 0,
+                14: 0,
+                15: 0,
+                16: 0,
                }
     NPCtype = {
                 0 : "Friendly",
@@ -598,23 +615,23 @@ try:
 
     #a dictionary linking resources to textures
     textures =   {
-                    DIRT  : pygame.transform.scale(pygame.image.load('graphics/0/dirt.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
+                    DIRT  : pygame.transform.scale(pygame.image.load('graphics/dirt.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
                     GRASS : pygame.transform.scale(pygame.image.load('graphics/grass.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
-                    WATER : pygame.transform.scale(pygame.image.load('graphics/water_1.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
+                    WATER : pygame.transform.scale(pygame.image.load('graphics/water.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
                     COAL  : pygame.transform.scale(pygame.image.load('graphics/coal.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
                     LAVA  : pygame.transform.scale(pygame.image.load('graphics/lava.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
-                    ROCK  : pygame.transform.scale(pygame.image.load('graphics/stone.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
+                    ROCK  : pygame.transform.scale(pygame.image.load('graphics/rock.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
                     DIAM  : pygame.transform.scale(pygame.image.load('graphics/diamond.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
                     SAPP  : pygame.transform.scale(pygame.image.load('graphics/sapphire.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
                     RUBY  : pygame.transform.scale(pygame.image.load('graphics/ruby.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
                     GOLD  : pygame.transform.scale(pygame.image.load('graphics/gold.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
                     AIR   : pygame.transform.scale(pygame.image.load('graphics/air.png'), (tilesizex,tilesizey+round(tilesizey/2))),
-                    WOOD  : pygame.transform.scale(pygame.image.load('graphics/wood.jpg'), (tilesizex*2,tilesizey*2+round(tilesizey/2))),
-                    GLASS : pygame.transform.scale(pygame.image.load('graphics/glass.png'), (tilesizex*2,tilesizey*2+round(tilesizey/2))),
-                    BRICK : pygame.transform.scale(pygame.image.load('graphics/brick.jpg'), (tilesizex*2,tilesizey*2+round(tilesizey/2))),
-                    CARP  : pygame.transform.scale(pygame.image.load('graphics/carpet.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
+                    WOOD  : pygame.transform.scale(pygame.image.load('graphics/wood.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
+                    GLASS : pygame.transform.scale(pygame.image.load('graphics/glass.png'), (tilesizex,tilesizey+round(tilesizey/2))),
+                    BRICK : pygame.transform.scale(pygame.image.load('graphics/brick.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
+                    CARP  : pygame.transform.scale(pygame.image.load('graphics/carpet/mid.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
                     SNOW  : pygame.transform.scale(pygame.image.load('graphics/snow.jpg'), (tilesizex,tilesizey+round(tilesizey/2))), # NTS: Limited edition Item! To be removed on New Year's Day.
-                    SEL   : pygame.transform.scale(pygame.image.load('graphics/grass.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
+                    SEL   : pygame.transform.scale(pygame.image.load('graphics/sel.png'), (tilesizex,tilesizey+round(tilesizey/2))),
                     GSWORD: pygame.transform.scale(pygame.image.load('graphics/gsword.png'), (tilesizex,tilesizey+round(tilesizey/2))),
                     FPORT : pygame.transform.scale(pygame.image.load('graphics/forportal.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
                     BPORT : pygame.transform.scale(pygame.image.load('graphics/backportal.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
@@ -624,6 +641,71 @@ try:
     elapsed = 0
     fps = 0
     cachedscreen = []
+
+    def initMusic():
+        global silence
+        logger.info("Initializing Music...") # if this process fails and it starts in silent mode, you screwed something up... or you don't have speakers, ofc.
+        music = random.randint(1,7)
+        logger.info("Running music #"+str(music))
+        pygame.mixer.music.set_endevent(USEREVENT)
+        try:
+            pygame.mixer.music.load('music/'+str(music)+'.mp3')
+            pygame.mixer.music.set_volume(0.2)
+            pygame.mixer.music.play()
+        except Exception:
+            try:
+                pygame.mixer.music.load('music/'+str(music)+'.mid')
+                pygame.mixer.music.set_volume(0.2)
+                pygame.mixer.music.play()
+            except Exception as e:
+                logger.error("Music failed to Initialize. Game will run in silence instead. Error: %s" % e)
+                silence = True
+##        if realm == 1:
+##            try:
+##                if OS == "windows":
+##                    pygame.mixer.music.load('music/No-Survivors.mid')
+##                    pygame.mixer.music.play(-1)
+##                    silence = False
+##                elif OS == "linux":
+##                    print("Due to issues with MIDIs on Linux, trying alternative. *This may impact on game feel.*")
+##                    pygame.mixer.music.load('music/Bustling-Ancient-City.mp3')
+##                    pygame.mixer.music.play(-1)
+##                    silence = False
+##            except Exception as e:
+##                logger.error("Music failed to Initialize. Game will run in silence instead. Error: %s" % e)
+##                silence = True
+##        elif realm == 2:
+##            try:
+##                pygame.mixer.music.load('music/Running Freedom.mp3')
+##                pygame.mixer.music.play(-1)
+##                silence = False
+##            except Exception as e:
+##                logger.error("Music failed to Initialize. Game will run in silence instead. Error: %s" % e)
+##                silence = True
+##        elif realm == 3:
+##            try:
+##                pygame.mixer.music.load('music/Bustling-Ancient-City.mp3')
+##                pygame.mixer.music.play(-1)
+##                silence = False
+##            except Exception as e:
+##                logger.error("Music failed to Initialize. Game will run in silence instead. Error: %s" % e)
+##                silence = True
+##        elif realm == 4:
+##            try:
+##                pygame.mixer.music.load('music/Across-the-Moat.mp3')
+##                pygame.mixer.music.play(-1)
+##                silence = False
+##            except Exception as e:
+##                logger.error("Music failed to Initialize. Game will run in silence instead. Error: %s" % e)
+##                silence = True
+##        elif realm == 5:
+##            try:
+##                pygame.mixer.music.load('music/History-Piano.mp3')
+##                pygame.mixer.music.play(-1)
+##                silence = False
+##            except Exception as e:
+##                logger.error("Music failed to Initialize. Game will run in silence instead. Error: %s" % e)
+##                silence = True
 
     def msg(message = ["A message wasn't found! Tell Scratso!"]):
         message.append("")
@@ -652,7 +734,7 @@ try:
          "",
          "Please make sure that you have fun, and spread the word!",
          "",
-         "PROTIP: You can find a load of helpful guides by typing (without quotes) \"%APPDATA%\PythianRealms\" into run (Windows key + R), selecting the folder of the latest build, and going into the Docs folder."]
+         "PROTIP: You can find a load of helpful guides by typing (without quotes) \"%APPDATA%\PythianRealms\\Game\\Docs\" into run (Windows key + R)."]
     if online:
         startupnotes[0] = "Hey, "+str(username)+", welcome back to PythianRealms! You last logged in at "+str(dbd[0])+"."
     msg(startupnotes)
@@ -666,6 +748,16 @@ try:
 
     oldNPCposX = None
     oldNPCposY = None
+
+    initMusic()
+
+    boost = 300 # 600 = 10 Minutes, 60 = 1 Minute, it's in seconds
+
+    SECONDCOUNTDOWN = USEREVENT+1
+    pygame.time.set_timer(SECONDCOUNTDOWN, 1000)
+
+    NPCMOVE = USEREVENT+2
+    pygame.time.set_timer(NPCMOVE, 2000)
     
     while True:
         # msg(["Test"])
@@ -673,11 +765,25 @@ try:
         display.fill(black)
         shownz = [0,1,2,3]
 
+        if boost == 0:
+            coins += 100
+            boost = 300
+
+        timeleft = boost
+
+        mintile = [-xoffset / tilesizex, -yoffset / tilesizey]
+        maxtile = [mintile[0] + (vmapwidth * tilesizex) / tilesizex, mintile[1] + (vmapheight * tilesizey) / tilesizey]
+        if mintile[0] < 0:
+            mintile[0] = 0
+        elif mintile[1] < 0:
+            mintile[1] = 0
+        if maxtile[0] > 100:
+            maxtile[0] = 100
+        elif maxtile[1] > 100:
+            maxtile[1] = 100
+
         if place or change:
             prevsurf.fill(0)
-
-        if oldNPCposX != npcPosX or oldNPCposY != npcPosY:
-            npcsurf.fill(0)
 
         if change:
             changetext = gamefont.render("RENDERING ENGINE IS BUSY... PLEASE WAIT!", True, yellow, red)
@@ -692,7 +798,7 @@ try:
         #if the right arrow is pressed
         if keys[pygame.K_RIGHT]: # and playerPos[0] < mapwidth - 1
             player = pygame.transform.scale(pygame.image.load("graphics/player_right.png").convert_alpha(), (tilesizex,tilesizey))
-            if playerTile[0] != 100:
+            if playerTile[0] != 99:
                 try:
                     if tilemap[playerz][playerTile[1]][playerTile[0]] != AIR and tilemap[playerz+1][playerTile[1]][playerTile[0]] != AIR:
                         xoffset += tilesizex
@@ -741,7 +847,7 @@ try:
                 except:
                     pass
         if keys[pygame.K_DOWN]:
-            if playerTile[1] != 100:
+            if playerTile[1] != 99:
                 try:
                     if tilemap[playerz][playerTile[1]][playerTile[0]] != AIR and tilemap[playerz+1][playerTile[1]][playerTile[0]] != AIR:
                         yoffset += tilesizey
@@ -767,6 +873,10 @@ try:
                     pass
 
         for event in pygame.event.get():
+            if event.type == SECONDCOUNTDOWN:
+                boost -= 1
+            if event.type == USEREVENT:
+                initMusic()
             if event.type == QUIT:
                 if(easygui.ynbox("Are you sure you want to quit? Your game WILL be saved!")):
                     try:
@@ -908,34 +1018,34 @@ try:
                 #row 3
                 elif mx >= (vmapwidth*tilesizex)/2-155+10 and mx <= (vmapwidth*tilesizex)/2-155+50 and my >= (vmapheight*tilesizey)/2-155+120 and my <= (vmapheight*tilesizey)/2-155+160:
                     if invshow:
-                        active = WOODS
-                        sel2 = ((vmapwidth*tilesizex)/2-155+10,(vmapheight*tilesizey)/2-155+120)
+                        active = WOOD
+                        sel = ((vmapwidth*tilesizex)/2-155+10,(vmapheight*tilesizey)/2-155+120)
                     elif shopshow:
                         if coins >= 7:
                             coins -= 7
-                            inventory[WOODS] += 1
+                            inventory[WOOD] += 1
                         else:
                             msg(["You need 7 Credits to buy Wood."])
                             
                 elif mx >= (vmapwidth*tilesizex)/2-155+60 and mx <= (vmapwidth*tilesizex)/2-155+100 and my >= (vmapheight*tilesizey)/2-155+120 and my <= (vmapheight*tilesizey)/2-155+160:
                     if invshow:
-                        active = GLASSS
-                        sel2 = ((vmapwidth*tilesizex)/2-155+60,(vmapheight*tilesizey)/2-155+120)
+                        active = GLASS
+                        sel = ((vmapwidth*tilesizex)/2-155+60,(vmapheight*tilesizey)/2-155+120)
                     elif shopshow:
                         if coins >= 8:
                             coins -= 8
-                            inventory[GLASSS] += 1
+                            inventory[GLASS] += 1
                         else:
                             msg(["The Value of Glass is 8 Credits."])
                             
                 elif mx >= (vmapwidth*tilesizex)/2-155+110 and mx <= (vmapwidth*tilesizex)/2-155+150 and my >= (vmapheight*tilesizey)/2-155+120 and my <= (vmapheight*tilesizey)/2-155+160:
                     if invshow:
-                        active = BRICKS
-                        sel2 = ((vmapwidth*tilesizex)/2-155+110,(vmapheight*tilesizey)/2-155+120)
+                        active = BRICK
+                        sel = ((vmapwidth*tilesizex)/2-155+110,(vmapheight*tilesizey)/2-155+120)
                     elif shopshow:
                         if coins >= 9:
                             coins -= 9
-                            inventory[BRICKS] += 1
+                            inventory[BRICK] += 1
                         else:
                             msg(["You need 9 Credits to buy Brick."])
     
@@ -1012,6 +1122,50 @@ try:
                     change = True
                     for z in range(mapz):
                         changedz.append(z)
+            if event.type == NPCMOVE:
+                for npc in NPCs:
+                    for npcd in NPCcount[npc]:
+                        move = random.randint(1,5)
+                        if move == 2:
+                            #up
+                            npcPosY[npc][npcd] -= 1
+                        elif move == 3:
+                            #down
+                            npcPosY[npc][npcd] += 1
+                        elif move == 4:
+                            #left
+                            npcPosX[npc][npcd] -= 1
+                        elif move == 5:
+                            #right
+                            npcPosX[npc][npcd] += 1
+                realm = settings.realm
+                npcsurf.fill(0)
+                #for each NPC
+                for item in NPCs:
+                    #determine the NPC's name here. This name **only** affects the text shown above the NPC.
+                    #if chunk == NPCchunk[item] and realm == NPCrealm[item]:
+                    npcPosZ[item] = 1
+                    for curnpc in NPCcount[item]:
+                        if (npcPosX[item][curnpc] >= mintile[0] and npcPosX[item][curnpc] <= maxtile[0]) and (npcPosY[item][curnpc] >= mintile[1] and npcPosY[item][curnpc] <= maxtile[1]):
+                            #display the npc at the correct position
+                            npcsurf.blit(npcGraphic[item],(npcPosX[item][curnpc]*tilesizex,npcPosY[item][curnpc]*tilesizey))
+                            if NPCtype[item] == "Hostile":
+                                #display the NPC's name...?
+                                NPCname = gamefont.render(str(npcName[item]), True, red)
+                                npcsurf.blit(NPCname, (npcPosX[item][curnpc]*tilesizex, npcPosY[item][curnpc]*tilesizey-15))
+                                percent = NPChealth[item][curnpc]/NPCmaxHealth[item]
+                                NHP = gamefont.render(str(round(percent*100))+"%", True, red)
+                                npcsurf.blit(NHP, (npcPosX[item][curnpc]*tilesizex,npcPosY[item][curnpc]*tilesizey-27))
+                            elif NPCtype[item] == "Friendly":
+                                #display the NPC's name...?
+                                NPCname = gamefont.render(str(npcName[item]), True, green)
+                                npcsurf.blit(NPCname, (npcPosX[item][curnpc]*tilesizex, npcPosY[item][curnpc]*tilesizey-15))
+                            else:
+                                #display the NPC's name...?
+                                NPCname = gamefont.render(str(npcName[item]), True, black)
+                                npcsurf.blit(NPCname, (npcPosX[item][curnpc]*tilesizex, npcPosY[item][curnpc]*tilesizey-15))
+##                    else:
+##                        npcPosZ[item] = 2
 
         if change:
             logger.info("Changing the following layers: "+str(changedz))
@@ -1057,65 +1211,45 @@ try:
         for layersurf in layersurfs:
             if layersurfs.index(layersurf) in shownz:
                 display.blit(layersurfs[layersurfs.index(layersurf)], (xoffset,yoffset))
-        if oldNPCposX != npcPosX or oldNPCposY != npcPosY:
-            #for each NPC
-            for item in NPCs:
-                if settings.realm == NPCrealm[item]:
-                    realm = settings.realm
-                #determine the NPC's name here. This name **only** affects the text shown above the NPC.
-                #if chunk == NPCchunk[item] and realm == NPCrealm[item]:
-                    npcPosZ[item] = 1
-                    for curnpc in NPCcount[item]:
-                        #display the npc at the correct position
-                        npcsurf.blit(npcGraphic[item],(npcPosX[item][curnpc]*tilesizex,npcPosY[item][curnpc]*tilesizey))
-                        if NPCtype[item] == "Hostile":
-                            #display the NPC's name...?
-                            NPCname = gamefont.render(str(npcName[item]), True, red)
-                            npcsurf.blit(NPCname, (npcPosX[item][curnpc]*tilesizex, npcPosY[item][curnpc]*tilesizey-15))
-                            percent = NPChealth[item][curnpc]/NPCmaxHealth[item]
-                            NHP = gamefont.render(str(round(percent*100))+"%", True, red)
-                            npcsurf.blit(NHP, (npcPosX[item][curnpc]*tilesizex,npcPosY[item][curnpc]*tilesizey-27))
-                        elif NPCtype[item] == "Friendly":
-                            #display the NPC's name...?
-                            NPCname = gamefont.render(str(npcName[item]), True, green)
-                            npcsurf.blit(NPCname, (npcPosX[item][curnpc]*tilesizex, npcPosY[item][curnpc]*tilesizey-15))
-                        else:
-                            #display the NPC's name...?
-                            NPCname = gamefont.render(str(npcName[item]), True, black)
-                            npcsurf.blit(NPCname, (npcPosX[item][curnpc]*tilesizex, npcPosY[item][curnpc]*tilesizey-15))
-                else:
-                    npcPosZ[item] = 2
-            oldNPCposX, oldNPCposY = npcPosX, npcPosY
         display.blit(npcsurf, (xoffset, yoffset))
         display.blit(prevsurf, (xoffset, yoffset))
         display.blit(player, (vmapwidth*tilesizex/2-(tilesizex/2),vmapheight*tilesizey/2-(tilesizey/2)-playerz*16))
+        display.blit(activesurf, (vmapwidth*tilesizex-tilesizex-10, 0))
+        activeblock.blit(textures[active], (0,0))
+        display.blit(activeblock, (vmapwidth*tilesizex-tilesizex-5, 22))
 
         ztext = gamefont.render("Z-Axis Lock: "+str(zaxis), True, white)
         display.blit(ztext, (0,0))
 
+        ctext = gamefont.render("You have "+format(coins, ",d")+" coins.", True, white)
+        display.blit(ctext, (0,12))
+
+        ttext = gamefont.render("Next gold boost: "+str(timeleft)+" seconds.", True, white)
+        display.blit(ttext, (0,24))
+
         if debug:
             ptext = gamefont.render("Player Tile: "+str(playerTile), True, white)
-            display.blit(ptext, (0,12))
+            display.blit(ptext, (0,36))
 
             etext = gamefont.render("FPS: "+str(fps), True, white)
-            display.blit(etext, (0,24))
+            display.blit(etext, (0,48))
 
             qtext = gamefont.render("Image Quality: "+str(tilesizex)+"bit (Tab to cycle) (32bit recommended)", True, white)
-            display.blit(qtext, (0,36))
+            display.blit(qtext, (0,60))
 
             pztext = gamefont.render("Player Z Pos: "+str(playerz), True, white)
-            display.blit(pztext, (0,48))
+            display.blit(pztext, (0,72))
 
             pptext = gamefont.render("Map Offset: ("+str(xoffset)+", "+str(yoffset)+")", True, white)
-            display.blit(pptext, (0,60))
+            display.blit(pptext, (0,84))
 
             rtext = gamefont.render("Realm: "+str(realm), True, white)
-            display.blit(rtext, (0,72))
+            display.blit(rtext, (0,96))
 
         if shopshow:
-            pygame.draw.rect(DISPLAYSURF, BLUE, ((MAPWIDTH*TILESIZEX)/2-155,(MAPHEIGHT*TILESIZEY)/2-155,310,310))
-            text = NPCfont.render("Shop", True, WHITE)
-            DISPLAYSURF.blit(text, ((MAPWIDTH*TILESIZEX)/2-154,(MAPHEIGHT*TILESIZEY)/2-154))
+            shopsurf.fill((23, 100, 255, 50))
+            text = gamefont.render("Shop", True, white)
+            shopsurf.blit(text, (1,1))
             #display the inventory, starting 10 pixels in
             placePosition = 10
             yoff = 20
@@ -1123,14 +1257,14 @@ try:
             curitem = 1
             for item in resources:
                 #add the image
-                if item == AIR or item == BPORT or item == FPORT or item == WOODT or item == GLASST or item == BRICKT:
+                if item == AIR or item == BPORT or item == FPORT:
                     continue
                 if curitem <= newrow:
-                    DISPLAYSURF.blit(textures[item],((MAPWIDTH*TILESIZEX)/2-155+placePosition,(MAPHEIGHT*TILESIZEY)/2-155+yoff))
+                    shopsurf.blit(textures[item],(placePosition,yoff))
                     placePosition += 0
                     #add the text showing the amount in the inventory:
-                    textObj = INVFONT.render(str(inventory[item]), True, WHITE)
-                    DISPLAYSURF.blit(textObj,((MAPWIDTH*TILESIZEX)/2-155+placePosition,(MAPHEIGHT*TILESIZEY)/2-155+yoff+20)) 
+                    textObj = gamefont.render(str(inventory[item]), True, white)
+                    shopsurf.blit(textObj,(placePosition,yoff+20))
                     placePosition += 50
                     if curitem == newrow:
                         curitem = 1
@@ -1138,11 +1272,12 @@ try:
                         placePosition = 10
                     else:
                         curitem += 1
+            display.blit(shopsurf, ((vmapwidth*tilesizex)/2-155,(vmapheight*tilesizey)/2-155))
     
         if invshow:
-            pygame.draw.rect(DISPLAYSURF, BLUE, ((MAPWIDTH*TILESIZEX)/2-155,(MAPHEIGHT*TILESIZEY)/2-155,310,310))
-            text = NPCfont.render("Inventory", True, WHITE)
-            DISPLAYSURF.blit(text, ((MAPWIDTH*TILESIZEX)/2-154,(MAPHEIGHT*TILESIZEY)/2-154))
+            invsurf.fill((23, 100, 255, 50))
+            text = gamefont.render("Inventory", True, black)
+            invsurf.blit(text, (1,1))
             #display the inventory, starting 10 pixels in
             placePosition = 10
             yoff = 20
@@ -1159,14 +1294,14 @@ try:
     ##                wateranim = 1
     ############################################################################################### THIS LINE IS WELL COMMENTED, ACCORDING TO PYTHON!
                 #add the image
-                if item == AIR or item == BPORT or item == FPORT or item == WOODT or item == GLASST or item == BRICKT:
+                if item == AIR or item == BPORT or item == FPORT:
                     continue
                 if curitem <= newrow:
-                    DISPLAYSURF.blit(textures[item],((MAPWIDTH*TILESIZEX)/2-155+placePosition,(MAPHEIGHT*TILESIZEY)/2-155+yoff))
+                    invsurf.blit(textures[item],(placePosition,yoff))
                     placePosition += 0
                     #add the text showing the amount in the inventory:
-                    textObj = INVFONT.render(str(inventory[item]), True, WHITE)
-                    DISPLAYSURF.blit(textObj,((MAPWIDTH*TILESIZEX)/2-155+placePosition,(MAPHEIGHT*TILESIZEY)/2-155+yoff+20)) 
+                    textObj = gamefont.render(str(inventory[item]), True, white)
+                    invsurf.blit(textObj,(placePosition,yoff+20)) 
                     placePosition += 50
                     if curitem == newrow:
                         curitem = 1
@@ -1174,13 +1309,11 @@ try:
                         placePosition = 10
                     else:
                         curitem += 1
+            display.blit(invsurf, ((vmapwidth*tilesizex)/2-155,(vmapheight*tilesizey)/2-155))
             if activeoverlay == True:
-                DISPLAYSURF.blit(textures[SEL], sel)
-                DISPLAYSURF.blit(textures[SEL], sel2)
+                display.blit(textures[SEL], sel)
 
-        pygame.event.pump()
-
-        pygame.display.update()
+        pygame.display.update((0,0,vmapwidth*tilesizex,vmapheight*tilesizey))
 
         elapsed = time.time() - now
         try:
