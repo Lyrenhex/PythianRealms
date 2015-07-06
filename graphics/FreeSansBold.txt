@@ -1,1 +1,0 @@
-NOTICE: The "FreeSansBold.ttf" in this folder is NOT FreeSansBold. FreeSansBold is in the file "FreeSansBold-old.ttf". The wrong naming is because, rather than changing the font in the code, I decided to simply rename Ubuntu Bold Italics to FreeSansBold. Thanks.

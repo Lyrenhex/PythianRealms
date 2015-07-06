@@ -12,3 +12,8 @@ Musicians:
 - Eric Matyas - http://soundimage.org: Thank you for "Medieval Halloween", "The Oppressed", "History Piano", and "Bustling Ancient City".
 - Eric A Schaefer - https://soundcloud.com/easchaefer: Thank you for "Chivalry Theme".
 - AlexRufire - https://soundcloud.com/alexrufire: Thank you for "Irish Dance".
+
+Fonts:
+
+- gameFont: This font is the Ubuntu Font by Canonical.
+- magicFont: This font is the Magic School Font by FontMesa.

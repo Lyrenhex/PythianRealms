@@ -1,9 +1,27 @@
 Changelog:
 
+0.0.0.5 -> 0.0.0.6:
+- Fixed bug when placing blocks at the top left of the map.
+- Added better NPC movement AI.
+- Very pleased to introduce... MAGIC! Magic is, however, a Premium-user perk. It includes long-range attacks, and a super-fancy Attack screen. Please note: PythianRealms Magic requires a staff. Only Premium users can buy staffs. The only current staff in existance is the Staff of Darkness. All staffs will be dark-magic themed, because light = Heaven, and the Void, (the bad guy) rules Haven. So... Yeah... Anyway, the staff of Darkness replaced the orb, which was doomed from the start. The Staff of Darkness does 25 damage. If you think this should be changed, let me know. Reference: It one-shots werewolves and blood-hounds.
+- PythianRealms title screen, before the info screen! Yay!
+- PythianRealms now autosaves every 5 minutes. If it cannot save to auth server, it will turn to offline mode.
+- All NPC health is tripled by 3.
+- Melee combat now in! Uses the same aiming functions as magic, but you must be within 4 tiles of the NPC you intend to attack. Fists currently do 6 damage (comments on this?) and Golden Swords do 12 damage. Melee combat is set to space.
+- Gold Sword changed to Iron Sword.
+
 0.0.0.4 -> 0.0.0.5:
 - Changed default inventory. You spawn with absolutely nothing. May change in future.
 - Begun working on Online Saving to the Auth Server. The previous database tables are deleted, so all PythianRealms users will need to simply log in to their TechnoMagic Account for it to regenerate a table. They were deleted because I changed the table columns, adding inventory options. Every time new items are added, this will happen. Sorry! But, every time I need to delete the database I'll keep a log of who has what, so that soon I'll just be able to drop your items back into the database again.
 - Inventory and Coins now Save to and load from the Auth Server when the game is in online mode. Maps are due to only save offline, allowing for better saving and more flexibility, such as sharing your maps with others.
+- Started moving towards free-to-play freemium idea. Basically, you can now buy gold swords, yay! However, only premium users can buy orbs. I'll explain more on premiumship in the release post.
+- Added map saving and loading.
+- You can now only build in the construction realm, unless you are a premium user.
+- Added a second realm. Press T to toggle realms.
+- Standard users now gain 100 coins per boost, while Premium users earn 1000 coins per boost.
+- Standard accounts and premium accounts statuses are now shown in the game title bar.
+- Standard and Premium accounts now have different player graphics - one basic and one fancy.
+- Added Offline Inventory and Coins saving and loading.
 
 0.0.0.3 -> 0.0.0.4:
 - Added inventory gui back. Background due to change from blue, since I'm adding translucency to make it look better.

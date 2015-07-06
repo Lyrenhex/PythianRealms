@@ -2,7 +2,7 @@
 
 # Copyright (c) 2015 Damian Heaton and TechnoMagic Enterprises. ALL RIGHTS RESERVED.
 
-version = "0.0.0.5"
+version = "0.0.0.6"
 
 import sys, os, time, random, math, traceback, webbrowser, datetime as dt
 
@@ -67,7 +67,8 @@ try:
     try:
         response=urllib2.urlopen('http://92.234.196.233',timeout=10)
         online = True
-    except:
+    except Exception as e:
+        logger.error(e)
         online = False
         pass
     logger.info("Can we connect to the server? "+str(online))
@@ -167,6 +168,18 @@ try:
         logintime = dt.datetime.now().strftime("%I:%M %p on %B %d, %Y")
         logger.info ("Logged in on "+str(logintime))
 
+    if online:
+        if dbd[2] == 1:
+            premium = True
+        else:
+            premium = False
+    else:
+        premium = False
+
+    opt = False
+
+    logger.info("Is the user a PREMIUM player? "+str(premium))
+
     #####################
     # OPERATING SYSTEMS #
     #####################
@@ -187,7 +200,8 @@ try:
     mapheight = 100
     mapz = 4
 
-    realms = 10
+    realms = 2
+    realm = settings.realm
 
     playerz = 0
 
@@ -198,7 +212,7 @@ try:
     pickup = False
     changedz = []
 
-    change = True
+    change = False
     debug = False
 
     invshow = False
@@ -206,10 +220,21 @@ try:
 
     activeoverlay = True
 
+    selectednpc = None
+
     coins = 1000 # 1000 coins to start, and per boost
+
+    global screen_image
+    screen_image = None
 
     if online:
         coins = dbd[1]
+    elif os.path.isfile("data/Coins.txt") and os.access("data/Coins.txt", os.R_OK):
+        read = open("data/Coins.txt", "r")
+        coins = int(read.read())
+        read.close()
+
+    playerHP = 100
 
     # visible map sizes. There is always hidden map.
     vmapwidth = round(75/(tilesizex/16))
@@ -236,6 +261,7 @@ try:
     gray = (80,80,80)
     white = (255,255,255)
     yellow = (255,255,0)
+    purple = (204,0,102)
 
     # set up the displays
     pygame.init()
@@ -251,13 +277,19 @@ try:
     invsurf.fill((23, 100, 255, 50))
     shopsurf = pygame.Surface((310, 310), pygame.SRCALPHA, 32).convert_alpha()
     shopsurf.fill((23, 100, 255, 50))
-
+    magicsurf = pygame.Surface((vmapwidth*tilesizex, vmapheight*tilesizey), pygame.SRCALPHA, 32).convert_alpha()
+    magicsurf.fill(0)
+    wipesurf = pygame.Surface((vmapwidth*tilesizex, vmapheight*tilesizey), pygame.SRCALPHA, 32).convert_alpha()
+    wipesurf.fill(0)
+        
     layersurfs = []
     for layer in range(mapz):
         layersurfs.append(pygame.Surface((mapwidth*tilesizex, mapheight*tilesizey), pygame.SRCALPHA, 32).convert_alpha())
 
     # fonts
     gamefont = pygame.font.Font("graphics/gameFont.ttf", 12)
+    magichead = pygame.font.Font("graphics/magicFont.ttf", 60)
+    magicbody = pygame.font.Font("graphics/magicFont.ttf", 36)
 
     activetxt = gamefont.render("Active", True, white)
     activesurf.blit(activetxt, (5,5))
@@ -270,12 +302,16 @@ try:
     pygame.display.update()
 
     # set the window title
-    pygame.display.set_caption("PythianRealms Game | Version "+version+" | Online: "+str(online)) # , "graphics/logo-small.png"
+    if premium:
+        premtext = "PREMIUM ACCOUNT"
+    else:
+        premtext = "STANDARD ACCOUNT"
+    pygame.display.set_caption("PythianRealms Game | Version "+version+" | Online: "+str(online)+" | "+premtext) # , "graphics/logo-small.png"
     # set the window icon
     pygame.display.set_icon(pygame.image.load("graphics/logo-small.png").convert_alpha())
 
     # load the player sprite
-    player = pygame.transform.scale(pygame.image.load("graphics/player_right.png").convert_alpha(), (tilesizex,tilesizey))
+    player = pygame.transform.scale(pygame.image.load("graphics/"+str(premium)+"/player_right.png").convert_alpha(), (tilesizex,tilesizey))
 
     # load the hp bar
     hpbar = pygame.image.load("graphics/blood_red_bar.png")
@@ -301,7 +337,7 @@ try:
     GSWORD= 17
     FPORT = 18
     BPORT = 19
-    ORB   = 20
+    DSTAFF   = 20
 
     active = DIRT
 
@@ -311,7 +347,7 @@ try:
     seamless = False
 
     #a list of resources
-    resources = [DIRT,GRASS,WATER,COAL,LAVA,ROCK,DIAM,SAPP,RUBY,GOLD,CARP,SNOW,WOOD,GLASS,BRICK,GSWORD,ORB]
+    resources = [DIRT,GRASS,WATER,COAL,LAVA,ROCK,DIAM,SAPP,RUBY,GOLD,CARP,SNOW,WOOD,GLASS,BRICK,GSWORD,DSTAFF]
 
     # set the inventory
     inventory =   {
@@ -331,7 +367,7 @@ try:
                             GLASS  : 0,
                             BRICK  : 0,
                             GSWORD : 0,
-                            ORB    : 0,
+                            DSTAFF    : 0,
                             FPORT  : 1,
                             BPORT  : 1,
                         }
@@ -353,7 +389,16 @@ try:
         inventory[GLASS] = dbd[16]
         inventory[BRICK] = dbd[17]
         inventory[GSWORD] = dbd[18]
-        inventory[ORB] = dbd[19]
+        inventory[DSTAFF] = dbd[19]
+    elif os.path.isfile("data/Inventory.txt") and os.access("data/Inventory.txt", os.R_OK):
+        file = 0
+        read = open("data/Inventory.txt", 'r')
+        read2 = read.read()
+        read3 = read2.split("\n")
+        for item in inventory:
+            inventory[item] = int(read3[file])
+            file = file + 1
+        read.close()
 
     ########
     # NPCS #
@@ -461,14 +506,14 @@ try:
     #NPC ID : {  NPC NUMBER : NPC NUMBER HP  }
     NPChealth = {
                     0 : { 0 : 1 },
-                    1 : { 0 : 8,
-                          1 : 8,
-                          2 : 8,
-                          3 : 8,
-                          4 : 8,
-                          5 : 8 },
-                    2 : { 0 : 190 },
-                    3 : { 0 : 16 },
+                    1 : { 0 : 24,
+                          1 : 24,
+                          2 : 24,
+                          3 : 24,
+                          4 : 24,
+                          5 : 24 },
+                    2 : { 0 : 570 },
+                    3 : { 0 : 48 },
                     4 : { 0 : 1 },
                     5 : { 0 : 1 },
                     6 : { 0 : 1 },
@@ -480,9 +525,9 @@ try:
                     12: { 0 : 1 },
                     13: { 0 : 1 },
                     14: { 0 : 1 },
-                    15: { 0 : 10,
-                          1 : 10 },
-                    16: { 0 : 16 },
+                    15: { 0 : 30,
+                          1 : 30 },
+                    16: { 0 : 48 },
                 }
     #for npc in NPCs:
     #    for chunk in range(25):
@@ -495,9 +540,9 @@ try:
     #                    file.close()
     NPCmaxHealth = {
         0 : 1,
-        1 : 8,
-        2 : 190,
-        3 : 16,
+        1 : 24,
+        2 : 570,
+        3 : 48,
         4 : 1,
         5 : 1,
         6 : 1,
@@ -509,8 +554,8 @@ try:
         12: 1,
         13: 1,
         14: 1,
-        15: 10,
-        16: 16,
+        15: 30,
+        16: 48,
         }
                 #NPC ID : { NPC NUMBER : NPC NUMBER pos },
     npcPosX = {
@@ -627,10 +672,26 @@ try:
     #    # Open Multiplayer Chat System
     #    webbrowser.open("https://irc.editingarchive.com:8080/?channels=PythianRealms")
 
-    #webbrowser.open("http://technomagic.net:9090/?channels=PythianRealms")
+    #webbrowser.open("http://tmcore.co.uk:9090/?channels=PythianRealms")
 
     #use list comprehension to create the tilemap
     tilemap = [ [[AIR for w in range(mapwidth)] for h in range(mapheight)] for z in range(mapz) ]
+
+    mapload = False
+
+    if os.path.isfile("data/Map"+str(realm)+".txt") and os.access("data/Map"+str(realm)+".txt", os.R_OK):
+        mapload = True
+        file = 0
+        read = open("data/Map"+str(realm)+".txt", 'r')
+        read2 = read.read()
+        read3 = read2.split("|")
+        for ly in range(mapz):
+            for rw in range(mapheight):
+                for cl in range(mapwidth):
+                    read4 = int(read3[file])
+                    tilemap[ly][rw][cl] = read4
+                    file = file + 1
+        read.close()
 
     # set the map's x and y offsets (positioning)
     xoffset,yoffset = 0,0
@@ -657,7 +718,7 @@ try:
                     GSWORD: pygame.transform.scale(pygame.image.load('graphics/gsword.png'), (tilesizex,tilesizey+round(tilesizey/2))),
                     FPORT : pygame.transform.scale(pygame.image.load('graphics/forportal.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
                     BPORT : pygame.transform.scale(pygame.image.load('graphics/backportal.jpg'), (tilesizex,tilesizey+round(tilesizey/2))),
-                    ORB   : pygame.transform.scale(pygame.image.load('graphics/orb.png'), (tilesizex,tilesizey+round(tilesizey/2)))
+                    DSTAFF   : pygame.transform.scale(pygame.image.load('graphics/DSTAFF.png'), (tilesizex,tilesizey+round(tilesizey/2)))
                 }
 
     elapsed = 0
@@ -748,87 +809,143 @@ try:
                 textoffset += 12
             pygame.display.update()
 
+    def magic_out():
+        magicsurf.fill((0,0,0,100))
+        pygame.display.update()
+        time.sleep(0.01)
+        for i in range(255):
+            magicsurf.fill((i,i,i,100))
+            display.blit(magicsurf, (0,0))
+            pygame.display.update()
+            time.sleep(0.01)
+
+    def magicmsg(head = "Oops", message = ["A message wasn't found! Tell Scratso!"], fade = True):
+        message.append("")
+        message.append("Press E to continue")
+        messageactive = True
+        while messageactive:
+            for event in pygame.event.get():
+                if event.type == KEYDOWN:
+                    if event.key == K_e:
+                        change = True
+                        messageactive = False
+            display.fill(black)
+            text = magichead.render(head, True, purple)
+            display.blit(text, (vmapwidth*tilesizex/2-round((len(head)/2)*30),vmapheight*tilesizey/3))
+            textoffset = 70
+            for line in message:
+                text = magicbody.render(line, True, purple)
+                display.blit(text, (vmapwidth*tilesizex/2-round((len(line)/2)*12),vmapheight*tilesizey/3+textoffset))
+                textoffset += 36
+            pygame.display.update()
+        if fade:
+            magic_out()
+
+    def loading():
+        display.fill(black)
+        changetext = magichead.render("Loading... Please wait.", True, red)
+        display.blit(changetext, (vmapwidth*tilesizex/2-175,vmapheight*tilesizey/3))
+        pygame.display.update()
+
+    def magic():
+        magic_in()
+        magic_out()
+
+    magicmsg("PythianRealms", ["Welcome back to the land of the living, my friend.",
+                               "You've been asleep for a very long time."], False)
+
     # Display all the startup things.
     startupnotes = ["Welcome to PythianRealms!",
                      "You are running version "+version,
-                     "This is a Public Alpha Development version of PythianRealms. All feedback is appreciated. Want to help give feedback? Simply email me at scratso@technomagic.net!",
-                     "PythianRealms cannot thrive without donations. Why not help us out by donating? You can donate over at http://www.technomagic.net/PythianRealms.php",
+                     "This is a Public Alpha Development version of PythianRealms. All feedback is appreciated. Want to help give feedback? Simply email me at scratso@tmcore.co.uk!",
+                     "PythianRealms cannot thrive without donations. Why not help us out by donating? You can donate over at http://www.tmcore.co.uk/PythianRealms.php",
                      "",
                      "Please make sure that you have fun, and spread the word!",
                      "",
                      "PROTIP: You can find a load of helpful guides by typing (without quotes) \"%APPDATA%\PythianRealms\\Game\\Docs\" into run (Windows key + R).",
                     "",
                     "",
-                    "\"Aha, you're new, so let's lay down the ground rules:",
-                    "First we'll send you off to nurseries and schools,",
-                    "Where we'll hijack your will and bring you to heel,",
-                    "And if you resist we'll break you on the wheel.",
-                    "Once we've purged your flaws, when heart and mind are clean,",
-                    "We'll offer you up to the banking machine.",
-                    "",
-                    "Get out of your heart, and get into your head,",
-                    "So you won't want to play, but solve problems instead.",
-                    "You're way too soft and you need to be tougher,",
-                    "Or the important ones will make you suffer.",
-                    "It's not taking part, winning's all that matters.",
-                    "Be ruthless and quick, leave the rest in tatters.",
-                    "",
-                    "Acknowledge that greed is good and might is right.",
-                    "Discard compassion, it never wins the fight.",
-                    "Despise weak people, they'll only drag you down,",
-                    "And instead of Ray-Bans, you'll wear a frown.",
-                    "So leave needy people on the bottom shelf,",
-                    "And seek friends who can multiply your wealth.",
-                    "",
-                    "Ignore the guilty feelings that may arise,",
-                    "Those are just echoes of weakness' demise.",
-                    "So cheat, bend the rules, do whatever you must,",
-                    "And don't be swayed by their envious disgust.",
-                    "They're just jealous and wish they were like you,",
-                    "Losers are too weak and do what they need to.",
-                    "",
-                    "You'll need to bend the truth, but never say you lied.",
-                    "You deserve to win so all is justified.",
-                    "In a perfect world that ran on peace and love,",
-                    "You wouldn't even need any of the above.",
-                    "Dishonesty would be a rare last resort,",
-                    "But make no mistake son, this is bloodsport.",
-                    "",
-                    "(More on next page.)"]
+                    "KEYBINDINGS:",
+                    "============",
+                    "Arrow Keys: Move",
+                    "F3: Toggle debug information",
+                    "Q: Enable Build Mode",
+                    "A: Disable Build Mode",
+                    "R: Enable Pickup Mode",
+                    "F: Disable Pickup Mode",
+                    "T: Toggle RPG/Construction Realm",
+                    "C: Open PythianRealms IRC Chat"]
     if online:
         startupnotes[0] = "Hey, "+str(username)+", welcome back to PythianRealms! You last logged in at "+str(dbd[0])+"."
-        if dbd[2] == 1:
-            startupnotes[8] = "You are a premium PythianRealms Player."
+        if premium:
+            startupnotes.append("")
+            startupnotes.append("You are a premium PythianRealms Player.")
     msg(startupnotes)
 
-    poem2 = [
-        "Now we've purged your flaws, we'll send you on your way.",
-        "Use all you've learned here to win the games you play.",
-        "All will marvel at your great house, wife and car.",
-        "Likewise teach your kids, so they too can go far.",
-        "And at the final curtain, you can take heart,",
-        "That in our little play, you had a big part.",
-        "",
-        "...",
-        "",
-        "Aha you're new, and it says you have depression.",
-        "Christ - your life story reads like a confession!",
-        "Well, I don't need to be that well qualified,",
-        "To spot where the roots of your problems reside.",
-        "Tell me - how does one who started out just fine,",
-        "End up so comprehensively asinine?",
-        "",
-        "You need to abide by your heart, not by your head.",
-        "You ought to play more, and put mind games to bed.",
-        "You act way too tough, and need to soften up.",
-        "Good people have suffered to overfill your cup.",
-        "Winning is nothing, it's all in how you play,",
-        "When the game ends, and the board is put away.\"",
-        "",
-        "- A poem by Armanax, reflecting the greed and cruelty of the world we live. The greed and cruelty that this game also reflects."]
-    msg(poem2)
+##    poem2 = [
+##        "\"Aha, you're new, so let's lay down the ground rules:",
+##        "First we'll send you off to nurseries and schools,",
+##        "Where we'll hijack your will and bring you to heel,",
+##        "And if you resist we'll break you on the wheel.",
+##        "Once we've purged your flaws, when heart and mind are clean,",
+##        "We'll offer you up to the banking machine.",
+##        "",
+##        "Get out of your heart, and get into your head,",
+##        "So you won't want to play, but solve problems instead.",
+##        "You're way too soft and you need to be tougher,",
+##        "Or the important ones will make you suffer.",
+##        "It's not taking part, winning's all that matters.",
+##        "Be ruthless and quick, leave the rest in tatters.",
+##        "",
+##        "Acknowledge that greed is good and might is right.",
+##        "Discard compassion, it never wins the fight.",
+##        "Despise weak people, they'll only drag you down,",
+##        "And instead of Ray-Bans, you'll wear a frown.",
+##        "So leave needy people on the bottom shelf,",
+##        "And seek friends who can multiply your wealth.",
+##        "",
+##        "Ignore the guilty feelings that may arise,",
+##        "Those are just echoes of weakness' demise.",
+##        "So cheat, bend the rules, do whatever you must,",
+##        "And don't be swayed by their envious disgust.",
+##        "They're just jealous and wish they were like you,",
+##        "Losers are too weak and do what they need to.",
+##        "",
+##        "You'll need to bend the truth, but never say you lied.",
+##        "You deserve to win so all is justified.",
+##        "In a perfect world that ran on peace and love,",
+##        "You wouldn't even need any of the above.",
+##        "Dishonesty would be a rare last resort,",
+##        "But make no mistake son, this is bloodsport.",
+##        "",
+##        "(More on next page.)"
+##        "Now we've purged your flaws, we'll send you on your way.",
+##        "Use all you've learned here to win the games you play.",
+##        "All will marvel at your great house, wife and car.",
+##        "Likewise teach your kids, so they too can go far.",
+##        "And at the final curtain, you can take heart,",
+##        "That in our little play, you had a big part.",
+##        "",
+##        "...",
+##        "",
+##        "Aha you're new, and it says you have depression.",
+##        "Christ - your life story reads like a confession!",
+##        "Well, I don't need to be that well qualified,",
+##        "To spot where the roots of your problems reside.",
+##        "Tell me - how does one who started out just fine,",
+##        "End up so comprehensively asinine?",
+##        "",
+##        "You need to abide by your heart, not by your head.",
+##        "You ought to play more, and put mind games to bed.",
+##        "You act way too tough, and need to soften up.",
+##        "Good people have suffered to overfill your cup.",
+##        "Winning is nothing, it's all in how you play,",
+##        "When the game ends, and the board is put away.\"",
+##        "",
+##        "- A poem by Armanax, reflecting the greed and cruelty of the world we live. The greed and cruelty that this game also reflects."]
+##    msg(poem2)
     
-    changedz = [] #0,1,2,3 after you add the loading system. Until then, this'll do.
+    changedz = [0,1,2,3] #0,1,2,3 after you add the loading system. Until then, this'll do.
     
     if settings.storyintro == False:
         # show the story intro (somehow make a video show here).
@@ -846,16 +963,29 @@ try:
     pygame.time.set_timer(SECONDCOUNTDOWN, 1000)
 
     NPCMOVE = USEREVENT+2
-    pygame.time.set_timer(NPCMOVE, 2000)
+    pygame.time.set_timer(NPCMOVE, 1000)
+
+    SAVE = USEREVENT+3
+    pygame.time.set_timer(SAVE, 30000)
+
+    realm = settings.realm
+
+    if mapload:
+        change = True
     
     while True:
         # msg(["Test"])
         now = time.time()
         display.fill(black)
+        #display.fill(blue)
+        #magic()
         shownz = [0,1,2,3]
 
         if boost == 0:
-            coins += 100
+            if premium:
+                coins += 1000
+            else:
+                coins += 100
             boost = 300
 
         timeleft = boost
@@ -875,9 +1005,7 @@ try:
             prevsurf.fill(0)
 
         if change:
-            changetext = gamefont.render("RENDERING ENGINE IS BUSY... PLEASE WAIT!", True, yellow, red)
-            display.blit(changetext, (0,0))
-            pygame.display.update()
+            loading()
 
         mx,my = pygame.mouse.get_pos()
         playerTile = (round(((vmapwidth*tilesizex/2-12)-xoffset)/tilesizex),round(((vmapheight*tilesizey/2-12)-yoffset)/tilesizey))
@@ -885,8 +1013,8 @@ try:
         #get all the user events - SO, SO, SO, SO SORRY ABOUT THE SAVING METHODS. PLEASE FORGIVE ME!
         keys = pygame.key.get_pressed()
         #if the right arrow is pressed
-        if keys[pygame.K_RIGHT]: # and playerPos[0] < mapwidth - 1
-            player = pygame.transform.scale(pygame.image.load("graphics/player_right.png").convert_alpha(), (tilesizex,tilesizey))
+        if keys[pygame.K_RIGHT]: # and playerTile[0] < mapwidth - 1
+            player = pygame.transform.scale(pygame.image.load("graphics/"+str(premium)+"/player_right.png").convert_alpha(), (tilesizex,tilesizey))
             if playerTile[0] != 99:
                 try:
                     if tilemap[playerz][playerTile[1]][playerTile[0]] != AIR and tilemap[playerz+1][playerTile[1]][playerTile[0]] != AIR:
@@ -903,7 +1031,7 @@ try:
                 except:
                     pass
         if keys[pygame.K_LEFT]:
-            player = pygame.transform.scale(pygame.image.load("graphics/player_left.png").convert_alpha(), (tilesizex,tilesizey))
+            player = pygame.transform.scale(pygame.image.load("graphics/"+str(premium)+"/player_left.png").convert_alpha(), (tilesizex,tilesizey))
             if playerTile[0] != 0:
                 try:
                     if tilemap[playerz][playerTile[1]][playerTile[0]] != AIR and tilemap[playerz+1][playerTile[1]][playerTile[0]] != AIR:
@@ -952,25 +1080,102 @@ try:
                 except:
                     pass
 
-        if playerz < 3:
-            if tilemap[playerz+1][playerTile[1]][playerTile[0]] != AIR and tilemap[playerz][playerTile[1]][playerTile[0]] == AIR:
-                try:
-                    for shownlayer in range(mapz):
-                        if shownlayer > playerz:
-                            shownz.pop(shownlayer)
-                except:
-                    pass
+        if playerz == 0:
+            if tilemap[playerz+1][playerTile[1]][playerTile[0]] != AIR:
+                shownz = [0]
+            elif tilemap[playerz+2][playerTile[1]][playerTile[0]] != AIR:
+                shownz = [0,1]
+            elif tilemap[playerz+3][playerTile[1]][playerTile[0]] != AIR:
+                shownz = [0,1,2]
+        elif playerz == 1:
+            if tilemap[playerz+1][playerTile[1]][playerTile[0]] != AIR:
+                shownz = [0,1]
+            elif tilemap[playerz+2][playerTile[1]][playerTile[0]] != AIR:
+                shownz = [0,1,2]
+        elif playerz == 2:
+            if tilemap[playerz+1][playerTile[1]][playerTile[0]] != AIR:
+                shownz = [0,1,2]
 
         for event in pygame.event.get():
             if event.type == SECONDCOUNTDOWN:
                 boost -= 1
             if event.type == USEREVENT:
                 initMusic()
+            if event.type == SAVE:
+                logger.info("Auto-saving...")
+                if online:
+                    try:
+                        logger.info("Saving coins and inventory to server...")
+                        dba.execute("UPDATE PYTH_"+username+" SET `LastLogin` = '"+str(logintime)+"', `Coins` = "+str(coins)+", `Dirt` = "+str(inventory[DIRT])+", `Grass` = "+str(inventory[GRASS])+", `Water` = "+str(inventory[WATER])+", `Coal` = "+str(inventory[COAL])+", `Lava` = "+str(inventory[LAVA])+", `Rock` = "+str(inventory[ROCK])+", `Diam` = "+str(inventory[DIAM])+", `Sapp` = "+str(inventory[SAPP])+", `Ruby` = "+str(inventory[RUBY])+", `Gold` = "+str(inventory[GOLD])+", `Carp` = "+str(inventory[CARP])+", `Snow` = "+str(inventory[SNOW])+", `Wood` = "+str(inventory[WOOD])+", `Glass` = "+str(inventory[GLASS])+", `Brick` = "+str(inventory[BRICK])+", `GSword` = "+str(inventory[GSWORD])+", `Orb` = "+str(inventory[DSTAFF]))
+                        db.close()
+                        logger.info("Inventory saved to server.")
+                    except:
+                        online = False
+                settings.realm = realm
+                logger.info("Saving Realm "+str(realm)+"...")
+                if os.path.isfile("data/Map"+str(realm)+".txt") and os.access("data/Map"+str(realm)+".txt", os.R_OK):
+                    os.remove("data/Map"+str(realm)+".txt")
+                time.sleep(0.1)
+                write = open("data/Map"+str(realm)+".txt", 'a')
+                for ly in range(mapz):
+                    for rw in range(mapheight):
+                        for cl in range(mapwidth):
+                            write.write(str(tilemap[ly][rw][cl])+"|")
+                write.close()
+                logger.info("Saved Realm "+str(realm)+".")
+                if not online:
+                    logger.info("Saving inventory offline...")
+                    if os.path.isfile("data/Inventory.txt") and os.access("data/Inventory.txt", os.R_OK):
+                        os.remove("data/Inventory.txt")
+                    time.sleep(0.1)
+                    write = open("data/Inventory.txt", 'a')
+                    for item in inventory:
+                        write.write(str(inventory[item])+"\n")
+                    write.close()
+                    logger.info("Inventory saved to computer.")
+                    logger.info("Saving coins to computer...")
+                    write = open("data/Coins.txt", "w")
+                    write.write(str(coins))
+                    write.close()
+                    logger.info("Coins saved to computer.")
+                logger.info("Save complete.")
             if event.type == QUIT:
                 if(easygui.ynbox("Are you sure you want to quit? Your game WILL be saved!")):
                     if online:
-                        dba.execute("UPDATE PYTH_"+username+" SET `LastLogin` = '"+str(logintime)+"', `Coins` = "+str(coins)+", `Dirt` = "+str(inventory[DIRT])+", `Grass` = "+str(inventory[GRASS])+", `Water` = "+str(inventory[WATER])+", `Coal` = "+str(inventory[COAL])+", `Lava` = "+str(inventory[LAVA])+", `Rock` = "+str(inventory[ROCK])+", `Diam` = "+str(inventory[DIAM])+", `Sapp` = "+str(inventory[SAPP])+", `Ruby` = "+str(inventory[RUBY])+", `Gold` = "+str(inventory[GOLD])+", `Carp` = "+str(inventory[CARP])+", `Snow` = "+str(inventory[SNOW])+", `Wood` = "+str(inventory[WOOD])+", `Glass` = "+str(inventory[GLASS])+", `Brick` = "+str(inventory[BRICK])+", `GSword` = "+str(inventory[GSWORD])+", `Orb` = "+str(inventory[ORB]))
-                        db.close()
+                        try:
+                            logger.info("Saving coins and inventory to server...")
+                            dba.execute("UPDATE PYTH_"+username+" SET `LastLogin` = '"+str(logintime)+"', `Coins` = "+str(coins)+", `Dirt` = "+str(inventory[DIRT])+", `Grass` = "+str(inventory[GRASS])+", `Water` = "+str(inventory[WATER])+", `Coal` = "+str(inventory[COAL])+", `Lava` = "+str(inventory[LAVA])+", `Rock` = "+str(inventory[ROCK])+", `Diam` = "+str(inventory[DIAM])+", `Sapp` = "+str(inventory[SAPP])+", `Ruby` = "+str(inventory[RUBY])+", `Gold` = "+str(inventory[GOLD])+", `Carp` = "+str(inventory[CARP])+", `Snow` = "+str(inventory[SNOW])+", `Wood` = "+str(inventory[WOOD])+", `Glass` = "+str(inventory[GLASS])+", `Brick` = "+str(inventory[BRICK])+", `GSword` = "+str(inventory[GSWORD])+", `Orb` = "+str(inventory[DSTAFF]))
+                            db.close()
+                            logger.info("Inventory saved to server.")
+                        except:
+                            online = False
+                    settings.realm = realm
+                    logger.info("Saving Realm "+str(realm)+"...")
+                    if os.path.isfile("data/Map"+str(realm)+".txt") and os.access("data/Map"+str(realm)+".txt", os.R_OK):
+                        os.remove("data/Map"+str(realm)+".txt")
+                    time.sleep(0.1)
+                    write = open("data/Map"+str(realm)+".txt", 'a')
+                    for ly in range(mapz):
+                        for rw in range(mapheight):
+                            for cl in range(mapwidth):
+                                write.write(str(tilemap[ly][rw][cl])+"|")
+                    write.close()
+                    logger.info("Saved Realm "+str(realm)+".")
+                    if not online:
+                        logger.info("Saving inventory offline...")
+                        if os.path.isfile("data/Inventory.txt") and os.access("data/Inventory.txt", os.R_OK):
+                            os.remove("data/Inventory.txt")
+                        time.sleep(0.1)
+                        write = open("data/Inventory.txt", 'a')
+                        for item in inventory:
+                            write.write(str(inventory[item])+"\n")
+                        write.close()
+                        logger.info("Inventory saved to computer.")
+                        logger.info("Saving coins to computer...")
+                        write = open("data/Coins.txt", "w")
+                        write.write(str(coins))
+                        write.close()
+                        logger.info("Coins saved to computer.")
                     sys.exit("User has quit the application.")
             if event.type == MOUSEBUTTONDOWN:
                 if place:
@@ -991,7 +1196,7 @@ try:
                         tilemap[zaxis][y][x] = AIR
                         if zaxis not in changedz:
                             changedz.append(zaxis)
-                        change = True
+                        #change = True
                         #print(tilemap[0][y][x])
                 #row 1
                 if mx >= (vmapwidth*tilesizex)/2-155+10 and mx <= (vmapwidth*tilesizex)/2-155+50 and my >= (vmapheight*tilesizey)/2-155+20 and my <= (vmapheight*tilesizey)/2-155+60:
@@ -999,71 +1204,121 @@ try:
                         active = DIRT
                         sel = ((vmapwidth*tilesizex)/2-155+10,(vmapheight*tilesizey)/2-155+20)
                     elif shopshow:
-                        inventory[DIRT] += 1
+                        if event.button == 1:
+                            inventory[DIRT] += 1
+                        elif event.button == 3:
+                            inventory[DIRT] += 10
                 elif mx >= (vmapwidth*tilesizex)/2-155+60 and mx <= (vmapwidth*tilesizex)/2-155+100 and my >= (vmapheight*tilesizey)/2-155+20 and my <= (vmapheight*tilesizey)/2-155+60:
                     if invshow:
                         active = GRASS
                         sel = ((vmapwidth*tilesizex)/2-155+60,(vmapheight*tilesizey)/2-155+20)
                     elif shopshow:
-                        if coins >= 1:
-                            coins -= 1
-                            inventory[GRASS] += 1
-                        else:
-                            msg(["You need 1 Credit to buy the Grass that is being Monitored.",
-                                 "100 gold boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
-                                 "You can also earn coins by slaying evil monsters, or by completing quests."])
+                        if event.button == 1:
+                            if coins >= 1:
+                                coins -= 1
+                                inventory[GRASS] += 1
+                            else:
+                                msg(["You need 1 coins to buy 1 Grass.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                        elif event.button == 3:
+                            if coins >= 10:
+                                coins -= 10
+                                inventory[GRASS] += 10
+                            else:
+                                msg(["You need 10 coins to buy 10 Grass.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
                             
                 elif mx >= (vmapwidth*tilesizex)/2-155+110 and mx <= (vmapwidth*tilesizex)/2-155+150 and my >= (vmapheight*tilesizey)/2-155+20 and my <= (vmapheight*tilesizey)/2-155+60:
                     if invshow:
                         active = WATER
                         sel = ((vmapwidth*tilesizex)/2-155+110,(vmapheight*tilesizey)/2-155+20)
                     elif shopshow:
-                        if coins >= 3:
-                            coins -= 3
-                            inventory[WATER] += 1
-                        else:
-                            msg(["You need 3 Credits to buy Water.",
-                                 "100 gold boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
-                                 "You can also earn coins by slaying evil monsters, or by completing quests."])
+                        if event.button == 1:
+                            if coins >= 3:
+                                coins -= 3
+                                inventory[WATER] += 1
+                            else:
+                                msg(["You need 3 coins to buy 1 Water.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                        elif event.button == 3:
+                            if coins >= 30:
+                                coins -= 30
+                                inventory[WATER] += 10
+                            else:
+                                msg(["You need 30 coins to buy 10 Water.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
                             
                 elif mx >= (vmapwidth*tilesizex)/2-155+160 and mx <= (vmapwidth*tilesizex)/2-155+200 and my >= (vmapheight*tilesizey)/2-155+20 and my <= (vmapheight*tilesizey)/2-155+60:
                     if invshow:
                         active = COAL
                         sel = ((vmapwidth*tilesizex)/2-155+160,(vmapheight*tilesizey)/2-155+20)
                     elif shopshow:
-                        if coins >= 4:
-                            coins -= 4
-                            inventory[COAL] += 1
-                        else:
-                            msg(["You need 4 Credits to buy Coal.",
-                                 "100 gold boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
-                                 "You can also earn coins by slaying evil monsters, or by completing quests."])
+                        if event.button == 1:
+                            if coins >= 4:
+                                coins -= 4
+                                inventory[COAL] += 1
+                            else:
+                                msg(["You need 4 coins to buy 1 Coal.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                        elif event.button == 3:
+                            if coins >= 40:
+                                coins -= 40
+                                inventory[COAL] += 10
+                            else:
+                                msg(["You need 40 coins to buy 10 Coal.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
                             
                 elif mx >= (vmapwidth*tilesizex)/2-155+210 and mx <= (vmapwidth*tilesizex)/2-155+250 and my >= (vmapheight*tilesizey)/2-155+20 and my <= (vmapheight*tilesizey)/2-155+60:
                     if invshow:
                         active = LAVA
                         sel = ((vmapwidth*tilesizex)/2-155+210,(vmapheight*tilesizey)/2-155+20)
                     elif shopshow:
-                        if coins >= 5:
-                            coins -= 5
-                            inventory[LAVA] += 1
-                        else:
-                            msg(["You need 5 Credits to buy Lava. A wise man once told me, 'Chicks dig lava moats'.",
-                                 "100 gold boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
-                                 "You can also earn coins by slaying evil monsters, or by completing quests."])
+                        if event.button == 1:
+                            if coins >= 5:
+                                coins -= 5
+                                inventory[LAVA] += 1
+                            else:
+                                msg(["You need 5 coins to buy 1 Lava.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                        elif event.button == 3:
+                            if coins >= 50:
+                                coins -= 50
+                                inventory[LAVA] += 10
+                            else:
+                                msg(["You need 50 coins to buy 10 Lava.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+
                              
                 elif mx >= (vmapwidth*tilesizex)/2-155+260 and mx <= (vmapwidth*tilesizex)/2-155+300 and my >= (vmapheight*tilesizey)/2-155+20 and my <= (vmapheight*tilesizey)/2-155+60:
                     if invshow:
                         active = ROCK
                         sel = ((vmapwidth*tilesizex)/2-155+260,(vmapheight*tilesizey)/2-155+20)
                     elif shopshow:
-                        if coins >= 6:
-                            coins -= 6
-                            inventory[ROCK] += 1
-                        else:
-                            msg(["You need 6 Credits to buy Stone. Or is it cement? Who knows...",
-                                 "100 gold boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
-                                 "You can also earn coins by slaying evil monsters, or by completing quests."])
+                        if event.button == 1:
+                            if coins >= 6:
+                                coins -= 6
+                                inventory[ROCK] += 1
+                            else:
+                                msg(["You need 6 coins to buy 1 Stone.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                        elif event.button == 3:
+                            if coins >= 60:
+                                coins -= 60
+                                inventory[ROCK] += 10
+                            else:
+                                msg(["You need 60 coins to buy 10 Stone.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+
                             
                 #row 2
                 elif mx >= (vmapwidth*tilesizex)/2-155+10 and mx <= (vmapwidth*tilesizex)/2-155+50 and my >= (vmapheight*tilesizey)/2-155+70 and my <= (vmapheight*tilesizey)/2-155+110:
@@ -1071,78 +1326,138 @@ try:
                         active = DIAM
                         sel = ((vmapwidth*tilesizex)/2-155+10,(vmapheight*tilesizey)/2-155+70)
                     elif shopshow:
-                        if coins >= 10:
-                            coins -= 10
-                            inventory[DIAM] += 1
-                        else:
-                            msg(["You need 10 Credits to buy Diamond.",
-                                 "100 gold boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
-                                 "You can also earn coins by slaying evil monsters, or by completing quests."])
+                        if event.button == 1:
+                            if coins >= 10:
+                                coins -= 10
+                                inventory[DIAM] += 1
+                            else:
+                                msg(["You need 10 coins to buy 1 Diamond.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                        elif event.button == 3:
+                            if coins >= 100:
+                                coins -= 100
+                                inventory[DIAM] += 10
+                            else:
+                                msg(["You need 100 coins to buy 10 Diamond.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+
                             
                 elif mx >= (vmapwidth*tilesizex)/2-155+60 and mx <= (vmapwidth*tilesizex)/2-155+100 and my >= (vmapheight*tilesizey)/2-155+70 and my <= (vmapheight*tilesizey)/2-155+110:
                     if invshow:
                         active = SAPP
                         sel = ((vmapwidth*tilesizex)/2-155+60,(vmapheight*tilesizey)/2-155+70)
                     elif shopshow:
-                        if coins >= 12:
-                            coins -= 12
-                            inventory[SAPP] += 1
-                        else:
-                            msg(["You need 12 Credits to buy Sapphire(Coyote).",
-                                 "100 gold boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
-                                 "You can also earn coins by slaying evil monsters, or by completing quests."]) # give the guys at 8BitMMO an Easter Egg. ;)
+                        if event.button == 1:
+                            if coins >= 12:
+                                coins -= 12
+                                inventory[SAPP] += 1
+                            else:
+                                msg(["You need 12 coins to buy 1 Sapphire.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                        elif event.button == 3:
+                            if coins >= 120:
+                                coins -= 120
+                                inventory[SAPP] += 10
+                            else:
+                                msg(["You need 120 coins to buy 10 Sapphire.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+
                             
                 elif mx >= (vmapwidth*tilesizex)/2-155+110 and mx <= (vmapwidth*tilesizex)/2-155+150 and my >= (vmapheight*tilesizey)/2-155+70 and my <= (vmapheight*tilesizey)/2-155+110:
                     if invshow:
                         active = RUBY
                         sel = ((vmapwidth*tilesizex)/2-155+110,(vmapheight*tilesizey)/2-155+70)
                     elif shopshow:
-                        if coins >= 14:
-                            coins -= 14
-                            inventory[RUBY] += 1
-                        else:
-                            msg(["You need 14 Credits to buy Ruby. I would make a dog joke here, but doge.",
-                                 "100 gold boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
-                                 "You can also earn coins by slaying evil monsters, or by completing quests."])
+                        if event.button == 1:
+                            if coins >= 14:
+                                coins -= 14
+                                inventory[RUBY] += 1
+                            else:
+                                msg(["You need 14 coins to buy 1 Ruby. I would make a dog joke here, but doge.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                        elif event.button == 3:
+                            if coins >= 140:
+                                coins -= 140
+                                inventory[RUBY] += 10
+                            else:
+                                msg(["You need 140 coins to buy 10 Ruby.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+
                             
                 elif mx >= (vmapwidth*tilesizex)/2-155+160 and mx <= (vmapwidth*tilesizex)/2-155+200 and my >= (vmapheight*tilesizey)/2-155+70 and my <= (vmapheight*tilesizey)/2-155+110:
                     if invshow:
                         active = GOLD
                         sel = ((vmapwidth*tilesizex)/2-155+160,(vmapheight*tilesizey)/2-155+70)
                     elif shopshow:
-                        if coins >= 13:
-                            coins -= 13
-                            inventory[GOLD] += 1
-                        else:
-                            msg(["You need 13 Credits to buy Gold. 'Tis secretly 789 generic pikas squashed up.",
-                                 "100 gold boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
-                                 "You can also earn coins by slaying evil monsters, or by completing quests."])
+                        if event.button == 1:
+                            if coins >= 13:
+                                coins -= 13
+                                inventory[GOLD] += 1
+                            else:
+                                msg(["You need 13 coins to buy 1 Gold.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                        elif event.button == 3:
+                            if coins >= 130:
+                                coins -= 130
+                                inventory[GOLD] += 10
+                            else:
+                                msg(["You need 130 coins to buy 10 Gold.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+
                             
                 elif mx >= (vmapwidth*tilesizex)/2-155+210 and mx <= (vmapwidth*tilesizex)/2-155+250 and my >= (vmapheight*tilesizey)/2-155+70 and my <= (vmapheight*tilesizey)/2-155+110:
                     if invshow:
                         active = CARP
                         sel = ((vmapwidth*tilesizex)/2-155+210,(vmapheight*tilesizey)/2-155+70)
                     elif shopshow:
-                        if coins >= 9:
-                            coins -= 9
-                            inventory[CARP] += 1
-                        else:
-                            msg(["You need 9 Credits to buy Carpet. Or if you're a Meep, you'll buy this and stockpile them.",
-                                 "100 gold boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
-                                 "You can also earn coins by slaying evil monsters, or by completing quests."])
+                        if event.button == 1:
+                            if coins >= 9:
+                                coins -= 9
+                                inventory[CARP] += 1
+                            else:
+                                msg(["You need 9 coins to buy 1 Carpet.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                        elif event.button == 3:
+                            if coins >= 90:
+                                coins -= 90
+                                inventory[CARP] += 10
+                            else:
+                                msg(["You need 90 coins to buy 10 Carpet.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+
                             
                 elif mx >= (vmapwidth*tilesizex)/2-155+260 and mx <= (vmapwidth*tilesizex)/2-155+300 and my >= (vmapheight*tilesizey)/2-155+70 and my <= (vmapheight*tilesizey)/2-155+110:
                     if invshow:
                         active = SNOW
                         sel = ((vmapwidth*tilesizex)/2-155+260,(vmapheight*tilesizey)/2-155+70)
                     elif shopshow:
-                        if coins >= 7:
-                            coins -= 7
-                            inventory[SNOW] += 1
-                        else:
-                            msg(["You need 7 Credits to buy Snow. But beware! It could be Toxic.",
-                                 "100 gold boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
-                                 "You can also earn coins by slaying evil monsters, or by completing quests."])
+                        if event.button == 1:
+                            if coins >= 7:
+                                coins -= 7
+                                inventory[SNOW] += 1
+                            else:
+                                msg(["You need 7 coins to buy 1 Snow.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                        elif event.button == 3:
+                            if coins >= 70:
+                                coins -= 70
+                                inventory[SNOW] += 10
+                            else:
+                                msg(["You need 70 coins to buy 10 Snow.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+
                             
                 #row 3
                 elif mx >= (vmapwidth*tilesizex)/2-155+10 and mx <= (vmapwidth*tilesizex)/2-155+50 and my >= (vmapheight*tilesizey)/2-155+120 and my <= (vmapheight*tilesizey)/2-155+160:
@@ -1150,39 +1465,102 @@ try:
                         active = WOOD
                         sel = ((vmapwidth*tilesizex)/2-155+10,(vmapheight*tilesizey)/2-155+120)
                     elif shopshow:
-                        if coins >= 7:
-                            coins -= 7
-                            inventory[WOOD] += 1
-                        else:
-                            msg(["You need 7 Credits to buy Wood.",
-                                 "100 gold boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
-                                 "You can also earn coins by slaying evil monsters, or by completing quests."])
+                        if event.button == 1:
+                            if coins >= 7:
+                                coins -= 7
+                                inventory[WOOD] += 1
+                            else:
+                                msg(["You need 7 coins to buy 1 Wood.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                        elif event.button == 3:
+                            if coins >= 70:
+                                coins -= 70
+                                inventory[WOOD] += 10
+                            else:
+                                msg(["You need 70 coins to buy 10 Wood.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+
                             
                 elif mx >= (vmapwidth*tilesizex)/2-155+60 and mx <= (vmapwidth*tilesizex)/2-155+100 and my >= (vmapheight*tilesizey)/2-155+120 and my <= (vmapheight*tilesizey)/2-155+160:
                     if invshow:
                         active = GLASS
                         sel = ((vmapwidth*tilesizex)/2-155+60,(vmapheight*tilesizey)/2-155+120)
                     elif shopshow:
-                        if coins >= 8:
-                            coins -= 8
-                            inventory[GLASS] += 1
-                        else:
-                            msg(["The Value of Glass is 8 Credits.",
-                                 "100 gold boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
-                                 "You can also earn coins by slaying evil monsters, or by completing quests."])
+                        if event.button == 1:
+                            if coins >= 8:
+                                coins -= 8
+                                inventory[GLASS] += 1
+                            else:
+                                msg(["You need 8 coins to buy 1 Glass.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                        elif event.button == 3:
+                            if coins >= 80:
+                                coins -= 80
+                                inventory[GLASS] += 10
+                            else:
+                                msg(["You need 80 coins to buy 10 Glass.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+
                             
                 elif mx >= (vmapwidth*tilesizex)/2-155+110 and mx <= (vmapwidth*tilesizex)/2-155+150 and my >= (vmapheight*tilesizey)/2-155+120 and my <= (vmapheight*tilesizey)/2-155+160:
                     if invshow:
                         active = BRICK
                         sel = ((vmapwidth*tilesizex)/2-155+110,(vmapheight*tilesizey)/2-155+120)
                     elif shopshow:
-                        if coins >= 9:
-                            coins -= 9
-                            inventory[BRICK] += 1
+                        if event.button == 1:
+                            if coins >= 9:
+                                coins -= 9
+                                inventory[BRICK] += 1
+                            else:
+                                msg(["You need 9 coins to buy 1 Brick.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                        elif event.button == 3:
+                            if coins >= 90:
+                                coins -= 90
+                                inventory[BRICK] += 10
+                            else:
+                                msg(["You need 90 coins to buy 10 Brick.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+
+
+                elif mx >= (vmapwidth*tilesizex)/2-155+160 and mx <= (vmapwidth*tilesizex)/2-155+200 and my >= (vmapheight*tilesizey)/2-155+120 and my <= (vmapheight*tilesizey)/2-155+160:
+                    if shopshow:
+                        if coins >= 12:
+                            coins -= 12
+                            inventory[GSWORD] += 1
                         else:
-                            msg(["You need 9 Credits to buy Brick.",
-                                 "100 gold boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                            msg(["You need 12 coins to buy Iron Sword.",
+                                 "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
                                  "You can also earn coins by slaying evil monsters, or by completing quests."])
+
+                elif mx >= (vmapwidth*tilesizex)/2-155+210 and mx <= (vmapwidth*tilesizex)/2-155+260 and my >= (vmapheight*tilesizey)/2-155+120 and my <= (vmapheight*tilesizey)/2-155+160:
+                    if shopshow:
+                        if premium:
+                            if coins >= 25:
+                                coins -= 25
+                                inventory[DSTAFF] += 1
+                            else:
+                                msg(["You need 25 coins to buy Staff of Darkness.",
+                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                        else:
+                            msg(["Staff of Darkness",
+                                 "=================",
+                                 "This item is a PREMIUM content item. Premium access to PythianRealms is available for just £5.",
+                                 "By purchasing premium access, you support the developer to keep working on and improving PythianRealms, and help him to use your premium fee to hire graphics artists and musicians to improve the game feel.",
+                                 "Premium access is a one-time fee, and will allow you unlimited access to all Premium content items, such as this one.",
+                                 "If you are interested in obtaining Premium PythianRealms access, please purchase \"PremiumPythian Game Access\" from the following URL:",
+                                 "http://www.tmcore.co.uk/accounts/spendcr.php (also accessible by going to www.tmcore.co.uk, going to 'My Account' and clicking 'Spend your Credits')",
+                                 "Thank you.",
+                                 "",
+                                 "Note: Premium access is only valid when PythianRealms is running in online mode. If your account has PythianRealms Premium enabled, please ensure that you have a connection to the internet. Thank you."])
+
     
                 if mx >= 50 and mx <= 60 and my >= 15 and my <= 25 and opt == True:
                     if silence == True:
@@ -1205,6 +1583,16 @@ try:
                         smoothwalk = False
                     else:
                         smoothwalk = True
+
+                x = math.floor(mx / tilesizex - xoffset / tilesizex)
+                y = math.floor(my / tilesizey - yoffset / tilesizey)
+                for npc in NPCs:
+                    for npcd in NPCcount[npc]:
+                        if npcPosX[npc][npcd] == x and npcPosY[npc][npcd] == y:
+                            if selectednpc == None or (selectednpc[0] != npc and selectednpc[1] != npcd):
+                                selectednpc = (npc, npcd)
+                            else:
+                                selectednpc = None
             if event.type == KEYDOWN:
                 if event.key == K_F3:
                     debug = not debug
@@ -1215,15 +1603,124 @@ try:
                     if zaxis <= 2:
                         zaxis += 1
                 if event.key == K_q:
-                    changedz = []
-                    place = True
+                    if realm == 2 or premium:
+                        changedz = []
+                        place = True
+                    else:
+                        msg(["RPG REALM CONSTRUCTION",
+                             "======================",
+                             "We're super sorry to have to say this, but Construction within the RPG realm is restricted to Premium users. Why?",
+                             "Well, we need to earn money to keep working on and producing content for PythianRealms. Premiumship shows your dedication to the game,",
+                             "and gives you sweet perks - such as being able to shape the RPG world to make it how you imagine it.",
+                             "",
+                             "If you wish to build without Premium access, simply go over to the Construction realm, by pressing T.",
+                             "",
+                             "If you're interested in becoming a Premium user, please feel free to buy premiumship at http://www.tmcore.co.uk - more info available there.",
+                             "",
+                             "Thank you."])
                 if event.key == K_r:
-                    changedz = []
-                    pickup = True
+                    if realm == 2 or premium:
+                        changedz = []
+                        pickup = True
+                        msg(["Pickup mode changes will not immediately take effect, and will be shown after pressing F to exit pickup mode."])
+                    else:
+                        msg(["RPG REALM CONSTRUCTION",
+                             "======================",
+                             "We're super sorry to have to say this, but Construction within the RPG realm is restricted to Premium users. Why?",
+                             "Well, we need to earn money to keep working on and producing content for PythianRealms. Premiumship shows your dedication to the game,",
+                             "and gives you sweet perks - such as being able to shape the RPG world to make it how you imagine it.",
+                             "",
+                             "If you wish to build without Premium access, simply go over to the Construction realm, by pressing T.",
+                             "",
+                             "If you're interested in becoming a Premium user, please feel free to buy premiumship at http://www.tmcore.co.uk - more info available there.",
+                             "",
+                             "Thank you."])
                 if event.key == K_i:
                     invshow = not invshow
                 if event.key == K_h:
                     shopshow = not shopshow
+                if event.key == K_c:
+                    webbrowser.open("https://irc.editingarchive.com:8080/?channels=PythianRealms", 2)
+                if event.key == K_m:
+                    if inventory[DSTAFF] > 0:
+                        if selectednpc != None:
+                            if NPCtype[selectednpc[0]] == "Hostile":
+                                magicmsg("Darkness", ["The light of the devil burns your target.",
+                                                      "(Target NPC loses 25 health.)"], True)
+                                NPChealth[selectednpc[0]][selectednpc[1]] -= 25
+                        else:
+                            msg(["Please select a target.",
+                                 "In order to select a target, simply click on any hostile (red name) NPC that you wish to attack. Then you can try this again."])
+                    else:
+                        if premium:
+                            msg(["Hey, premium member!",
+                                 "Did you know that you can buy a Staff of Darkness in the shop (H) for just 25 coins?",
+                                 "Why not go do that, and then try this key again!"])
+                        else:
+                            msg(["PREMIUM PERK",
+                                 "============",
+                                 "We're sorry, but casting magical spells on your enemies is a premium perk! Premium access to PythianRealms is available for just £5.",
+                                 "By purchasing premium access, you support the developer to keep working on and improving PythianRealms, and help him to use your premium fee to hire graphics artists and musicians to improve the game feel.",
+                                 "Premium access is a one-time fee, and will allow you unlimited access to all Premium content items, such as this one.",
+                                 "If you are interested in obtaining Premium PythianRealms access, please purchase \"PremiumPythian Game Access\" from the following URL:",
+                                 "http://www.tmcore.co.uk/accounts/spendcr.php (also accessible by going to www.tmcore.co.uk, going to 'My Account' and clicking 'Spend your Credits')",
+                                 "Thank you.",
+                                 "",
+                                 "Note: Premium access is only valid when PythianRealms is running in online mode. If your account has PythianRealms Premium enabled, please ensure that you have a connection to the internet. Thank you."])
+                if event.key == K_SPACE:
+                    if NPCtype[selectednpc[0]] == "Hostile":
+                        if (npcPosX[selectednpc[0]][selectednpc[1]] == playerTile[0] and npcPosY[selectednpc[0]][selectednpc[1]] == playerTile[1]) or (-5 < playerTile[0] - npcPosX[selectednpc[0]][selectednpc[1]] < 5 and -5 < playerTile[1] - npcPosY[selectednpc[0]][selectednpc[1]] < 5):
+                            if inventory[GSWORD] >= 1:
+                                NPChealth[selectednpc[0]][selectednpc[1]] -= 12
+                            else:
+                                NPChealth[selectednpc[0]][selectednpc[1]] -= 6
+                            selectednpc = None
+                        else:
+                            selectednpc = None
+                if event.key == K_t:
+                    logger.info("Saving Realm "+str(realm)+"...")
+                    if os.path.isfile("data/Map"+str(realm)+".txt") and os.access("data/Map"+str(realm)+".txt", os.R_OK):
+                        os.remove("data/Map"+str(realm)+".txt")
+                    time.sleep(0.1)
+                    write = open("data/Map"+str(realm)+".txt", 'a')
+                    for ly in range(mapz):
+                        for rw in range(mapheight):
+                            for cl in range(mapwidth):
+                                write.write(str(tilemap[ly][rw][cl])+"|")
+                    write.close()
+                    logger.info("Saved Realm "+str(realm)+".")
+                    if realm == 0:
+                        realm = 1
+                        settings.realm = 1
+                        msg(["THE CONSTRUCTION REALM",
+                             "======================",
+                             "The construction realm contains monsters and NPCs to teach you how to build, destroy, and use the Construction realm, but it does NOT have a storyline.",
+                             "Thee construction realm provides a home for all your construction talent to come together to create a wondrous, magnificent building for you to share with your friends.",
+                             "The Construction realm, by all defaults, is a barren wasteland - that is, until you build in it. The construction realm serves to satisfy the construction aspect of PythianRealms.",
+                             "Have fun, and remember - T to toggle between realms... If you wish to return to the RPG realm, of course. ;)"])
+                    elif realm == 1:
+                        realm = 0
+                        settings.realm = 0
+                        msg(["THE RPG REALM",
+                             "=============",
+                             "The RPG realm is the home of the PythianRealms storyline. Riddled with people, monsters and stories, the RPG realm is built by Scratso (the developer) and distributed with all copies of PythianRealms.",
+                             "Construction within the RPG realm is usually fDSTAFFidden, however Premium Users may happily change the RPG realm to suit themselves. This allows premium users to improve on existing buildings, if they wish.",
+                             "Have fun, and remember - T to toggle between realms... If you wish to return to the Construction realm, of course. ;)"])
+                    change = True
+                    tilemap = [ [[AIR for w in range(mapwidth)] for h in range(mapheight)] for z in range(mapz) ]
+
+                    if os.path.isfile("data/Map"+str(realm)+".txt") and os.access("data/Map"+str(realm)+".txt", os.R_OK):
+                        file = 0
+                        read = open("data/Map"+str(realm)+".txt", 'r')
+                        read2 = read.read()
+                        read3 = read2.split("|")
+                        for ly in range(mapz):
+                            for rw in range(mapheight):
+                                for cl in range(mapwidth):
+                                    read4 = int(read3[file])
+                                    tilemap[ly][rw][cl] = read4
+                                    file = file + 1
+                        read.close()
                 if event.key == K_TAB:
                     if tilesizex == 64:
                         tilesizex, tilesizey = 16,16
@@ -1251,28 +1748,64 @@ try:
                         GSWORD: pygame.transform.scale(pygame.image.load('graphics/gsword.png'), (tilesizex,tilesizey)),
                         FPORT : pygame.transform.scale(pygame.image.load('graphics/forportal.jpg'), (tilesizex,tilesizey)),
                         BPORT : pygame.transform.scale(pygame.image.load('graphics/backportal.jpg'), (tilesizex,tilesizey)),
-                        ORB   : pygame.transform.scale(pygame.image.load('graphics/orb.png'), (tilesizex,tilesizey))
+                        DSTAFF: pygame.transform.scale(pygame.image.load('graphics/dstaff.png'), (tilesizex,tilesizey))
                     }
-                    player = pygame.transform.scale(pygame.image.load("graphics/player_right.png").convert_alpha(), (tilesizex,tilesizey))
+                    player = pygame.transform.scale(pygame.image.load("graphics/"+str(premium)+"/player_right.png").convert_alpha(), (tilesizex,tilesizey))
                     change = True
                     for z in range(mapz):
                         changedz.append(z)
             if event.type == NPCMOVE:
                 for npc in NPCs:
                     for npcd in NPCcount[npc]:
-                        move = random.randint(1,5)
-                        if move == 2:
-                            #up
-                            npcPosY[npc][npcd] -= 1
-                        elif move == 3:
-                            #down
-                            npcPosY[npc][npcd] += 1
-                        elif move == 4:
-                            #left
-                            npcPosX[npc][npcd] -= 1
-                        elif move == 5:
-                            #right
-                            npcPosX[npc][npcd] += 1
+                        if NPCtype[npc] == "Hostile" and (playerTile[0] - npcPosX[npc][npcd] == 0 or npcPosX[npc][npcd] - playerTile[0] == 0 or playerTile[1] - npcPosY[npc][npcd] == 0 or npcPosY[npc][npcd] - playerTile[1] == 0):
+                            playerHP -= 1
+                        else:
+                            if 0 < npcPosX[npc][npcd] < mapwidth - 1 and 0 < npcPosY[npc][npcd] < mapheight - 1:
+                                if NPCtype[npc] == "Hostile" and playerTile[0] - npcPosX[npc][npcd] <= 5 and playerTile[0] - npcPosX[npc][npcd] >= 1:
+                                    #go right
+                                    movementTile = tilemap[npcPosZ[npc]][npcPosY[npc][npcd]][npcPosX[npc][npcd]+1]
+                                    if movementTile == AIR:
+                                        #change the player's x position
+                                        npcPosX[npc][npcd] += 1
+                                elif NPCtype[npc] == "Hostile" and npcPosX[npc][npcd] - playerTile[0] <= 5 and npcPosX[npc][npcd] - playerTile[0] >= 1:
+                                    #go left
+                                    movementTile = tilemap[npcPosZ[npc]][npcPosY[npc][npcd]][npcPosX[npc][npcd]-1]
+                                    if movementTile == AIR:
+                                        #change the player's x position
+                                        npcPosX[npc][npcd] -= 1
+                                elif NPCtype[npc] == "Hostile" and playerTile[1] - npcPosY[npc][npcd] <= 5 and playerTile[1] - npcPosY[npc][npcd] >= 1:
+                                    #go down
+                                    movementTile = tilemap[npcPosZ[npc]][npcPosY[npc][npcd]+1][npcPosX[npc][npcd]]
+                                    if movementTile == AIR:
+                                        #change the player's x position
+                                        npcPosY[npc][npcd] += 1
+                                elif NPCtype[npc] == "Hostile" and npcPosY[npc][npcd] - playerTile[1] <= 5 and npcPosY[npc][npcd] - playerTile[1] >= 1:
+                                    #go up
+                                    movementTile = tilemap[npcPosZ[npc]][npcPosY[npc][npcd]-1][npcPosX[npc][npcd]]
+                                    if movementTile == AIR:
+                                        #change the player's x position
+                                        npcPosY[npc][npcd] -= 1
+                                move = random.randint(1,5)
+                                if move == 2:
+                                    #up
+                                    movementTile = tilemap[npcPosZ[npc]][npcPosY[npc][npcd]-1][npcPosX[npc][npcd]]
+                                    if movementTile == AIR:
+                                        npcPosY[npc][npcd] -= 1
+                                elif move == 3:
+                                    #down
+                                    movementTile = tilemap[npcPosZ[npc]][npcPosY[npc][npcd]+1][npcPosX[npc][npcd]]
+                                    if movementTile == AIR:
+                                        npcPosY[npc][npcd] += 1
+                                elif move == 4:
+                                    #left
+                                    movementTile = tilemap[npcPosZ[npc]][npcPosY[npc][npcd]][npcPosX[npc][npcd]-1]
+                                    if movementTile == AIR:
+                                        npcPosX[npc][npcd] -= 1
+                                elif move == 5:
+                                    #right
+                                    movementTile = tilemap[npcPosZ[npc]][npcPosY[npc][npcd]][npcPosX[npc][npcd]+1]
+                                    if movementTile == AIR:
+                                        npcPosX[npc][npcd] += 1
                 realm = settings.realm
                 npcsurf.fill(0)
                 #for each NPC
@@ -1291,6 +1824,10 @@ try:
                                 percent = NPChealth[item][curnpc]/NPCmaxHealth[item]
                                 NHP = gamefont.render(str(round(percent*100))+"%", True, red)
                                 npcsurf.blit(NHP, (npcPosX[item][curnpc]*tilesizex,npcPosY[item][curnpc]*tilesizey-27))
+                                if selectednpc != None:
+                                    if selectednpc[0] == item and selectednpc[1] == curnpc:
+                                        npcselimg = pygame.transform.scale(pygame.image.load("graphics/selnpc.png").convert_alpha(), (tilesizex*3,tilesizey+round(tilesizey/2)))
+                                        npcsurf.blit(npcselimg, (npcPosX[item][curnpc]*tilesizex-tilesizex, npcPosY[item][curnpc]*tilesizey))
                             elif NPCtype[item] == "Friendly":
                                 #display the NPC's name...?
                                 NPCname = gamefont.render(str(npcName[item]), True, green)
@@ -1303,11 +1840,12 @@ try:
 ##                        npcPosZ[item] = 2
 
         if change:
+            loading()
             logger.info("Changing the following layers: "+str(changedz))
             change = False
             mapsurf.fill(brown)
             #loop through each layer
-            for layer in changedz: #range(mapz)
+            for layer in range(mapz): #changedz
                 layersurfs[layer].fill(0)
                 #loop through each row
                 for row in range(mapheight):
@@ -1316,6 +1854,7 @@ try:
                         #draw an image for the resource, in the correct position
                         layersurfs[layer].blit(textures[tilemap[layer][row][column]], (column*tilesizex,row*tilesizey-layer*16))
             changedz = []
+            pass
         if place:
             x = math.floor(mx / tilesizex - xoffset / tilesizex)
             y = math.floor(my / tilesizey - yoffset / tilesizey)
@@ -1329,6 +1868,7 @@ try:
             y = math.floor(my / tilesizey - yoffset / tilesizey)
             if pygame.key.get_pressed()[K_f]:
                 pickup = False
+                change = True
 
         display.blit(mapsurf, (xoffset, yoffset))
         for layersurf in layersurfs:
@@ -1347,7 +1887,7 @@ try:
         ctext = gamefont.render("You have "+format(coins, ",d")+" coins.", True, white)
         display.blit(ctext, (0,12))
 
-        ttext = gamefont.render("Next gold boost: "+str(timeleft)+" seconds.", True, white)
+        ttext = gamefont.render("Next coin boost: "+str(timeleft)+" seconds.", True, white)
         display.blit(ttext, (0,24))
 
         if debug:
@@ -1435,6 +1975,13 @@ try:
             display.blit(invsurf, ((vmapwidth*tilesizex)/2-155,(vmapheight*tilesizey)/2-155))
             if activeoverlay == True:
                 display.blit(textures[SEL], sel)
+
+        if place:
+            placetext = gamefont.render("Build mode active", True, green)
+            display.blit(placetext, (0, vmapheight*tilesizey-12))
+        if pickup:
+            pickuptext = gamefont.render("Pickup mode active", True, red)
+            display.blit(pickuptext, (0, vmapheight*tilesizey-12))
 
         pygame.display.update((0,0,vmapwidth*tilesizex,vmapheight*tilesizey))
 
