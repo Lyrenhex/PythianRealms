@@ -12,6 +12,9 @@ import sys, os, time, random, math, traceback, webbrowser, datetime as dt
 # Encompass the entire program in a try statement for the error reporter.
 try:
 
+    online = False
+    server = False # set to true to enable mysql connections.
+
     #######################
     # SET UP POUP WINDOWS #
     #######################
@@ -64,17 +67,18 @@ try:
     ######################
 
     import urllib.request as urllib2
-    try:
-        response=urllib2.urlopen('http://92.234.196.233',timeout=10)
-        online = True
-    except Exception as e:
-        logger.error(e)
-        online = False
-        pass
-    logger.info("Can we connect to the server? "+str(online))
-    if not online:
-        logger.warn("Cannot connect to the Auth Server! Any online data will not be available and any purchased items will also not be available!")
-        msgbox("Warning!", "PythianRealms cannot connect to the Auth Server! Any data saved online will not be available until PythianRealms can connect to the authorisation server. After a connection is available, please restart PythianRealms to reconnect. PythianRealms will run in Offline Mode.")
+    if server:
+        try:
+            response=urllib2.urlopen('http://icronium.com',timeout=10)
+            online = True
+        except Exception as e:
+            logger.error(e)
+            online = False
+            pass
+        logger.info("Can we connect to the server? "+str(online))
+        if not online:
+            logger.warn("Cannot connect to the Auth Server! Any online data will not be available and any purchased items will also not be available!")
+            msgbox("Warning!", "PythianRealms cannot connect to the Auth Server! Any data saved online will not be available until PythianRealms can connect to the authorisation server. After a connection is available, please restart PythianRealms to reconnect. PythianRealms will run in Offline Mode.")
 
     #######################
     # INITIALIZE SETTINGS #
@@ -103,9 +107,9 @@ try:
 
     if online:
         if settings.username == None:
-            if easygui.ynbox("Do you have a TechnoMagic Account? (An account at http://www.tmcore.co.uk)", "Login"):
-                username = easygui.enterbox("TechnoMagic Account Username", "Login")
-                password = easygui.passwordbox("TechnoMagic Account Password", "Login")
+            if easygui.ynbox("Do you have a Account?", "Login"):
+                username = easygui.enterbox("Username", "Login")
+                password = easygui.passwordbox("Password", "Login")
                 try:
                     import mysql.connector as dbc
                     db = dbc.connect(user='PYTH_'+username, password=password,
@@ -133,15 +137,15 @@ try:
                     online = False
                     username = "Offline User"
             else:
-                webbrowser.open("http://www.tmcore.co.uk/accounts/register.php")
-                username = easygui.enterbox("TechnoMagic Account Username", "Login")
+                webbrowser.open("http://scratso.icronium.com/pr")
+                username = easygui.enterbox("Username", "Login")
         else:
             username = settings.username
             password = settings.password
             try:
                 import mysql.connector as dbc
                 db = dbc.connect(user='PYTH_'+username, password=password,
-                                                              host='92.234.196.233',
+                                                              host='localhost',
                                                               database='tchnm_15865510_acc')
                 db.autocommit = True
                 dba = db.cursor()
@@ -177,8 +181,10 @@ try:
         premium = False
 
     opt = False
+    premium = True # set to false if you actually want people to pay for premium
 
-    logger.info("Is the user a PREMIUM player? "+str(premium))
+    if online:
+        logger.info("Is the user a PREMIUM player? "+str(premium))
 
     #####################
     # OPERATING SYSTEMS #
@@ -306,7 +312,7 @@ try:
         premtext = "PREMIUM ACCOUNT"
     else:
         premtext = "STANDARD ACCOUNT"
-    pygame.display.set_caption("PythianRealms Game | Version "+version+" | Online: "+str(online)+" | "+premtext) # , "graphics/logo-small.png"
+    pygame.display.set_caption("PythianRealms Game | Version "+version) #+" | Online: "+str(online)+" | "+premtext, "graphics/logo-small.png"
     # set the window icon
     pygame.display.set_icon(pygame.image.load("graphics/logo-small.png").convert_alpha())
 
@@ -1001,7 +1007,7 @@ try:
         elif maxtile[1] > 100:
             maxtile[1] = 100
 
-        if place or change:
+        if place or pickup or change:
             prevsurf.fill(0)
 
         if change:
@@ -1190,7 +1196,7 @@ try:
                         #print(tilemap[0][y][x])
                 if pickup:
                     x = math.floor(mx / tilesizex - xoffset / tilesizex)
-                    y = math.floor(my / tilesizey - yoffset / tilesizey)
+                    y = math.floor((my - (zaxis * 8)) / tilesizey - yoffset / tilesizey)
                     if tilemap[zaxis][y][x] != AIR:
                         inventory[tilemap[zaxis][y][x]] += 1
                         tilemap[zaxis][y][x] = AIR
@@ -1605,7 +1611,7 @@ try:
                 if event.key == K_q:
                     if realm == 2 or premium:
                         changedz = []
-                        place = True
+                        pickup = True
                     else:
                         msg(["RPG REALM CONSTRUCTION",
                              "======================",
@@ -1621,7 +1627,7 @@ try:
                 if event.key == K_r:
                     if realm == 2 or premium:
                         changedz = []
-                        pickup = True
+                        place = True
                         msg(["Pickup mode changes will not immediately take effect, and will be shown after pressing F to exit pickup mode."])
                     else:
                         msg(["RPG REALM CONSTRUCTION",
@@ -1668,15 +1674,16 @@ try:
                                  "",
                                  "Note: Premium access is only valid when PythianRealms is running in online mode. If your account has PythianRealms Premium enabled, please ensure that you have a connection to the internet. Thank you."])
                 if event.key == K_SPACE:
-                    if NPCtype[selectednpc[0]] == "Hostile":
-                        if (npcPosX[selectednpc[0]][selectednpc[1]] == playerTile[0] and npcPosY[selectednpc[0]][selectednpc[1]] == playerTile[1]) or (-5 < playerTile[0] - npcPosX[selectednpc[0]][selectednpc[1]] < 5 and -5 < playerTile[1] - npcPosY[selectednpc[0]][selectednpc[1]] < 5):
-                            if inventory[GSWORD] >= 1:
-                                NPChealth[selectednpc[0]][selectednpc[1]] -= 12
+                    if selectednpc != None:
+                        if NPCtype[selectednpc[0]] == "Hostile":
+                            if (npcPosX[selectednpc[0]][selectednpc[1]] == playerTile[0] and npcPosY[selectednpc[0]][selectednpc[1]] == playerTile[1]) or (-5 < playerTile[0] - npcPosX[selectednpc[0]][selectednpc[1]] < 5 and -5 < playerTile[1] - npcPosY[selectednpc[0]][selectednpc[1]] < 5):
+                                if inventory[GSWORD] >= 1:
+                                    NPChealth[selectednpc[0]][selectednpc[1]] -= 12
+                                else:
+                                    NPChealth[selectednpc[0]][selectednpc[1]] -= 6
+                                selectednpc = None
                             else:
-                                NPChealth[selectednpc[0]][selectednpc[1]] -= 6
-                            selectednpc = None
-                        else:
-                            selectednpc = None
+                                selectednpc = None
                 if event.key == K_t:
                     logger.info("Saving Realm "+str(realm)+"...")
                     if os.path.isfile("data/Map"+str(realm)+".txt") and os.access("data/Map"+str(realm)+".txt", os.R_OK):
@@ -1695,7 +1702,7 @@ try:
                         msg(["THE CONSTRUCTION REALM",
                              "======================",
                              "The construction realm contains monsters and NPCs to teach you how to build, destroy, and use the Construction realm, but it does NOT have a storyline.",
-                             "Thee construction realm provides a home for all your construction talent to come together to create a wondrous, magnificent building for you to share with your friends.",
+                             "The construction realm provides a home for all your construction talent to come together to create a wondrous, magnificent building for you to share with your friends.",
                              "The Construction realm, by all defaults, is a barren wasteland - that is, until you build in it. The construction realm serves to satisfy the construction aspect of PythianRealms.",
                              "Have fun, and remember - T to toggle between realms... If you wish to return to the RPG realm, of course. ;)"])
                     elif realm == 1:
@@ -1728,12 +1735,12 @@ try:
                         tilesizex, tilesizey = tilesizex+16,tilesizey+16
                     display = pygame.display.set_mode((vmapwidth*tilesizex, vmapheight*tilesizey), HWSURFACE|DOUBLEBUF) #|RESIZABLE later
                     textures =   {
-                        DIRT  : pygame.transform.scale(pygame.image.load('graphics/0/dirt.jpg'), (tilesizex,tilesizey)),
+                        DIRT  : pygame.transform.scale(pygame.image.load('graphics/dirt.jpg'), (tilesizex,tilesizey)),
                         GRASS : pygame.transform.scale(pygame.image.load('graphics/grass.jpg'), (tilesizex,tilesizey)),
-                        WATER : pygame.transform.scale(pygame.image.load('graphics/water_1.jpg'), (tilesizex,tilesizey)),
+                        WATER : pygame.transform.scale(pygame.image.load('graphics/water.jpg'), (tilesizex,tilesizey)),
                         COAL  : pygame.transform.scale(pygame.image.load('graphics/coal.jpg'), (tilesizex,tilesizey)),
                         LAVA  : pygame.transform.scale(pygame.image.load('graphics/lava.jpg'), (tilesizex,tilesizey)),
-                        ROCK  : pygame.transform.scale(pygame.image.load('graphics/stone.jpg'), (tilesizex,tilesizey)),
+                        ROCK  : pygame.transform.scale(pygame.image.load('graphics/rock.jpg'), (tilesizex,tilesizey)),
                         DIAM  : pygame.transform.scale(pygame.image.load('graphics/diamond.jpg'), (tilesizex,tilesizey)),
                         SAPP  : pygame.transform.scale(pygame.image.load('graphics/sapphire.jpg'), (tilesizex,tilesizey)),
                         RUBY  : pygame.transform.scale(pygame.image.load('graphics/ruby.jpg'), (tilesizex,tilesizey)),
@@ -1742,7 +1749,7 @@ try:
                         WOOD  : pygame.transform.scale(pygame.image.load('graphics/wood.jpg'), (tilesizex*2,tilesizey*2)),
                         GLASS : pygame.transform.scale(pygame.image.load('graphics/glass.png'), (tilesizex*2,tilesizey*2)),
                         BRICK : pygame.transform.scale(pygame.image.load('graphics/brick.jpg'), (tilesizex*2,tilesizey*2)),
-                        CARP  : pygame.transform.scale(pygame.image.load('graphics/carpet.jpg'), (tilesizex,tilesizey)),
+                        CARP  : pygame.transform.scale(pygame.image.load('graphics/carpet/mid.jpg'), (tilesizex,tilesizey)),
                         SNOW  : pygame.transform.scale(pygame.image.load('graphics/snow.jpg'), (tilesizex,tilesizey)), # NTS: Limited edition Item! To be removed on New Year's Day.
                         SEL   : pygame.transform.scale(pygame.image.load('graphics/grass.jpg'), (tilesizex,tilesizey)),
                         GSWORD: pygame.transform.scale(pygame.image.load('graphics/gsword.png'), (tilesizex,tilesizey)),
@@ -1860,13 +1867,14 @@ try:
             y = math.floor(my / tilesizey - yoffset / tilesizey)
             # the below was lagging waay too much.
             prevsurf.blit(textures[active],(x*tilesizex,y*tilesizey-zaxis*16))
-            if pygame.key.get_pressed()[K_a]:
+            if pygame.key.get_pressed()[K_f]:
                 place = False
                 change = True
         if pickup:
             x = math.floor(mx / tilesizex - xoffset / tilesizex)
             y = math.floor(my / tilesizey - yoffset / tilesizey)
-            if pygame.key.get_pressed()[K_f]:
+            prevsurf.blit(textures[SEL],(x*tilesizex,y*tilesizey-zaxis*16))
+            if pygame.key.get_pressed()[K_a]:
                 pickup = False
                 change = True
 

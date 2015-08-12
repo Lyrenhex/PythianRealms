@@ -5,6 +5,7 @@ I'd like to thank the following people for their contributions to PythianRealms:
 - Wing from Indie Rising: Thank you for your donation.
 - Brandon Fuller: Thank you for your donation.
 - Numberplay from 8BitMMO: Thank you for the graphics from your texture pack at http://forums.8bitmmo.net/index.php?/topic/6486-numberpack-texture-pack-by-numberplay/ .
+- SapphireCoyote from 8BitMMO: Thank you for the Light Crystal and Portal textures.
 
 Musicians:
 
