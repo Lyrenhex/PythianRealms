@@ -1,4 +1,4 @@
-# PythianRealms-Dev
+# PythianRealms
 PythianRealms is designed to be a community-built, singleplayer construction/fighting game against NPCs. This git contains the source code for PythianRealms, so that people can help develop it.
 
 Please feel free to fork, improve, and send a merge request and I'll check out your code. And, if you can't design graphics/program/whatever, then why not try the game, and report any issues you find or post a suggestion there too?
