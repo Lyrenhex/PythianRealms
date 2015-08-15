@@ -279,6 +279,10 @@ try:
     activesurf = pygame.Surface((tilesizex+10, tilesizey+27), pygame.SRCALPHA, 32).convert_alpha()
     activesurf.fill((23, 100, 255, 50))
     activeblock = pygame.Surface((tilesizex, tilesizey))
+    musicsurf = pygame.Surface((vmapwidth/4*tilesizex+4, 34), pygame.SRCALPHA, 32).convert_alpha()
+    musicsurf.fill((23, 100, 255, 50))
+    musictrack = pygame.Surface((vmapwidth/4*tilesizex, 30), pygame.SRCALPHA, 32).convert_alpha()
+    musictrack.fill(0)
     invsurf = pygame.Surface((310, 310), pygame.SRCALPHA, 32).convert_alpha()
     invsurf.fill((23, 100, 255, 50))
     shopsurf = pygame.Surface((310, 310), pygame.SRCALPHA, 32).convert_alpha()
@@ -294,8 +298,9 @@ try:
 
     # fonts
     gamefont = pygame.font.Font("graphics/gameFont.ttf", 12)
-    magichead = pygame.font.Font("graphics/magicFont.ttf", 60)
-    magicbody = pygame.font.Font("graphics/magicFont.ttf", 36)
+    gamefontl = pygame.font.Font("graphics/gameFont.ttf", 18)
+    magichead = pygame.font.Font("graphics/gameFont.ttf", 60)
+    magicbody = pygame.font.Font("graphics/gameFont.ttf", 36)
 
     activetxt = gamefont.render("Active", True, white)
     activesurf.blit(activetxt, (5,5))
@@ -731,20 +736,38 @@ try:
     fps = 0
     cachedscreen = []
 
+    # music vars
+    tracks = ["Buffer",
+              "Short But Sweet",
+              "Exploration",
+              "History Piano",
+              "Melodie Antique Francaise",
+              "Medieval Banquet",
+              "No Survivors",
+              "The Town of Witchwoode"]
+    authors = ["Buffer",
+               "SmileBoy (SoundCloud)",
+               "Bjorn Lynne",
+               "Eric Matyas",
+               "Unknown",
+               "Bjorn Lynne",
+               "Bjorn Lynne",
+               "Bjorn Lynne"]
+
     def initMusic():
-        global silence
+        global silence, music
         logger.info("Initializing Music...") # if this process fails and it starts in silent mode, you screwed something up... or you don't have speakers, ofc.
-        music = random.randint(1,7)
+        music = random.randint(1,1)
         logger.info("Running music #"+str(music))
         pygame.mixer.music.set_endevent(USEREVENT)
         try:
             pygame.mixer.music.load('music/'+str(music)+'.mp3')
-            pygame.mixer.music.set_volume(0.2)
+            pygame.mixer.music.set_volume(0.5)
             pygame.mixer.music.play()
         except Exception:
             try:
                 pygame.mixer.music.load('music/'+str(music)+'.mid')
-                pygame.mixer.music.set_volume(0.2)
+                pygame.mixer.music.set_volume(0.5)
                 pygame.mixer.music.play()
             except Exception as e:
                 logger.error("Music failed to Initialize. Game will run in silence instead. Error: %s" % e)
@@ -825,9 +848,10 @@ try:
             pygame.display.update()
             time.sleep(0.01)
 
-    def magicmsg(head = "Oops", message = ["A message wasn't found! Tell Scratso!"], fade = True):
-        message.append("")
-        message.append("Press E to continue")
+    def magicmsg(head = "Oops", message = ["A message wasn't found! Tell Scratso!"], fade = True, append = True):
+        if append:
+            message.append("")
+            message.append("Press E to continue")
         messageactive = True
         while messageactive:
             for event in pygame.event.get():
@@ -857,8 +881,22 @@ try:
         magic_in()
         magic_out()
 
-    magicmsg("PythianRealms", ["Welcome back to the land of the living, my friend.",
-                               "You've been asleep for a very long time."], False)
+    #magicmsg("PythianRealms", ["Welcome back to the land of the living, my friend.",
+                               #"You've been asleep for a very long time."], False, False)
+
+    # welcome screen
+    messageactive = True
+    while messageactive:
+        for event in pygame.event.get():
+            if event.type == KEYDOWN:
+                if event.key == K_SPACE:
+                    change = True
+                    messageactive = False
+        display.fill(white)
+        display.blit(pygame.image.load("graphics/logo.png"), (vmapwidth*tilesizex-950, -100))
+        text = magichead.render("Press SPACE to Start", True, black)
+        display.blit(text, (vmapwidth*tilesizex/2-round((len("Press SPACE to Start")/2)*27),vmapheight*tilesizey/3*2))
+        pygame.display.update()
 
     # Display all the startup things.
     startupnotes = ["Welcome to PythianRealms!",
@@ -986,6 +1024,7 @@ try:
         #display.fill(blue)
         #magic()
         shownz = [0,1,2,3]
+        musictrack.fill(0)
 
         if boost == 0:
             if premium:
@@ -1015,6 +1054,7 @@ try:
 
         mx,my = pygame.mouse.get_pos()
         playerTile = (round(((vmapwidth*tilesizex/2-12)-xoffset)/tilesizex),round(((vmapheight*tilesizey/2-12)-yoffset)/tilesizey))
+        playerRegion = (math.floor(playerTile[0]/16), math.floor(playerTile[1]/16))
         
         #get all the user events - SO, SO, SO, SO SORRY ABOUT THE SAVING METHODS. PLEASE FORGIVE ME!
         keys = pygame.key.get_pressed()
@@ -1612,6 +1652,7 @@ try:
                     if realm == 2 or premium:
                         changedz = []
                         pickup = True
+                        msg(["Pickup mode changes will not immediately take effect, and will be shown after pressing F to exit pickup mode."])
                     else:
                         msg(["RPG REALM CONSTRUCTION",
                              "======================",
@@ -1628,7 +1669,6 @@ try:
                     if realm == 2 or premium:
                         changedz = []
                         place = True
-                        msg(["Pickup mode changes will not immediately take effect, and will be shown after pressing F to exit pickup mode."])
                     else:
                         msg(["RPG REALM CONSTRUCTION",
                              "======================",
@@ -1888,6 +1928,12 @@ try:
         display.blit(activesurf, (vmapwidth*tilesizex-tilesizex-10, 0))
         activeblock.blit(textures[active], (0,0))
         display.blit(activeblock, (vmapwidth*tilesizex-tilesizex-5, 22))
+        display.blit(musicsurf, ((vmapwidth*tilesizex)-(vmapwidth/4*tilesizex+4), vmapheight*tilesizex-34))
+        track = gamefontl.render("Now Playing: "+tracks[music], True, white)
+        author = gamefont.render("Author: "+authors[music], True, white)
+        musictrack.blit(track, (0,0))
+        musictrack.blit(author, (0,18))
+        display.blit(musictrack, ((vmapwidth*tilesizex)-(vmapwidth/4*tilesizex+2), vmapheight*tilesizex-32))
 
         ztext = gamefont.render("Z-Axis Lock: "+str(zaxis), True, white)
         display.blit(ztext, (0,0))
@@ -1902,20 +1948,23 @@ try:
             ptext = gamefont.render("Player Tile: "+str(playerTile), True, white)
             display.blit(ptext, (0,36))
 
+            rtext = gamefont.render("Player Region: "+str(playerRegion), True, white)
+            display.blit(rtext, (0,48))
+
             etext = gamefont.render("FPS: "+str(fps), True, white)
-            display.blit(etext, (0,48))
+            display.blit(etext, (0,60))
 
             qtext = gamefont.render("Image Quality: "+str(tilesizex)+"bit (Tab to cycle) (32bit recommended)", True, white)
-            display.blit(qtext, (0,60))
+            display.blit(qtext, (0,72))
 
             pztext = gamefont.render("Player Z Pos: "+str(playerz), True, white)
-            display.blit(pztext, (0,72))
+            display.blit(pztext, (0,84))
 
             pptext = gamefont.render("Map Offset: ("+str(xoffset)+", "+str(yoffset)+")", True, white)
-            display.blit(pptext, (0,84))
+            display.blit(pptext, (0,96))
 
             rtext = gamefont.render("Realm: "+str(realm), True, white)
-            display.blit(rtext, (0,96))
+            display.blit(rtext, (0,112))
 
         if shopshow:
             shopsurf.fill((23, 100, 255, 50))
