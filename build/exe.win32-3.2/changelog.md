@@ -1,4 +1,58 @@
-Changelog:
+﻿Changelog:
+
+Alpha.95:
+- Added texture pack support. If a texture pack does not contain a necessary game graphic file, then an error will occur -- so keep your packs up to date!
+- (a bunch of other things that I've forgotten.)
+- Texture packs are now extracted to a temp folder at launch and read from there. The temp folder is deleted when you quit.
+- all default graphics have been moved into a "default" texture pack. In order to create a texture pack, go to %APPDATA%/PythianRealms/Game/graphics, extract everything in default.zip to another location, and then edit the files. Once done, package the files into a zip file (don't name it default), and distribute the zip files with instructions: place the zip file in the %APPDATA%/PythianRealms/Game/graphics directory. The game will automatically recognise the texture pack and will allow the player to select it at launch. Ignore the temp folder, if there is one. DO NOT delete the temp folder while the game is running. Note: texture pack choices aren't saved, so the game will ask every time it's launched, in case you find a new texture pack. Texture packs cannot affect the layout of the game, or the main feel of the UI, as the design is generated. (The font can be changed, though.)
+- Optimised some code.
+
+0.0.0.7 -> Alpha.73:
+- Added PythianRealms ingame menu (Escape Key).
+- Added Save button to menu, to manually save the game when needed.
+- Added Screenshot button to menu, which will save a screenshot of the game when you switched to the menu to %APPDATA%/PythianRealms/Game/data/Screenshot.png, cropped so you don't have to.
+- Added Credits button to menu, to view the game's credits. (Note: these need updating)
+- Added Quit Game button to menu, which will ask if you wish to save the game.
+- Removed "Version: [version]" from the title bar.
+- Added version tag to menu's bottom-left corner.
+- Added ingame chat system. This uses the #PythianRealms channel on the irc.editingarchive.com IRC server.
+- PythianRealms now has the ability to support infinite different save files. For now, I have set it up to offer 4 different saves. Each save is now confined to one text file.
+- Redesigned loading screen.
+- Added album cover art to Now Playing section.
+- Increased size of Now Playing section.
+- Added album name to Now Playing section.
+- Resized Now Playing box.
+- Resized Now Playing text.
+- Added seven tracks from PROTODOME, from the BLUENOISE album.
+- Music now loops through each track, rather than randomly selecting a track (it preferred some songs).
+- Added Now Playing section to ingame menu, with more info than the normal one.
+- Added Volume Changer to ingame menu Now Playing menu.
+- Added previous, pause, play, and skip buttons to ingame menu.
+- Increased z-axis limit to 5 (this'll be increased further in the future)
+- Added random terrain generation on Realm 1. Z-Axis 1 can have stone, and any of the gems. Z-Axis 2 can have either stone or dirt. Z-axis 3 can have water or grass. The lower layers affect the higher ones: if the block on the 1st layer is lava, the block above that on the 2nd layer will be stone. If the block on the 2nd layer is grass, then the block above that on the 3rd layer is water.
+- Hostile NPCs now attack you.
+- Added HP.
+- Added player death.
+- Improved map generation
+
+0.0.0.6 -> 0.0.0.7:
+- Improved the PythianRealms title screen.
+- Changed the font - it's now Ubuntu Regular.
+- Music theme is now chiptune (it's going to be moving more retro as time passes). Right now there's only one track.
+- PythianRealms now runs entirely offline, with the exception of the launcher. All users are now premium (all perks).
+- Multiple bug fixes.
+- Added a "Now Playing:" section in the bottom right for music. Feel free to tell me if it's too big.
+- Redesigned carpet, coal, gold, grass, lava, ruby, sapphire, the selected block overlay, water, and wood.
+
+0.0.0.5 -> 0.0.0.6:
+- Fixed bug when placing blocks at the top left of the map.
+- Added better NPC movement AI.
+- Very pleased to introduce... MAGIC! Magic is, however, a Premium-user perk. It includes long-range attacks, and a super-fancy Attack screen. Please note: PythianRealms Magic requires a staff. Only Premium users can buy staffs. The only current staff in existance is the Staff of Darkness. All staffs will be dark-magic themed, because light = Heaven, and the Void, (the bad guy) rules Haven. So... Yeah... Anyway, the staff of Darkness replaced the orb, which was doomed from the start. The Staff of Darkness does 25 damage. If you think this should be changed, let me know. Reference: It one-shots werewolves and blood-hounds.
+- PythianRealms title screen, before the info screen! Yay!
+- PythianRealms now autosaves every 5 minutes. If it cannot save to auth server, it will turn to offline mode.
+- All NPC health is tripled by 3.
+- Melee combat now in! Uses the same aiming functions as magic, but you must be within 4 tiles of the NPC you intend to attack. Fists currently do 6 damage (comments on this?) and Golden Swords do 12 damage. Melee combat is set to space.
+- Gold Sword changed to Iron Sword.
 
 0.0.0.4 -> 0.0.0.5:
 - Changed default inventory. You spawn with absolutely nothing. May change in future.
