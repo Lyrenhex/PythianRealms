@@ -10,7 +10,7 @@ cx_Freeze.setup(
     version="0.0.0.1",
     options={"build_exe": {"packages":["pygame"],
                            "excludes": [],
-                           "include_files":["data","graphics","music","changelog.md","Docs","libraries2.zip","variables.py"]} },
+                           "include_files":["data","graphics","music","changelog.md","Docs","libraries2.zip","variables.py","en_UK.py"]} },
     executables = executables
 
     )
