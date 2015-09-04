@@ -13,6 +13,7 @@ import shutil
 import easygui
 import logging
 from variables import *
+from en_UK import *
 
 # -*- coding: utf-8 -*-
 
@@ -28,13 +29,12 @@ try:
     channel = "#PythianRealms"
 
     messages = [
-        """Welcome to the PythianRealms Online Chat System. If you have a problem with another player, please contact a
-        moderator or above.""",
-        "Moderators will have the \"[Mod]\" prefix, and owners will have the \"[Owner]\" prefix.",
-        "Note: Ingame chat is logged, however during times of technical issues, some messages might not be logged."]
+        chatwelcome,
+        chatstaff,
+        chatnote]
 
-    staff = {"Scratso": "Owner",
-             "SapphireCoyote": "Mod"}
+    staff = {"Scratso": staffowner,
+             "SapphireCoyote": staffmod}
 
     ########################
     # SET UP POPUP WINDOWS #
@@ -137,8 +137,7 @@ try:
     texturezips = [os.path.splitext(f)[0] for f in os.listdir("graphics") if
                    os.path.isfile(os.path.join("graphics", f)) and ".zip" in f]
     texturepack = easygui.choicebox(
-        "Choose your texture pack! You can install texture packs by copying the texture pack's .zip file into the "
-        + os.getenv('APPDATA') + "\PythianRealms\Game\data\graphics folder.", "Texture Packs", texturezips)
+        texture1 + os.getenv('APPDATA') + "\PythianRealms\Game\data\graphics " + texture2, texturehead, texturezips)
     try:
         os.mkdir("graphics/temp/")
     except:
@@ -196,7 +195,7 @@ try:
 
     # set up loading screen
     display.fill(white)
-    loadtext = gamefont.render("Loading PythianRealms...", True, black)
+    loadtext = gamefont.render(loadingmsg, True, black)
     display.blit(loadtext, (0, vmapheight * tilesizey - 12))
     display.blit(pygame.image.load("graphics/temp//logo.png"), (vmapwidth * tilesizex / 2 - 360, 0))
     pygame.display.update()
@@ -676,18 +675,15 @@ try:
         display = pygame.display.set_mode((vmapwidth * tilesizex, vmapheight * tilesizey), HWSURFACE | DOUBLEBUF)
         # Idea from BSOD chat with MS, ref: 1301341941
         message = [
-            """PythianRealms has encountered an error and has stopped running. To protect your existing saves,
-            your work was NOT saved when this error occurred.""",
+            err1,
             "",
-            "Please try to screenshot this window and send it to Adonis at adonis@icronium.com",
+            err2,
             "",
-            """If this problem continues to occur after restarting PythianRealms, please consider wiping your
-            PythianRealms game data, or forcing an update.""",
+            err3,
             "",
-            """If this error has only began occuring after the latest update, please consider downloading an earlier
-            update from http://scratso.com/pythianrealms/catalog.php""",
+            err4,
             "",
-            "Technical Information:",
+            err5,
             "",
             "*** ERROR: " + err,
             "",
@@ -733,7 +729,7 @@ try:
     def magicmsg(head="Oops", message=["A message wasn't found! Tell Scratso!"], fade=True, append=True):
         if append:
             message.append("")
-            message.append("Press E to continue")
+            message.append(presse)
         messageactive = True
         while messageactive:
             for event in pygame.event.get():
@@ -757,7 +753,7 @@ try:
 
     def loading():
         display.fill(white)
-        loadtext = gamefontl.render("Loading PythianRealms...", True, black)
+        loadtext = gamefontl.render(loadingmsg, True, black)
         if chat:
             display.blit(loadtext, (0, vmapheight * tilesizey + 32))
         else:
@@ -789,23 +785,20 @@ try:
                     messageactive = False
         display.fill(white)
         display.blit(pygame.image.load("graphics/temp/logo.png"), (vmapwidth * tilesizex - 950, -100))
-        text = magichead.render("Press SPACE to Start", True, black)
+        text = magichead.render(pressspace, True, black)
         display.blit(text, (
-            vmapwidth * tilesizex / 2 - round((len("Press SPACE to Start") / 2) * 27), vmapheight * tilesizey / 3 * 2))
+            vmapwidth * tilesizex / 2 - round((len(pressspace) / 2) * 27), vmapheight * tilesizey / 3 * 2))
         pygame.display.update()
 
     # Display all the startup things.
-    startupnotes = ["Welcome to PythianRealms!",
-                    "You are running version " + version,
-                    """This is a Public Alpha Development version of PythianRealms. All feedback is appreciated.
-                    Want to help give feedback? Simply email me at scratso@icronium.com!""",
-                    """PythianRealms cannot thrive without donations. Why not help us out by donating? You can donate
-                    over at http://www.scratso.com/PythianRealms""",
+    startupnotes = [welcome,
+                    welcome2 + version,
+                    welcomedev,
+                    welcomedonate,
                     "",
-                    "Please make sure that you have fun, and spread the word!",
+                    welcome3,
                     "",
-                    """PROTIP: You can find a load of helpful guides by typing (without quotes) \"%APPDATA%\
-                    PythianRealms\\Game\\Docs\" into run (Windows key + R).""",
+                    welcome4,
                     "",
                     "",
                     "KEYBINDINGS:",
@@ -838,13 +831,13 @@ try:
     SAVE = USEREVENT + 3
     pygame.time.set_timer(SAVE, 30000)
 
-    chatmsg = gamefont.render("Click here to chat!", True, black)
+    chatmsg = gamefont.render(clickchat, True, black)
 
     change = True
 
     if chat:
         if settings.username is None:
-            un = easygui.enterbox("Enter Username. It cannot contain spaces.", "PythianRealms Chat")
+            un = easygui.enterbox(enterun, chathead)
         else:
             un = settings.username
         if un:
@@ -904,37 +897,37 @@ try:
                 elif line.find("JOIN :") != -1:
                     irc.send(bytes("JOIN " + channel + "\n", "utf-8"))
                     if nick != un and nick != "Service":
-                        addchat(nick + " has joined the chat!")
+                        addchat(nick + chatjoin)
                 elif line.find("KICK ") != -1:
                     if line.split("#PythianRealms ")[1].split(" :")[0] == un:
-                        addchat("You were kicked from Chat for, \"" + text + "\"")
-                        addchat("Connection lost.")
+                        addchat(chatkicky + text + "\"")
+                        addchat(chatlost)
                         break
                     else:
-                        addchat(nick + " has kicked " + line.split("#PythianRealms ")[1].split(" :")[
-                            0] + " from Chat for, \"" + text + "\"")
+                        addchat(nick + chatkick1 + line.split("#PythianRealms ")[1].split(" :")[
+                            0] + chatkick2 + text + "\"")
                 elif "\\x01" in text:
                     text = text.split("\\x01")[1].split("ACTION ")[1]
                     addchat("* " + nick + " " + text + " *")
                 elif line.find("NICK :") != -1:
-                    addchat(nick + " is now known as " + text)
+                    addchat(nick + chatnick + text)
                 elif line.find("QUIT :") != -1:
-                    addchat(nick + " has left.")
+                    addchat(nick + chatleave)
                 elif line.find("PART #PythianRealms") != -1:
-                    addchat(nick + " has left.")
+                    addchat(nick + chatleave)
                 elif nick != "Service" and "MODE " not in line:
                     addchat(nick + ": " + text)
                 elif nick == "Service" and text == "You have not registered":
                     con += 1
                     if con >= 2:
-                        addchat("Connection lost.")
+                        addchat(chatlost)
                         break
                 elif nick == "Service" and text == "Nickname is already in use":
-                    addchat("Sorry, that name's already in use!")
-                    addchat("Connection lost.")
+                    addchat(chatnicku)
+                    addchat(chatlost)
                     break
                 if (time.time() - last_ping) > threshold:
-                    addchat("Connection lost.")
+                    addchat(chatlost)
                     break
             else:
                 continue
@@ -1019,8 +1012,8 @@ try:
             self.restore()  # restore values from the storage file if possible
 
 
-    savefile = easygui.buttonbox("Please select a save file.", "Select a Save!",
-                                 ["Save #1", "Save #2", "Save#3", "Save #4"])
+    savefile = easygui.buttonbox(saveselect, saveselhead,
+                                 savechoices)
     # savefile = easygui.choicebox("Please select a save file.", "Select a Save!", list(string.ascii_uppercase))
     data = Save("data/" + savefile + ".txt")
 
@@ -1170,7 +1163,7 @@ try:
                 if chat:
                     irc.send(bytes("QUIT :Client exited.\n", "utf-8"))
                     irc.close()
-                if easygui.ynbox("Would you like to save your game?"):
+                if easygui.ynbox(savequery):
                     logger.info("Saving game...")
                     data.realm = realm
                     data.map[realm] = tilemap
@@ -1205,7 +1198,7 @@ try:
                         mapsurf.blit(textures[active], (x * tilesizex, y * tilesizey - zaxis * 16))
                         # print(tilemap[0][y][x])
                     else:
-                        magicmsg("Out of Blocks!", ["Sorry, but your inventory's out of the currently selected tile!"],
+                        magicmsg(noblocks, [noblocksmsg],
                                  False)
                 if pickup:
                     x = math.floor(mx / tilesizex - xoffset / tilesizex)
@@ -1243,17 +1236,17 @@ try:
                                 coins -= 1
                                 inventory[GRASS] += 1
                             else:
-                                msg(["You need 1 coins to buy 1 Grass.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "1" + buyonecoin2 + " Grass.",
+                                     buycoinboost,
+                                     buycoinmob])
                         elif event.button == 3:
                             if coins >= 10:
                                 coins -= 10
                                 inventory[GRASS] += 10
                             else:
-                                msg(["You need 10 coins to buy 10 Grass.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "10" + buytencoin2 + " Grass.",
+                                     buycoinboost,
+                                     buycoinmob])
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 110 and mx <= (
                             vmapwidth * tilesizex) / 2 - 155 + 150 and my >= (
@@ -1268,17 +1261,17 @@ try:
                                 coins -= 3
                                 inventory[WATER] += 1
                             else:
-                                msg(["You need 3 coins to buy 1 Water.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "3" + buyonecoin2 + " Water.",
+                                     buycoinboost,
+                                     buycoinmob])
                         elif event.button == 3:
                             if coins >= 30:
                                 coins -= 30
                                 inventory[WATER] += 10
                             else:
-                                msg(["You need 30 coins to buy 10 Water.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "30" + buytencoin2 + " Water.",
+                                     buycoinboost,
+                                     buycoinmob])
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 160 and mx <= (
                             vmapwidth * tilesizex) / 2 - 155 + 200 and my >= (
@@ -1293,17 +1286,17 @@ try:
                                 coins -= 4
                                 inventory[COAL] += 1
                             else:
-                                msg(["You need 4 coins to buy 1 Coal.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "4" + buyonecoin2 + " Coal.",
+                                     buycoinboost,
+                                     buycoinmob])
                         elif event.button == 3:
                             if coins >= 40:
                                 coins -= 40
                                 inventory[COAL] += 10
                             else:
-                                msg(["You need 40 coins to buy 10 Coal.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "40" + buytencoin2 + " Coal.",
+                                     buycoinboost,
+                                     buycoinmob])
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 210 and mx <= (
                             vmapwidth * tilesizex) / 2 - 155 + 250 and my >= (
@@ -1318,17 +1311,17 @@ try:
                                 coins -= 5
                                 inventory[LAVA] += 1
                             else:
-                                msg(["You need 5 coins to buy 1 Lava.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "5" + buyonecoin2 + " Lava.",
+                                     buycoinboost,
+                                     buycoinmob])
                         elif event.button == 3:
                             if coins >= 50:
                                 coins -= 50
                                 inventory[LAVA] += 10
                             else:
-                                msg(["You need 50 coins to buy 10 Lava.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "50" + buytencoin2 + " Lava.",
+                                     buycoinboost,
+                                     buycoinmob])
 
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 260 and mx <= (
@@ -1344,17 +1337,17 @@ try:
                                 coins -= 6
                                 inventory[ROCK] += 1
                             else:
-                                msg(["You need 6 coins to buy 1 Stone.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "6" + buyonecoin2 + " Stone.",
+                                     buycoinboost,
+                                     buycoinmob])
                         elif event.button == 3:
                             if coins >= 60:
                                 coins -= 60
                                 inventory[ROCK] += 10
                             else:
-                                msg(["You need 60 coins to buy 10 Stone.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "60" + buytencoin2 + " Stone.",
+                                     buycoinboost,
+                                     buycoinmob])
 
 
                 # row 2
@@ -1371,17 +1364,17 @@ try:
                                 coins -= 10
                                 inventory[DIAM] += 1
                             else:
-                                msg(["You need 10 coins to buy 1 Diamond.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "10" + buyonecoin2 + " Diamond.",
+                                     buycoinboost,
+                                     buycoinmob])
                         elif event.button == 3:
                             if coins >= 100:
                                 coins -= 100
                                 inventory[DIAM] += 10
                             else:
-                                msg(["You need 100 coins to buy 10 Diamond.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "100" + buytencoin2 + " Diamond.",
+                                     buycoinboost,
+                                     buycoinmob])
 
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 60 and mx <= (
@@ -1397,17 +1390,17 @@ try:
                                 coins -= 12
                                 inventory[SAPP] += 1
                             else:
-                                msg(["You need 12 coins to buy 1 Sapphire.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "12" + buyonecoin2 + " Sapphire.",
+                                     buycoinboost,
+                                     buycoinmob])
                         elif event.button == 3:
                             if coins >= 120:
                                 coins -= 120
                                 inventory[SAPP] += 10
                             else:
-                                msg(["You need 120 coins to buy 10 Sapphire.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "120" + buytencoin2 + " Sapphire.",
+                                     buycoinboost,
+                                     buycoinmob])
 
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 110 and mx <= (
@@ -1423,17 +1416,17 @@ try:
                                 coins -= 14
                                 inventory[RUBY] += 1
                             else:
-                                msg(["You need 14 coins to buy 1 Ruby. I would make a dog joke here, but doge.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "14" + buyonecoin2 + " Ruby.",
+                                     buycoinboost,
+                                     buycoinmob])
                         elif event.button == 3:
                             if coins >= 140:
                                 coins -= 140
                                 inventory[RUBY] += 10
                             else:
-                                msg(["You need 140 coins to buy 10 Ruby.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "140" + buytencoin2 + " Ruby.",
+                                     buycoinboost,
+                                     buycoinmob])
 
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 160 and mx <= (
@@ -1449,17 +1442,17 @@ try:
                                 coins -= 13
                                 inventory[GOLD] += 1
                             else:
-                                msg(["You need 13 coins to buy 1 Gold.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "13" + buyonecoin2 + " Gold.",
+                                     buycoinboost,
+                                     buycoinmob])
                         elif event.button == 3:
                             if coins >= 130:
                                 coins -= 130
                                 inventory[GOLD] += 10
                             else:
-                                msg(["You need 130 coins to buy 10 Gold.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "130" + buytencoin2 + " Gold.",
+                                     buycoinboost,
+                                     buycoinmob])
 
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 210 and mx <= (
@@ -1475,17 +1468,17 @@ try:
                                 coins -= 9
                                 inventory[CARP] += 1
                             else:
-                                msg(["You need 9 coins to buy 1 Carpet.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "9" + buyonecoin2 + " Carpet.",
+                                     buycoinboost,
+                                     buycoinmob])
                         elif event.button == 3:
                             if coins >= 90:
                                 coins -= 90
                                 inventory[CARP] += 10
                             else:
-                                msg(["You need 90 coins to buy 10 Carpet.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "90" + buytencoin2 + " Carpet.",
+                                     buycoinboost,
+                                     buycoinmob])
 
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 260 and mx <= (
@@ -1501,17 +1494,17 @@ try:
                                 coins -= 7
                                 inventory[SNOW] += 1
                             else:
-                                msg(["You need 7 coins to buy 1 Snow.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "7" + buyonecoin2 + " Snow.",
+                                     buycoinboost,
+                                     buycoinmob])
                         elif event.button == 3:
                             if coins >= 70:
                                 coins -= 70
                                 inventory[SNOW] += 10
                             else:
-                                msg(["You need 70 coins to buy 10 Snow.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "70" + buytencoin2 + " Snow.",
+                                     buycoinboost,
+                                     buycoinmob])
 
 
                 # row 3
@@ -1528,17 +1521,17 @@ try:
                                 coins -= 7
                                 inventory[WOOD] += 1
                             else:
-                                msg(["You need 7 coins to buy 1 Wood.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "7" + buyonecoin2 + " Wood.",
+                                     buycoinboost,
+                                     buycoinmob])
                         elif event.button == 3:
                             if coins >= 70:
                                 coins -= 70
                                 inventory[WOOD] += 10
                             else:
-                                msg(["You need 70 coins to buy 10 Wood.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "70" + buytencoin2 + " Wood.",
+                                     buycoinboost,
+                                     buycoinmob])
 
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 60 and mx <= (
@@ -1553,17 +1546,17 @@ try:
                                 coins -= 8
                                 inventory[GLASS] += 1
                             else:
-                                msg(["You need 8 coins to buy 1 Glass.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "8" + buyonecoin2 + " Glass.",
+                                     buycoinboost,
+                                     buycoinmob])
                         elif event.button == 3:
                             if coins >= 80:
                                 coins -= 80
                                 inventory[GLASS] += 10
                             else:
-                                msg(["You need 80 coins to buy 10 Glass.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "80" + buytencoin2 + " Glass.",
+                                     buycoinboost,
+                                     buycoinmob])
 
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 110 and mx <= (
@@ -1578,17 +1571,17 @@ try:
                                 coins -= 9
                                 inventory[BRICK] += 1
                             else:
-                                msg(["You need 9 coins to buy 1 Brick.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "9" + buyonecoin2 + " Brick.",
+                                     buycoinboost,
+                                     buycoinmob])
                         elif event.button == 3:
                             if coins >= 90:
                                 coins -= 90
                                 inventory[BRICK] += 10
                             else:
-                                msg(["You need 90 coins to buy 10 Brick.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "90" + buytencoin2 + " Brick.",
+                                     buycoinboost,
+                                     buycoinmob])
 
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 160 and mx <= (
@@ -1599,9 +1592,9 @@ try:
                             coins -= 12
                             inventory[GSWORD] += 1
                         else:
-                            msg(["You need 12 coins to buy Iron Sword.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                 "You can also earn coins by slaying evil monsters, or by completing quests."])
+                            msg([buycoin1 + "12" + buyonecoin2 + " Iron Sword.",
+                                     buycoinboost,
+                                     buycoinmob])
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 210 and mx <= (
                             vmapwidth * tilesizex) / 2 - 155 + 260 and my >= (
@@ -1612,9 +1605,9 @@ try:
                                 coins -= 25
                                 inventory[DSTAFF] += 1
                             else:
-                                msg(["You need 25 coins to buy Staff of Darkness.",
-                                     "100 coin boosts are given every 5 minutes.",
-                                     "You can also earn coins by slaying evil monsters, or by completing quests."])
+                                msg([buycoin1 + "25" + buyonecoin2 + " Staff of Darkness.",
+                                     buycoinboost,
+                                     buycoinmob])
 
                 if mx >= 50 and mx <= 60 and my >= 15 and my <= 25 and opt:
                     if silence:
@@ -1641,10 +1634,10 @@ try:
                 if mx >= 0 and mx <= vmapwidth * tilesizex and my >= vmapheight * tilesizey + 38 and \
                         (my <= vmapheight * tilesizey + 50):
                     if chat:
-                        msg = easygui.enterbox("Chat message:", "PythianRealms Chat!")
+                        msg = easygui.enterbox(chatentermsg, chathead)
                         if msg is not None:
                             irc.send(bytes("PRIVMSG " + channel + " :" + msg + "\n", "utf-8"))
-                            addchat("You: " + msg)
+                            addchat(chaty + msg)
 
                 x = math.floor(mx / tilesizex - xoffset / tilesizex)
                 y = math.floor(my / tilesizey - yoffset / tilesizey)
@@ -1671,8 +1664,7 @@ try:
                         changedz = []
                         pickup = True
                         msg([
-                            """Pickup mode changes will not immediately take effect, and will be shown after pressing F
-                            to exit pickup mode."""])
+                           pickupmodenotice])
                 if event.key == K_r:
                     if realm == 2 or premium:
                         changedz = []
@@ -1685,13 +1677,11 @@ try:
                     if inventory[DSTAFF] > 0:
                         if selectednpc is not None:
                             if NPCtype[selectednpc[0]] == "Hostile":
-                                magicmsg("Darkness", ["The light of the devil burns your target.",
-                                                      "(Target NPC loses 25 health.)"], True)
+                                magicmsg(darkness, darkdesc, True)
                                 NPChealth[selectednpc[0]][selectednpc[1]] -= 25
                         else:
-                            msg(["Please select a target.",
-                                 """In order to select a target, simply click on any hostile (red name) NPC that you
-                                 wish to attack. Then you can try this again."""])
+                            msg([targetselect,
+                                 targetinstruct])
                     else:
                         if premium:
                             msg(["Hey, premium member!",
@@ -1720,30 +1710,30 @@ try:
                     if realm == 0:
                         realm = 1
                         data.realm = 1
-                        msg(["THE CONSTRUCTION REALM",
-                             "======================",
-                             """The construction realm contains monsters and NPCs to teach you how to build, destroy,
-                             and use the Construction realm, but it does NOT have a storyline.""",
-                             """The construction realm provides a home for all your construction talent to come together
-                              to create a wondrous, magnificent building for you to share with your friends.""",
-                             """The Construction realm, by all defaults, is a barren wasteland - that is, until you
-                             build in it. The construction realm serves to satisfy the construction aspect of
-                             PythianRealms.""",
-                             """Have fun, and remember - T to toggle between realms... If you wish to return to the RPG
-                             realm, of course. ;)"""])
+                        #msg(["THE CONSTRUCTION REALM",
+                        #     "======================",
+                        #     """The construction realm contains monsters and NPCs to teach you how to build, destroy,
+                        #     and use the Construction realm, but it does NOT have a storyline.""",
+                        #     """The construction realm provides a home for all your construction talent to come together
+                        #      to create a wondrous, magnificent building for you to share with your friends.""",
+                        #     """The Construction realm, by all defaults, is a barren wasteland - that is, until you
+                        #     build in it. The construction realm serves to satisfy the construction aspect of
+                        #     PythianRealms.""",
+                        #     """Have fun, and remember - T to toggle between realms... If you wish to return to the RPG
+                        #     realm, of course. ;)"""])
                     elif realm == 1:
                         realm = 0
                         data.realm = 0
-                        msg(["THE RPG REALM",
-                             "=============",
-                             """The RPG realm is the home of the PythianRealms storyline. Riddled with people, monsters
-                             and stories, the RPG realm is built by Scratso (the developer) and distributed with all
-                             copies of PythianRealms.""",
-                             """Construction within the RPG realm is usually forbidden, however Premium Users may
-                             happily change the RPG realm to suit themselves. This allows premium users to improve on
-                             existing buildings, if they wish.""",
-                             """Have fun, and remember - T to toggle between realms... If you wish to return to the
-                             Construction realm, of course. ;)"""])
+                        # msg(["THE RPG REALM",
+                        #      "=============",
+                        #      """The RPG realm is the home of the PythianRealms storyline. Riddled with people, monsters
+                        #      and stories, the RPG realm is built by Scratso (the developer) and distributed with all
+                        #      copies of PythianRealms.""",
+                        #      """Construction within the RPG realm is usually forbidden, however Premium Users may
+                        #      happily change the RPG realm to suit themselves. This allows premium users to improve on
+                        #      existing buildings, if they wish.""",
+                        #      """Have fun, and remember - T to toggle between realms... If you wish to return to the
+                        #      Construction realm, of course. ;)"""])
                     change = True
 
                     tilemap = data.map[realm]
@@ -1991,9 +1981,9 @@ try:
         display.blit(activeblock, (vmapwidth * tilesizex - tilesizex - 5, 22))
         display.blit(musicsurf,
                      ((vmapwidth * tilesizex) - (vmapwidth / 3 * tilesizex + 4), vmapheight * tilesizex - 40))
-        track = gamefont.render("Now Playing: " + tracks[music], True, white)
-        album = gamefont.render("Album: " + albums[music], True, white)
-        author = gamefont.render("Author: " + authors[music], True, white)
+        track = gamefont.render(musicplaying + tracks[music], True, white)
+        album = gamefont.render(musicalbum + albums[music], True, white)
+        author = gamefont.render(musicauthor + authors[music], True, white)
         musictrack.blit(track, (36, 0))
         musictrack.blit(album, (40, 12))
         musictrack.blit(author, (44, 24))
@@ -2001,44 +1991,44 @@ try:
         display.blit(musictrack,
                      ((vmapwidth * tilesizex) - (vmapwidth / 3 * tilesizex + 2), vmapheight * tilesizex - 38))
 
-        ztext = gamefont.render("Z-Axis Lock: " + str(zaxis), True, white)
+        ztext = gamefont.render(zaxisname + str(zaxis), True, white)
         display.blit(ztext, (0, 0))
 
-        ctext = gamefont.render("You have " + format(coins, ",d") + " coins.", True, white)
+        ctext = gamefont.render(coins1 + format(coins, ",d") + coins2, True, white)
         display.blit(ctext, (0, 12))
 
-        ttext = gamefont.render("Next coin boost: " + str(timeleft) + " seconds.", True, white)
+        ttext = gamefont.render(coinsb1 + str(timeleft) + coinsb2, True, white)
         display.blit(ttext, (0, 24))
 
-        hptext = gamefont.render("Health: " + str(playerHP) + " / 100", True, white)
+        hptext = gamefont.render(healthname + str(playerHP) + " / 100", True, white)
         display.blit(hptext, (0, 36))
 
         if debug:
-            ptext = gamefont.render("Player Tile: " + str(playerTile), True, white)
+            ptext = gamefont.render(tilename + str(playerTile), True, white)
             display.blit(ptext, (0, 48))
 
-            rtext = gamefont.render("Player Region: " + str(playerRegion), True, white)
+            rtext = gamefont.render(regionname + str(playerRegion), True, white)
             display.blit(rtext, (0, 60))
 
-            etext = gamefont.render("FPS: " + str(fps), True, white)
+            etext = gamefont.render(fpsname + str(fps), True, white)
             display.blit(etext, (0, 72))
 
-            qtext = gamefont.render("Image Quality: " + str(tilesizex) + "bit (Tab to cycle) (32bit recommended)", True,
+            qtext = gamefont.render(imagename1 + str(tilesizex) + imagename2, True,
                                     white)
             display.blit(qtext, (0, 84))
 
-            pztext = gamefont.render("Player Z Pos: " + str(playerz), True, white)
+            pztext = gamefont.render(playerzname + str(playerz), True, white)
             display.blit(pztext, (0, 96))
 
-            pptext = gamefont.render("Map Offset: (" + str(xoffset) + ", " + str(yoffset) + ")", True, white)
+            pptext = gamefont.render(mapoffname1 + str(xoffset) + mapoffname2 + str(yoffset) + mapoffname3, True, white)
             display.blit(pptext, (0, 112))
 
-            rtext = gamefont.render("Realm: " + str(realm), True, white)
+            rtext = gamefont.render(realmname + str(realm), True, white)
             display.blit(rtext, (0, 124))
 
         if shopshow:
             shopsurf.fill((23, 100, 255, 50))
-            text = gamefont.render("Shop", True, white)
+            text = gamefont.render(shoptitle, True, white)
             shopsurf.blit(text, (1, 1))
             # display the inventory, starting 10 pixels in
             placePosition = 10
@@ -2066,7 +2056,7 @@ try:
 
         if invshow:
             invsurf.fill((23, 100, 255, 50))
-            text = gamefont.render("Inventory", True, black)
+            text = gamefont.render(invtitle, True, black)
             invsurf.blit(text, (1, 1))
             # display the inventory, starting 10 pixels in
             placePosition = 10
@@ -2110,10 +2100,10 @@ try:
             realm = 0
 
         if place:
-            placetext = gamefont.render("Build mode active", True, green)
+            placetext = gamefont.render(buildmode, True, green)
             display.blit(placetext, (0, vmapheight * tilesizey - 12))
         if pickup:
-            pickuptext = gamefont.render("Pickup mode active", True, red)
+            pickuptext = gamefont.render(pickupmode, True, red)
             display.blit(pickuptext, (0, vmapheight * tilesizey - 12))
 
         if menu:
@@ -2135,13 +2125,13 @@ try:
             pygame.draw.rect(display, black, (30, vmapheight * tilesizey - 130, vmapwidth * tilesizex - 60, 100))
             display.blit(pygame.transform.scale(pygame.image.load(covers[music]).convert(), (96, 96)),
                          (32, vmapheight * tilesizey - 128))
-            track = gamefontl.render("Now Playing: " + tracks[music], True, white)
-            album = gamefontl.render("Album: " + albums[music], True, white)
-            author = gamefontl.render("Author: " + authors[music], True, white)
+            track = gamefontl.render(musicplaying + tracks[music], True, white)
+            album = gamefontl.render(musicalbum + albums[music], True, white)
+            author = gamefontl.render(musicauthor + authors[music], True, white)
             playtime = gamefontl.render(
-                "Time: " + str(math.floor(pygame.mixer.music.get_pos() / 1000 / 60)) + ":" + str(
+               musictime + str(math.floor(pygame.mixer.music.get_pos() / 1000 / 60)) + ":" + str(
                     math.floor(pygame.mixer.music.get_pos() / 1000)), True, white)
-            volume = gamefontl.render("Volume: " + str(math.floor(pygame.mixer.music.get_volume() * 100)) + "%", True,
+            volume = gamefontl.render(musicvolume + str(math.floor(pygame.mixer.music.get_volume() * 100)) + "%", True,
                                       white)
             display.blit(track, (130, vmapheight * tilesizey - 128))
             display.blit(album, (134, vmapheight * tilesizey - 110))
@@ -2155,17 +2145,17 @@ try:
             display.blit(pygame.image.load("graphics/temp/play.png").convert_alpha(), (640, vmapheight * tilesizey - 98))
             display.blit(pygame.image.load("graphics/temp/skip.png").convert_alpha(), (680, vmapheight * tilesizey - 98))
             pygame.draw.rect(display, savecol, ((vmapwidth * tilesizex) / 2 - 100, 255, 200, 40))
-            display.blit(magicbody.render("Save Game", True, white), ((vmapwidth * tilesizex) / 2 - 90, 257))
+            display.blit(magicbody.render(menusave, True, white), ((vmapwidth * tilesizex) / 2 - 90, 257))
             pygame.draw.rect(display, screencol, ((vmapwidth * tilesizex) / 2 - 100, 300, 200, 40))
-            display.blit(magicbody.render("Screenshot", True, white), ((vmapwidth * tilesizex) / 2 - 92, 302))
+            display.blit(magicbody.render(menuscreenshot, True, white), ((vmapwidth * tilesizex) / 2 - 92, 302))
             pygame.draw.rect(display, credcol, ((vmapwidth * tilesizex) / 2 - 100, 345, 200, 40))
-            display.blit(magicbody.render("Credits", True, white), ((vmapwidth * tilesizex) / 2 - 60, 347))
+            display.blit(magicbody.render(menucredits, True, white), ((vmapwidth * tilesizex) / 2 - 60, 347))
             pygame.draw.rect(display, irccol, ((vmapwidth * tilesizex) / 2 - 100, 390, 200, 40))
-            display.blit(magicbody.render("IRC Chat", True, white), ((vmapwidth * tilesizex) / 2 - 60, 392))
+            display.blit(magicbody.render(menuirc, True, white), ((vmapwidth * tilesizex) / 2 - 60, 392))
             pygame.draw.rect(display, quitcol, ((vmapwidth * tilesizex) / 2 - 100, 435, 200, 40))
-            display.blit(magicbody.render("Quit Game", True, white), ((vmapwidth * tilesizex) / 2 - 90, 437))
+            display.blit(magicbody.render(menuquit, True, white), ((vmapwidth * tilesizex) / 2 - 90, 437))
             display.blit(pygame.image.load("graphics/temp/logo2.png"), ((vmapwidth * tilesizex - 30) / 2 - 360, 15))
-            display.blit(gamefont.render("Version " + version, True, blue), (15, (vmapheight * tilesizey) - 27))
+            display.blit(gamefont.render(versiontag + version, True, blue), (15, (vmapheight * tilesizey) - 27))
             for event in pygame.event.get():
                 if event.type == KEYDOWN:
                     if event.key == K_ESCAPE:
@@ -2206,7 +2196,7 @@ try:
                         data.coins = coins
                         data.store()
                         logger.info("Game saved.")
-                        easygui.msgbox("Your game has been saved successfully.", "Saved!")
+                        easygui.msgbox(savean, saveanhead)
                     elif vmapheight * tilesizey - 56 <= my <= vmapheight * tilesizey - 38:
                         if 269 <= mx <= 287:
                             pygame.mixer.music.set_volume(pygame.mixer.music.get_volume() - 0.01)
@@ -2228,7 +2218,7 @@ try:
                         file = easygui.filesavebox()
                         time.sleep(1)
                         pygame.image.save(game, file + ".png")
-                        easygui.msgbox("The screenshot has been saved to " + file + ".png")
+                        easygui.msgbox(screenshotsaved + file + ".png")
                         logger.info("Saved screenshot.")
                     elif ((vmapwidth * tilesizex) / 2 - 100 <= mx <= (vmapwidth * tilesizex) / 2 + 100) and (
                                     345 <= my <= 385):
@@ -2236,7 +2226,7 @@ try:
                         r = f.readlines()
                         f.close()
                         # noinspection PyTypeChecker
-                        easygui.textbox("PythianRealms Credits", "PythianRealms Credits", r)
+                        easygui.textbox(credstexty, credstexty, r)
                     elif ((vmapwidth * tilesizex) / 2 - 100 <= mx <= (vmapwidth * tilesizex) / 2 + 100) and (
                                     390 <= my <= 430):
                         # Open Multiplayer Chat System
@@ -2247,7 +2237,7 @@ try:
                         if chat:
                             irc.send(bytes("QUIT :Client exited.\n", "utf-8"))
                             irc.close()
-                        if easygui.ynbox("Would you like to save your game?"):
+                        if easygui.ynbox(savequery):
                             logger.info("Saving game...")
                             data.realm = realm
                             data.map[realm] = tilemap
