@@ -11,6 +11,7 @@ PythianRealms, as of Alpha.95, has texture pack support! Here's how to make one:
 - Modify the files to suit your needs. Ensure to keep file extensions (.png, .jpg, etc) the same. All .png files will have transparency, so ensure to keep that transparency.
 - Zip up the files. If you forked the repo, you could instead just download the repo's zip. (additional files in texture packs are okay, but missing ones cause errors)
 - Distribute! Please note that whenever graphics are added, you will have to add those graphics files (preferably redesigned) to your texture pack to prevent errors. be sure to alert your users of updates!
+
 ### Installing
 To install a texture pack:
 - Download the zip file provided by the creator.
