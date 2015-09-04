@@ -4,6 +4,12 @@ Alpha.96:
 - Improved Error screen to prevent instant closing.
 - Optimised some additional code.
 - Improved error reporting.
+-- GitHub Commit --
+- Improved PEP8 compliancy.
+- Started moving things into other files.
+- Fixed music player controls appearing as white squares.
+- Improved game debug output by logging os information at the start.
+-- GitHub Commit --
 
 Alpha.95:
 - Added texture pack support. If a texture pack does not contain a necessary game graphic file, then an error will occur -- so keep your packs up to date!

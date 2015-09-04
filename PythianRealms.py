@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-
-# Copyright (c) 2015 Adonis Megalos and Icronium Software. ALL RIGHTS RESERVED.
-
-version = "Alpha.96"
-
 import sys
 import os
 import time
@@ -16,13 +10,18 @@ import socket
 import _thread as thread
 import zipfile
 import shutil
+import easygui
+import logging
+from variables import *
 
-# Error Reporting note: %0D%0A is the Newline Character for the Mailto: command. Since the Error Reporter uses Mailto:,
-# use %0D%0A instead of \n.
+# -*- coding: utf-8 -*-
+
+# Copyright (c) 2015 Adonis Megalos and Icronium Software. Creative Commons Attribution 4.0 International License
+
+version = "Alpha.96"
 
 # Encompass the entire program in a try statement for the error reporter.
 try:
-
     online = False
     server = False  # set to true to enable mysql connections.
     chat = True
@@ -41,18 +40,12 @@ try:
     # SET UP POPUP WINDOWS #
     ########################
 
-    import easygui  # I really feel sorry for Linux users. So many dependencies :'(
-
-
-    def msgbox(title, text):
-        # ctypes.windll.user32.MessageBoxA(None, str(text), str(title), 0)
-        easygui.msgbox(text, title)
-        # msgbox('Your title', 'Your text', 1)
+    def msgbox(title, mtext):
+        easygui.msgbox(mtext, title)
 
 
     class Settings(
-        easygui.EgStore):   # Create a class named Settings inheriting from easygui.EgStore so that I can persist
-                            # TechnoMagic Account info.
+        easygui.EgStore):
         def __init__(self, filename):  # filename is required
             # -------------------------------------------------
             # Specify default/initial values for variables that
@@ -69,10 +62,7 @@ try:
             self.restore()  # restore values from the storage file if possible
 
 
-    # #########################
     # # Initialise the logger #
-    # #########################
-    import logging
 
     logger = logging.getLogger('DEBUGGER')
 
@@ -98,7 +88,7 @@ try:
 
     # print(settings.username)
 
-    if settings.username == None:
+    if settings.username is None:
         username = None
         settings.username = username
         settings.store()  # persist the settings
@@ -115,53 +105,11 @@ try:
 
     useros = sys.platform
     logger.info("Operating System Environment: " + useros + ".")
-    if useros == "linux" or useros == "linux2" or useros == "linux3" or useros == "linux4":
-        useros = "linux"
-        logger.error(
-            """=== Please note that PythianRealms may be very buggy on Linux as it is not natively programmed in it.
-            Please report any bugs you find. Thanks. :) ===""")
-
-    #####################
-    # VARIABLE DECLARES #
-    #####################
-
-    tilesizex = 32
-    tilesizey = 32
-    mapwidth = 100
-    mapheight = 100
-    mapz = 5
-
-    realms = 2
-
-    playerz = 4
-
-    oldtiles = []
-
-    zaxis = 0
-    place = False
-    pickup = False
-    changedz = []
-
-    change = False
-    debug = False
-
-    invshow = False
-    shopshow = False
-
-    activeoverlay = True
-
-    selectednpc = None
-
-    coins = 1000  # 1000 coins to start, and per boost
-
-    global screen_image
-    screen_image = None
-
-    playerHP = 100
-
-    # visible map sizes. There is always hidden map.
-    vmapwidth = round(75 / (tilesizex / 16))
-    vmapheight = round(40 / (tilesizey / 16))
+    logger.info("Operating System Architecture: " + platform.architecture()[0])
+    logger.info("Operating System Version: " + platform.platform())
+    logger.info("Operating System Name: " + platform.system())
+    logger.info("Processor: " + platform.processor())
+    logger.info("Game Version: " + version)
 
     #################
     # SET UP PYGAME #
@@ -189,8 +137,8 @@ try:
     texturezips = [os.path.splitext(f)[0] for f in os.listdir("graphics") if
                    os.path.isfile(os.path.join("graphics", f)) and ".zip" in f]
     texturepack = easygui.choicebox(
-        "Choose your texture pack! You can install texture packs by copying the texture pack's .zip file into the " + os.getenv(
-            'APPDATA') + "\PythianRealms\Game\data\graphics folder.", "Texture Packs", texturezips)
+        "Choose your texture pack! You can install texture packs by copying the texture pack's .zip file into the "
+        + os.getenv('APPDATA') + "\PythianRealms\Game\data\graphics folder.", "Texture Packs", texturezips)
     try:
         os.mkdir("graphics/temp/")
     except:
@@ -263,7 +211,7 @@ try:
         (tilesizex, tilesizey))
 
     # load the hp bar
-    ##    hpbar = pygame.image.load("graphics/temp//blood_red_bar.png")
+    #    hpbar = pygame.image.load("graphics/temp//blood_red_bar.png")
 
     # Constants for the resources
     DIRT = 0
@@ -303,8 +251,10 @@ try:
     # NPCS #
     ########
 
-    # 0 = Mr. Smiler, 1 = Werewolf, 2 = Sssnake, 3 = Void Chunk A, 4 = (Custom) Tudor, 5 = Old Man, 6 = Jared's Wife, 7 = Calem, 8 = Bjorvik, 9 = Stephan,
-    # 10 = King Rhask, 11  = Rakjoke, 12 = Rakjoke's Friend, 13 = Homeless Man, 14 = Stranger, 15 = Blood Hound, 16 = (Custom) Amnesiac
+    # 0 = Mr. Smiler, 1 = Werewolf, 2 = Sssnake, 3 = Void Chunk A, 4 = (Custom) Tudor, 5 = Old Man, 6 = Jared's Wife,
+    # 7 = Calem, 8 = Bjorvik, 9 = Stephan,
+    # 10 = King Rhask, 11  = Rakjoke, 12 = Rakjoke's Friend, 13 = Homeless Man, 14 = Stranger, 15 = Blood Hound,
+    # 16 = (Custom) Amnesiac
     NPCs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
     npcDrop = {
         0: 0,
@@ -432,7 +382,8 @@ try:
     #    for chunk in range(25):
     #        if chunk in NPChealth[npc]:
     #            for curnpc in NPChealth[npc]:
-    #                if os.path.isfile("data/"+str(npc)+"/"+str(chunk)+"/"+str(curnpc)+".txt") and os.access("data/"+str(npc)+"/"+str(chunk)+"/"+str(curnpc)+".txt", os.R_OK):
+    #                if os.path.isfile("data/"+str(npc)+"/"+str(chunk)+"/"+str(curnpc)+".txt")
+    #  and os.access("data/"+str(npc)+"/"+str(chunk)+"/"+str(curnpc)+".txt", os.R_OK):
     #                    file = open("data/"+str(npc)+"/"+str(chunk)+"/"+str(curnpc)+".txt", "r")
     #                    integer = int(file.read())
     #                    NPChealth[npc][curnpc] = integer
@@ -566,10 +517,12 @@ try:
         16: "(C) Amnesiac",
     }
 
-    ##    # Is the user 13 or older?
-    ##    if easygui.ynbox("PythianRealms has an online chat system. However, if you are below the age of 13, you must have parental consent to use such services. Are you over the age of 13 or have parental consent?", "Multiplayer Chat?"):
-    ##        # Open Multiplayer Chat System
-    ##        webbrowser.open("https://irc.editingarchive.com:8080/?channels=PythianRealms")
+    #    # Is the user 13 or older?
+    #    if easygui.ynbox("""PythianRealms has an online chat system.
+    # However, if you are below the age of 13, you must have parental consent to use such services.
+    # Are you over the age of 13 or have parental consent?""", "Multiplayer Chat?"):
+            # Open Multiplayer Chat System
+    #        webbrowser.open("https://irc.editingarchive.com:8080/?channels=PythianRealms")
 
     # webbrowser.open("http://tmcore.co.uk:9090/?channels=PythianRealms")
 
@@ -676,7 +629,8 @@ try:
     def initMusic():
         global silence, music
         logger.info(
-            "Initializing Music...")  # if this process fails and it starts in silent mode, you screwed something up... or you don't have speakers, ofc.
+            "Initializing Music...")  # if this process fails and it starts in silent mode, you screwed something up...
+                                      # or you don't have speakers, ofc.
         if music == 8:
             music = 1
         else:
@@ -722,13 +676,16 @@ try:
         display = pygame.display.set_mode((vmapwidth * tilesizex, vmapheight * tilesizey), HWSURFACE | DOUBLEBUF)
         # Idea from BSOD chat with MS, ref: 1301341941
         message = [
-            "PythianRealms has encountered an error and has stopped running. To protect your existing saves, your work was NOT saved when this error occurred.",
+            """PythianRealms has encountered an error and has stopped running. To protect your existing saves,
+            your work was NOT saved when this error occurred.""",
             "",
             "Please try to screenshot this window and send it to Adonis at adonis@icronium.com",
             "",
-            "If this problem continues to occur after restarting PythianRealms, please consider wiping your PythianRealms game data, or forcing an update.",
+            """If this problem continues to occur after restarting PythianRealms, please consider wiping your
+            PythianRealms game data, or forcing an update.""",
             "",
-            "If this error has only began occuring after the latest update, please consider downloading an earlier update from http://scratso.com/pythianrealms/catalog.php",
+            """If this error has only began occuring after the latest update, please consider downloading an earlier
+            update from http://scratso.com/pythianrealms/catalog.php""",
             "",
             "Technical Information:",
             "",
@@ -840,12 +797,15 @@ try:
     # Display all the startup things.
     startupnotes = ["Welcome to PythianRealms!",
                     "You are running version " + version,
-                    "This is a Public Alpha Development version of PythianRealms. All feedback is appreciated. Want to help give feedback? Simply email me at scratso@tmcore.co.uk!",
-                    "PythianRealms cannot thrive without donations. Why not help us out by donating? You can donate over at http://www.tmcore.co.uk/PythianRealms.php",
+                    """This is a Public Alpha Development version of PythianRealms. All feedback is appreciated.
+                    Want to help give feedback? Simply email me at scratso@icronium.com!""",
+                    """PythianRealms cannot thrive without donations. Why not help us out by donating? You can donate
+                    over at http://www.scratso.com/PythianRealms""",
                     "",
                     "Please make sure that you have fun, and spread the word!",
                     "",
-                    "PROTIP: You can find a load of helpful guides by typing (without quotes) \"%APPDATA%\PythianRealms\\Game\\Docs\" into run (Windows key + R).",
+                    """PROTIP: You can find a load of helpful guides by typing (without quotes) \"%APPDATA%\
+                    PythianRealms\\Game\\Docs\" into run (Windows key + R).""",
                     "",
                     "",
                     "KEYBINDINGS:",
@@ -883,7 +843,7 @@ try:
     change = True
 
     if chat:
-        if settings.username == None:
+        if settings.username is None:
             un = easygui.enterbox("Enter Username. It cannot contain spaces.", "PythianRealms Chat")
         else:
             un = settings.username
@@ -926,16 +886,13 @@ try:
             unraw = text.split("\\r\\n")
             for line in unraw:
                 try:
-                    parsed = parsemsg(line)
-                    nick = parsed[0]
+                    nick = line.split(":")[1].split("!")[0]
                     try:
                         nick = "[" + staff[nick] + "] " + nick
                     except:
                         print(end="")
-                    act = parsed[2]
-                    chan = parsed[3][0]
-                    text = parsed[3][1]
-                    pars = text.lower().split(" ")
+                    chan = line.split(" :")[0].split(" ")[2]
+                    text = line.split(":", 2)[2]
                 except:
                     nick = "Service"
                 if "Serv" in nick or "irc.editingarchive.com" in nick:
@@ -985,7 +942,8 @@ try:
 
 
     class Save(
-        easygui.EgStore):  # Create a class named Settings inheriting from easygui.EgStore so that I can persist TechnoMagic Account info.
+        easygui.EgStore):  # Create a class named Settings inheriting from easygui.EgStore so that I can persist
+        # TechnoMagic Account info.
         def __init__(self, filename):  # filename is required
             # -------------------------------------------------
             # Specify default/initial values for variables that
@@ -1062,7 +1020,7 @@ try:
 
 
     savefile = easygui.buttonbox("Please select a save file.", "Select a Save!",
-                                 ("Save #1", "Save #2", "Save#3", "Save #4"))
+                                 ["Save #1", "Save #2", "Save#3", "Save #4"])
     # savefile = easygui.choicebox("Please select a save file.", "Select a Save!", list(string.ascii_uppercase))
     data = Save("data/" + savefile + ".txt")
 
@@ -1212,7 +1170,7 @@ try:
                 if chat:
                     irc.send(bytes("QUIT :Client exited.\n", "utf-8"))
                     irc.close()
-                if (easygui.ynbox("Would you like to save your game?")):
+                if easygui.ynbox("Would you like to save your game?"):
                     logger.info("Saving game...")
                     data.realm = realm
                     data.map[realm] = tilemap
@@ -1286,7 +1244,7 @@ try:
                                 inventory[GRASS] += 1
                             else:
                                 msg(["You need 1 coins to buy 1 Grass.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
                         elif event.button == 3:
                             if coins >= 10:
@@ -1294,7 +1252,7 @@ try:
                                 inventory[GRASS] += 10
                             else:
                                 msg(["You need 10 coins to buy 10 Grass.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 110 and mx <= (
@@ -1311,7 +1269,7 @@ try:
                                 inventory[WATER] += 1
                             else:
                                 msg(["You need 3 coins to buy 1 Water.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
                         elif event.button == 3:
                             if coins >= 30:
@@ -1319,7 +1277,7 @@ try:
                                 inventory[WATER] += 10
                             else:
                                 msg(["You need 30 coins to buy 10 Water.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 160 and mx <= (
@@ -1336,7 +1294,7 @@ try:
                                 inventory[COAL] += 1
                             else:
                                 msg(["You need 4 coins to buy 1 Coal.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
                         elif event.button == 3:
                             if coins >= 40:
@@ -1344,7 +1302,7 @@ try:
                                 inventory[COAL] += 10
                             else:
                                 msg(["You need 40 coins to buy 10 Coal.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 210 and mx <= (
@@ -1361,7 +1319,7 @@ try:
                                 inventory[LAVA] += 1
                             else:
                                 msg(["You need 5 coins to buy 1 Lava.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
                         elif event.button == 3:
                             if coins >= 50:
@@ -1369,7 +1327,7 @@ try:
                                 inventory[LAVA] += 10
                             else:
                                 msg(["You need 50 coins to buy 10 Lava.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
 
 
@@ -1387,7 +1345,7 @@ try:
                                 inventory[ROCK] += 1
                             else:
                                 msg(["You need 6 coins to buy 1 Stone.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
                         elif event.button == 3:
                             if coins >= 60:
@@ -1395,7 +1353,7 @@ try:
                                 inventory[ROCK] += 10
                             else:
                                 msg(["You need 60 coins to buy 10 Stone.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
 
 
@@ -1414,7 +1372,7 @@ try:
                                 inventory[DIAM] += 1
                             else:
                                 msg(["You need 10 coins to buy 1 Diamond.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
                         elif event.button == 3:
                             if coins >= 100:
@@ -1422,7 +1380,7 @@ try:
                                 inventory[DIAM] += 10
                             else:
                                 msg(["You need 100 coins to buy 10 Diamond.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
 
 
@@ -1440,7 +1398,7 @@ try:
                                 inventory[SAPP] += 1
                             else:
                                 msg(["You need 12 coins to buy 1 Sapphire.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
                         elif event.button == 3:
                             if coins >= 120:
@@ -1448,7 +1406,7 @@ try:
                                 inventory[SAPP] += 10
                             else:
                                 msg(["You need 120 coins to buy 10 Sapphire.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
 
 
@@ -1466,7 +1424,7 @@ try:
                                 inventory[RUBY] += 1
                             else:
                                 msg(["You need 14 coins to buy 1 Ruby. I would make a dog joke here, but doge.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
                         elif event.button == 3:
                             if coins >= 140:
@@ -1474,7 +1432,7 @@ try:
                                 inventory[RUBY] += 10
                             else:
                                 msg(["You need 140 coins to buy 10 Ruby.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
 
 
@@ -1492,7 +1450,7 @@ try:
                                 inventory[GOLD] += 1
                             else:
                                 msg(["You need 13 coins to buy 1 Gold.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
                         elif event.button == 3:
                             if coins >= 130:
@@ -1500,7 +1458,7 @@ try:
                                 inventory[GOLD] += 10
                             else:
                                 msg(["You need 130 coins to buy 10 Gold.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
 
 
@@ -1518,7 +1476,7 @@ try:
                                 inventory[CARP] += 1
                             else:
                                 msg(["You need 9 coins to buy 1 Carpet.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
                         elif event.button == 3:
                             if coins >= 90:
@@ -1526,7 +1484,7 @@ try:
                                 inventory[CARP] += 10
                             else:
                                 msg(["You need 90 coins to buy 10 Carpet.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
 
 
@@ -1544,7 +1502,7 @@ try:
                                 inventory[SNOW] += 1
                             else:
                                 msg(["You need 7 coins to buy 1 Snow.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
                         elif event.button == 3:
                             if coins >= 70:
@@ -1552,7 +1510,7 @@ try:
                                 inventory[SNOW] += 10
                             else:
                                 msg(["You need 70 coins to buy 10 Snow.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
 
 
@@ -1571,7 +1529,7 @@ try:
                                 inventory[WOOD] += 1
                             else:
                                 msg(["You need 7 coins to buy 1 Wood.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
                         elif event.button == 3:
                             if coins >= 70:
@@ -1579,7 +1537,7 @@ try:
                                 inventory[WOOD] += 10
                             else:
                                 msg(["You need 70 coins to buy 10 Wood.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
 
 
@@ -1596,7 +1554,7 @@ try:
                                 inventory[GLASS] += 1
                             else:
                                 msg(["You need 8 coins to buy 1 Glass.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
                         elif event.button == 3:
                             if coins >= 80:
@@ -1604,7 +1562,7 @@ try:
                                 inventory[GLASS] += 10
                             else:
                                 msg(["You need 80 coins to buy 10 Glass.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
 
 
@@ -1621,7 +1579,7 @@ try:
                                 inventory[BRICK] += 1
                             else:
                                 msg(["You need 9 coins to buy 1 Brick.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
                         elif event.button == 3:
                             if coins >= 90:
@@ -1629,7 +1587,7 @@ try:
                                 inventory[BRICK] += 10
                             else:
                                 msg(["You need 90 coins to buy 10 Brick.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
 
 
@@ -1642,7 +1600,7 @@ try:
                             inventory[GSWORD] += 1
                         else:
                             msg(["You need 12 coins to buy Iron Sword.",
-                                 "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                  "You can also earn coins by slaying evil monsters, or by completing quests."])
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 210 and mx <= (
@@ -1655,32 +1613,21 @@ try:
                                 inventory[DSTAFF] += 1
                             else:
                                 msg(["You need 25 coins to buy Staff of Darkness.",
-                                     "100 coin boosts are given every 5 minutes, however you may be interested in purchasing coins at http://www.tmcore.co.uk/games/pr-coinpur.php",
+                                     "100 coin boosts are given every 5 minutes.",
                                      "You can also earn coins by slaying evil monsters, or by completing quests."])
-                        else:
-                            msg(["Staff of Darkness",
-                                 "=================",
-                                 "This item is a PREMIUM content item. Premium access to PythianRealms is available for just £5.",
-                                 "By purchasing premium access, you support the developer to keep working on and improving PythianRealms, and help him to use your premium fee to hire graphics artists and musicians to improve the game feel.",
-                                 "Premium access is a one-time fee, and will allow you unlimited access to all Premium content items, such as this one.",
-                                 "If you are interested in obtaining Premium PythianRealms access, please purchase \"PremiumPythian Game Access\" from the following URL:",
-                                 "http://www.tmcore.co.uk/accounts/spendcr.php (also accessible by going to www.tmcore.co.uk, going to 'My Account' and clicking 'Spend your Credits')",
-                                 "Thank you.",
-                                 "",
-                                 "Note: Premium access is only valid when PythianRealms is running in online mode. If your account has PythianRealms Premium enabled, please ensure that you have a connection to the internet. Thank you."])
 
-                if mx >= 50 and mx <= 60 and my >= 15 and my <= 25 and opt == True:
-                    if silence == True:
+                if mx >= 50 and mx <= 60 and my >= 15 and my <= 25 and opt:
+                    if silence:
                         initMusic()
-                    elif silence == False:
+                    elif not silence:
                         silence = True
                         pygame.mixer.music.stop()
-                if mx >= 50 and mx <= 60 and my >= 55 and my <= 65 and opt == True:
-                    if activeoverlay == True:
+                if mx >= 50 and mx <= 60 and my >= 55 and my <= 65 and opt:
+                    if activeoverlay:
                         activeoverlay = False
-                    elif activeoverlay == False:
+                    elif not activeoverlay:
                         activeoverlay = True
-                if mx >= 50 and mx <= 60 and my >= 75 and my <= 85 and opt:
+                if (50 <= mx <= 60) and (75 <= my <= 85) and opt:
                     if seamless:
                         seamless = False
                     else:
@@ -1691,10 +1638,11 @@ try:
                     else:
                         smoothwalk = True
 
-                if mx >= 0 and mx <= vmapwidth * tilesizex and my >= vmapheight * tilesizey + 38 and my <= vmapheight * tilesizey + 50:
+                if mx >= 0 and mx <= vmapwidth * tilesizex and my >= vmapheight * tilesizey + 38 and \
+                        (my <= vmapheight * tilesizey + 50):
                     if chat:
                         msg = easygui.enterbox("Chat message:", "PythianRealms Chat!")
-                        if msg != None:
+                        if msg is not None:
                             irc.send(bytes("PRIVMSG " + channel + " :" + msg + "\n", "utf-8"))
                             addchat("You: " + msg)
 
@@ -1703,7 +1651,7 @@ try:
                 for npc in NPCs:
                     for npcd in NPCcount[npc]:
                         if npcPosX[npc][npcd] == x and npcPosY[npc][npcd] == y:
-                            if selectednpc == None or (selectednpc[0] != npc and selectednpc[1] != npcd):
+                            if selectednpc is None or (selectednpc[0] != npc and selectednpc[1] != npcd):
                                 selectednpc = (npc, npcd)
                             else:
                                 selectednpc = None
@@ -1723,73 +1671,40 @@ try:
                         changedz = []
                         pickup = True
                         msg([
-                            "Pickup mode changes will not immediately take effect, and will be shown after pressing F to exit pickup mode."])
-                    else:
-                        msg(["RPG REALM CONSTRUCTION",
-                             "======================",
-                             "We're super sorry to have to say this, but Construction within the RPG realm is restricted to Premium users. Why?",
-                             "Well, we need to earn money to keep working on and producing content for PythianRealms. Premiumship shows your dedication to the game,",
-                             "and gives you sweet perks - such as being able to shape the RPG world to make it how you imagine it.",
-                             "",
-                             "If you wish to build without Premium access, simply go over to the Construction realm, by pressing T.",
-                             "",
-                             "If you're interested in becoming a Premium user, please feel free to buy premiumship at http://www.tmcore.co.uk - more info available there.",
-                             "",
-                             "Thank you."])
+                            """Pickup mode changes will not immediately take effect, and will be shown after pressing F
+                            to exit pickup mode."""])
                 if event.key == K_r:
                     if realm == 2 or premium:
                         changedz = []
                         place = True
-                    else:
-                        msg(["RPG REALM CONSTRUCTION",
-                             "======================",
-                             "We're super sorry to have to say this, but Construction within the RPG realm is restricted to Premium users. Why?",
-                             "Well, we need to earn money to keep working on and producing content for PythianRealms. Premiumship shows your dedication to the game,",
-                             "and gives you sweet perks - such as being able to shape the RPG world to make it how you imagine it.",
-                             "",
-                             "If you wish to build without Premium access, simply go over to the Construction realm, by pressing T.",
-                             "",
-                             "If you're interested in becoming a Premium user, please feel free to buy premiumship at http://www.tmcore.co.uk - more info available there.",
-                             "",
-                             "Thank you."])
                 if event.key == K_i:
                     invshow = not invshow
                 if event.key == K_h:
                     shopshow = not shopshow
                 if event.key == K_m:
                     if inventory[DSTAFF] > 0:
-                        if selectednpc != None:
+                        if selectednpc is not None:
                             if NPCtype[selectednpc[0]] == "Hostile":
                                 magicmsg("Darkness", ["The light of the devil burns your target.",
                                                       "(Target NPC loses 25 health.)"], True)
                                 NPChealth[selectednpc[0]][selectednpc[1]] -= 25
                         else:
                             msg(["Please select a target.",
-                                 "In order to select a target, simply click on any hostile (red name) NPC that you wish to attack. Then you can try this again."])
+                                 """In order to select a target, simply click on any hostile (red name) NPC that you
+                                 wish to attack. Then you can try this again."""])
                     else:
                         if premium:
                             msg(["Hey, premium member!",
                                  "Did you know that you can buy a Staff of Darkness in the shop (H) for just 25 coins?",
                                  "Why not go do that, and then try this key again!"])
-                        else:
-                            msg(["PREMIUM PERK",
-                                 "============",
-                                 "We're sorry, but casting magical spells on your enemies is a premium perk! Premium access to PythianRealms is available for just £5.",
-                                 "By purchasing premium access, you support the developer to keep working on and improving PythianRealms, and help him to use your premium fee to hire graphics artists and musicians to improve the game feel.",
-                                 "Premium access is a one-time fee, and will allow you unlimited access to all Premium content items, such as this one.",
-                                 "If you are interested in obtaining Premium PythianRealms access, please purchase \"PremiumPythian Game Access\" from the following URL:",
-                                 "http://www.tmcore.co.uk/accounts/spendcr.php (also accessible by going to www.tmcore.co.uk, going to 'My Account' and clicking 'Spend your Credits')",
-                                 "Thank you.",
-                                 "",
-                                 "Note: Premium access is only valid when PythianRealms is running in online mode. If your account has PythianRealms Premium enabled, please ensure that you have a connection to the internet. Thank you."])
                 if event.key == K_SPACE:
-                    if selectednpc != None:
+                    if selectednpc is not None:
                         if NPCtype[selectednpc[0]] == "Hostile":
                             if (npcPosX[selectednpc[0]][selectednpc[1]] == playerTile[0] and npcPosY[selectednpc[0]][
                                 selectednpc[1]] == playerTile[1]) or (
                                                 -5 < playerTile[0] - npcPosX[selectednpc[0]][
-                                                selectednpc[1]] < 5 and -5 <
-                                            playerTile[1] - npcPosY[selectednpc[0]][selectednpc[1]] < 5):
+                                                    selectednpc[1]] < 5 and -5 <
+                                                        playerTile[1] - npcPosY[selectednpc[0]][selectednpc[1]] < 5):
                                 if inventory[GSWORD] >= 1:
                                     NPChealth[selectednpc[0]][selectednpc[1]] -= 12
                                 else:
@@ -1807,18 +1722,28 @@ try:
                         data.realm = 1
                         msg(["THE CONSTRUCTION REALM",
                              "======================",
-                             "The construction realm contains monsters and NPCs to teach you how to build, destroy, and use the Construction realm, but it does NOT have a storyline.",
-                             "The construction realm provides a home for all your construction talent to come together to create a wondrous, magnificent building for you to share with your friends.",
-                             "The Construction realm, by all defaults, is a barren wasteland - that is, until you build in it. The construction realm serves to satisfy the construction aspect of PythianRealms.",
-                             "Have fun, and remember - T to toggle between realms... If you wish to return to the RPG realm, of course. ;)"])
+                             """The construction realm contains monsters and NPCs to teach you how to build, destroy,
+                             and use the Construction realm, but it does NOT have a storyline.""",
+                             """The construction realm provides a home for all your construction talent to come together
+                              to create a wondrous, magnificent building for you to share with your friends.""",
+                             """The Construction realm, by all defaults, is a barren wasteland - that is, until you
+                             build in it. The construction realm serves to satisfy the construction aspect of
+                             PythianRealms.""",
+                             """Have fun, and remember - T to toggle between realms... If you wish to return to the RPG
+                             realm, of course. ;)"""])
                     elif realm == 1:
                         realm = 0
                         data.realm = 0
                         msg(["THE RPG REALM",
                              "=============",
-                             "The RPG realm is the home of the PythianRealms storyline. Riddled with people, monsters and stories, the RPG realm is built by Scratso (the developer) and distributed with all copies of PythianRealms.",
-                             "Construction within the RPG realm is usually fDSTAFFidden, however Premium Users may happily change the RPG realm to suit themselves. This allows premium users to improve on existing buildings, if they wish.",
-                             "Have fun, and remember - T to toggle between realms... If you wish to return to the Construction realm, of course. ;)"])
+                             """The RPG realm is the home of the PythianRealms storyline. Riddled with people, monsters
+                             and stories, the RPG realm is built by Scratso (the developer) and distributed with all
+                             copies of PythianRealms.""",
+                             """Construction within the RPG realm is usually forbidden, however Premium Users may
+                             happily change the RPG realm to suit themselves. This allows premium users to improve on
+                             existing buildings, if they wish.""",
+                             """Have fun, and remember - T to toggle between realms... If you wish to return to the
+                             Construction realm, of course. ;)"""])
                     change = True
 
                     tilemap = data.map[realm]
@@ -1984,7 +1909,7 @@ try:
                                 NHP = gamefont.render(str(round(percent * 100)) + "%", True, red)
                                 npcsurf.blit(NHP, (
                                     npcPosX[item][curnpc] * tilesizex, npcPosY[item][curnpc] * tilesizey - 27))
-                                if selectednpc != None:
+                                if selectednpc is not None:
                                     if selectednpc[0] == item and selectednpc[1] == curnpc:
                                         npcselimg = pygame.transform.scale(
                                             pygame.image.load("graphics/temp/selnpc.png").convert_alpha(),
@@ -2001,8 +1926,8 @@ try:
                                 NPCname = gamefont.render(str(npcName[item]), True, black)
                                 npcsurf.blit(NPCname, (
                                     npcPosX[item][curnpc] * tilesizex, npcPosY[item][curnpc] * tilesizey - 15))
-                                ##                    else:
-                                ##                        npcPosZ[item] = 2
+                                #                    else:
+                                #                        npcPosZ[item] = 2
 
         if playerz == 0:
             if tilemap[playerz + 1][playerTile[1]][playerTile[0]] != AIR:
@@ -2149,14 +2074,14 @@ try:
             newrow = 6
             curitem = 1
             for item in resources:
-                ##      ANIMATION CODE - ADAPT FOR ANIMATED BLOCKS :)
-                ##        if item == WATER:
-                ##            if wateranim == 1:
-                ##                textures[WATER] = pygame.image.load("graphics/temp/water_2.jpg")
-                ##                wateranim = 2
-                ##            elif wateranim == 2:
-                ##                textures[WATER] = pygame.image.load("graphics/temp/water_1.jpg")
-                ##                wateranim = 1
+                #      ANIMATION CODE - ADAPT FOR ANIMATED BLOCKS :)
+                #        if item == WATER:
+                #            if wateranim == 1:
+                #                textures[WATER] = pygame.image.load("graphics/temp/water_2.jpg")
+                #                wateranim = 2
+                #            elif wateranim == 2:
+                #                textures[WATER] = pygame.image.load("graphics/temp/water_1.jpg")
+                #                wateranim = 1
                 # add the image
                 if item == AIR or item == BPORT or item == FPORT:
                     continue
@@ -2174,7 +2099,7 @@ try:
                     else:
                         curitem += 1
             display.blit(invsurf, ((vmapwidth * tilesizex) / 2 - 155, (vmapheight * tilesizey) / 2 - 155))
-            if activeoverlay == True:
+            if activeoverlay:
                 display.blit(textures[SEL], sel)
 
         if playerHP <= 0:
@@ -2191,7 +2116,7 @@ try:
             pickuptext = gamefont.render("Pickup mode active", True, red)
             display.blit(pickuptext, (0, vmapheight * tilesizey - 12))
 
-        if menu == True:
+        if menu:
             savecol = black
             screencol = black
             credcol = black
@@ -2203,7 +2128,7 @@ try:
                 screensurf.blit(l, (0, 0))
             game = pygame.image.tostring(screensurf, "RGBA")
             game = pygame.image.fromstring(game, (mapwidth * tilesizex, mapheight * tilesizey), "RGBA")
-        while menu == True:
+        while menu:
             mx, my = pygame.mouse.get_pos()
             display.fill(gray)
             pygame.draw.rect(display, white, (15, 15, vmapwidth * tilesizex - 30, vmapheight * tilesizey - 30))
@@ -2223,12 +2148,12 @@ try:
             display.blit(author, (138, vmapheight * tilesizey - 92))
             display.blit(playtime, (142, vmapheight * tilesizey - 76))
             display.blit(volume, (146, vmapheight * tilesizey - 58))
-            display.blit(pygame.image.load("graphics/temp/minus.png").convert(), (269, vmapheight * tilesizey - 56))
-            display.blit(pygame.image.load("graphics/temp/plus.png").convert(), (289, vmapheight * tilesizey - 56))
-            display.blit(pygame.image.load("graphics/temp/prev.png").convert(), (560, vmapheight * tilesizey - 98))
-            display.blit(pygame.image.load("graphics/temp/pause.png").convert(), (600, vmapheight * tilesizey - 98))
-            display.blit(pygame.image.load("graphics/temp/play.png").convert(), (640, vmapheight * tilesizey - 98))
-            display.blit(pygame.image.load("graphics/temp/skip.png").convert(), (680, vmapheight * tilesizey - 98))
+            display.blit(pygame.image.load("graphics/temp/minus.png").convert_alpha(), (269, vmapheight * tilesizey - 56))
+            display.blit(pygame.image.load("graphics/temp/plus.png").convert_alpha(), (289, vmapheight * tilesizey - 56))
+            display.blit(pygame.image.load("graphics/temp/prev.png").convert_alpha(), (560, vmapheight * tilesizey - 98))
+            display.blit(pygame.image.load("graphics/temp/pause.png").convert_alpha(), (600, vmapheight * tilesizey - 98))
+            display.blit(pygame.image.load("graphics/temp/play.png").convert_alpha(), (640, vmapheight * tilesizey - 98))
+            display.blit(pygame.image.load("graphics/temp/skip.png").convert_alpha(), (680, vmapheight * tilesizey - 98))
             pygame.draw.rect(display, savecol, ((vmapwidth * tilesizex) / 2 - 100, 255, 200, 40))
             display.blit(magicbody.render("Save Game", True, white), ((vmapwidth * tilesizex) / 2 - 90, 257))
             pygame.draw.rect(display, screencol, ((vmapwidth * tilesizex) / 2 - 100, 300, 200, 40))
@@ -2310,6 +2235,7 @@ try:
                         f = open("Docs/CREDITS.md", "r")
                         r = f.readlines()
                         f.close()
+                        # noinspection PyTypeChecker
                         easygui.textbox("PythianRealms Credits", "PythianRealms Credits", r)
                     elif ((vmapwidth * tilesizex) / 2 - 100 <= mx <= (vmapwidth * tilesizex) / 2 + 100) and (
                                     390 <= my <= 430):
@@ -2321,7 +2247,7 @@ try:
                         if chat:
                             irc.send(bytes("QUIT :Client exited.\n", "utf-8"))
                             irc.close()
-                        if (easygui.ynbox("Would you like to save your game?")):
+                        if easygui.ynbox("Would you like to save your game?"):
                             logger.info("Saving game...")
                             data.realm = realm
                             data.map[realm] = tilemap
@@ -2345,10 +2271,10 @@ try:
                             logger.error(e)
                         sys.exit("User has quit the application.")
 
-                        ##            for line in message:
-                        ##                text = gamefont.render(line, True, white)
-                        ##                display.blit(text, (17,17+textoffset))
-                        ##                textoffset += 12
+                        #            for line in message:
+                        #                text = gamefont.render(line, True, white)
+                        #                display.blit(text, (17,17+textoffset))
+                        #                textoffset += 12
             pygame.display.update()
 
         if chat:
@@ -2376,5 +2302,5 @@ except Exception as e:
             logger.error(str(e) + "\n" + traceback.format_exc())
         except:
             print(str(e) + "\n" + traceback.format_exc())
-            # easygui.exceptionbox("""Oops! Something went wrong. But don't worry! Because I'm so amazingly kind, you need only
-            # send me this error report below and I'll get right on it.""", "An Error Ocurred!")
+            # easygui.exceptionbox("""Oops! Something went wrong. But don't worry! Because I'm so amazingly kind,
+            # you need only send me this error report below and I'll get right on it.""", "An Error Ocurred!")
