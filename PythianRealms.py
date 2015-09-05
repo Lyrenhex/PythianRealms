@@ -17,7 +17,8 @@ from en_UK import *
 
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015 Adonis Megalos and Icronium Software. Creative Commons Attribution 4.0 International License
+# Copyright (c) 2015 Adonis Megalos and Icronium Software.
+# Creative Commons Attribution ShareAlike 4.0 International License
 
 version = "Alpha.105"
 
