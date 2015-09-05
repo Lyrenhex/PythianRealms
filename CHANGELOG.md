@@ -1,6 +1,6 @@
 ﻿Changelog:
 
-Alpha.96:
+Alpha.105:
 - Improved Error screen to prevent instant closing.
 - Optimised some additional code.
 - Improved error reporting.

@@ -19,7 +19,7 @@ from en_UK import *
 
 # Copyright (c) 2015 Adonis Megalos and Icronium Software. Creative Commons Attribution 4.0 International License
 
-version = "Alpha.96"
+version = "Alpha.105"
 
 # Encompass the entire program in a try statement for the error reporter.
 try:
