@@ -8,8 +8,9 @@ chatnote = "Note: Ingame chat is logged, however during times of technical issue
 staffowner = "Owner"
 staffmod = "Mod"
 
-texture1 = "Choose your texture pack! You can install texture packs by copying the texture pack's .zip file into the "
-texture2 = "folder."
+texture1 = """Choose your texture pack! You can install texture packs by copying the texture pack's .zip file into the
+\"graphics\" folder, which should be located in the folder you extracted the launcher to. (Obsolete launcher is in
+%APPDATA%/PythianRealms/Game)"""
 texturehead = "Texture Packs"
 
 loadingmsg = "Loading PythianRealms..."
@@ -33,8 +34,8 @@ welcomedev = """This is a Public Alpha Development version of PythianRealms. All
 welcomedonate = """PythianRealms cannot thrive without donations. Why not help us out by donating? You can donate
                     over at http://www.scratso.com/PythianRealms"""
 welcome3 = "Please make sure that you have fun, and spread the word!"
-welcome4 = """PROTIP: You can find a load of helpful guides by typing (without quotes) \"%APPDATA%\
-                    PythianRealms\\Game\\Docs\" into run (Windows key + R)."""
+welcome4 = """PROTIP: You can find a load of helpful guides by going to the Docs directory from where you ran the
+launcher."""
 
 clickchat = "Click here to chat!"
 chathead = "PythianRealms Chat"

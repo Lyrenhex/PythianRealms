@@ -12,6 +12,9 @@ Alpha.96:
 -- GitHub Commit --
 - Added Multilingual Support (reference: #2)
 -- GitHub Commit --
+- Removed %appdata% references with notes for the normal launcher.
+- I *think* I've fixed the bug in which NPCs would attack from afar.
+-- GitHub Commit --
 
 Alpha.95:
 - Added texture pack support. If a texture pack does not contain a necessary game graphic file, then an error will occur -- so keep your packs up to date!

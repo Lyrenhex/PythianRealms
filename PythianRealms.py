@@ -137,7 +137,7 @@ try:
     texturezips = [os.path.splitext(f)[0] for f in os.listdir("graphics") if
                    os.path.isfile(os.path.join("graphics", f)) and ".zip" in f]
     texturepack = easygui.choicebox(
-        texture1 + os.getenv('APPDATA') + "\PythianRealms\Game\data\graphics " + texture2, texturehead, texturezips)
+        texture1, texturehead, texturezips)
     try:
         os.mkdir("graphics/temp/")
     except:
@@ -1807,24 +1807,13 @@ try:
                             playerHP -= 1
                         else:
                             if 0 < npcPosX[npc][npcd] < mapwidth - 1 and 0 < npcPosY[npc][npcd] < mapheight - 1:
-                                if NPCtype[npc] == "Hostile" and playerTile[0] - npcPosX[npc][npcd] <= 1 and playerTile[
-                                    1] - npcPosY[npc][npcd] == 0:
+                                if NPCtype[npc] == "Hostile" and (playerTile[0] - npcPosX[npc][npcd] == 1 or \
+                                                                playerTile[0] - npcPosX[npc][npcd] == 0 or \
+                                                                playerTile[0] - npcPosX[npc][npcd] == -1) and \
+                                        (playerTile[1] - npcPosY[npc][npcd] == 1 or \
+                                        playerTile[1] - npcPosY[npc][npcd] == 0 or \
+                                        playerTile[1] - npcPosY[npc][npcd] == -1):
                                     # go right
-                                    logger.info(npc + " attacks you.")
-                                    playerHP -= NPCdamage[npc]
-                                elif NPCtype[npc] == "Hostile" and npcPosX[npc][npcd] - playerTile[0] <= 1 and \
-                                                        playerTile[1] - npcPosY[npc][npcd] == 0:
-                                    # go left
-                                    logger.info(npc + " attacks you.")
-                                    playerHP -= NPCdamage[npc]
-                                elif NPCtype[npc] == "Hostile" and playerTile[1] - npcPosY[npc][npcd] <= 1 and \
-                                                        playerTile[0] - npcPosX[npc][npcd] == 0:
-                                    # go down
-                                    logger.info(npc + " attacks you.")
-                                    playerHP -= NPCdamage[npc]
-                                elif NPCtype[npc] == "Hostile" and npcPosY[npc][npcd] - playerTile[1] <= 1 and \
-                                                        playerTile[0] - npcPosX[npc][npcd] == 0:
-                                    # go up
                                     logger.info(npc + " attacks you.")
                                     playerHP -= NPCdamage[npc]
                                 if NPCtype[npc] == "Hostile" and playerTile[0] - npcPosX[npc][npcd] <= 5 and playerTile[
