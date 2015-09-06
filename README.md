@@ -20,10 +20,4 @@ To install a texture pack:
 - Launch!
 
 
-IMPORTANT INFORMATION:
-
-PythianRealms, and all material owned by PythianRealms, is owned by Adonis Megalos.
-
-<a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">PythianRealms</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://scratso.com:8080" property="cc:attributionName" rel="cc:attributionURL">Adonis Megalos</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
-
-Thank you.
+PythianRealms is distributed under the [GNU General Public License v3](http://gnu.org/licenses/gpl.html).
