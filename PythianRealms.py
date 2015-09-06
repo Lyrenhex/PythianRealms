@@ -194,16 +194,26 @@ try:
     activetxt = gamefont.render("Active", True, white)
     activesurf.blit(activetxt, (5, 5))
 
+    pygame.display.set_caption("PythianRealms")
+    # set the window icon
+    pygame.display.set_icon(pygame.image.load("graphics/temp//logo-small.png").convert_alpha())
+
+    # set up scratso screen
+    display.fill((9,9,9))
+    loadtext = magicbody.render(presenting, True, white)
+    display.blit(loadtext, (
+                    vmapwidth * tilesizex / 2 - round((len(presenting) / 2) * 16),
+                    vmapheight * tilesizey / 3 * 2))
+    display.blit(pygame.image.load("graphics/temp/scratso.png"), (vmapwidth * tilesizex / 2 - 351, 200))
+    pygame.display.update()
+    time.sleep(3)
+
     # set up loading screen
     display.fill(white)
     loadtext = gamefont.render(loadingmsg, True, black)
     display.blit(loadtext, (0, vmapheight * tilesizey - 12))
     display.blit(pygame.image.load("graphics/temp//logo.png"), (vmapwidth * tilesizex / 2 - 360, 0))
     pygame.display.update()
-
-    pygame.display.set_caption("PythianRealms")
-    # set the window icon
-    pygame.display.set_icon(pygame.image.load("graphics/temp//logo-small.png").convert_alpha())
 
     # load the player sprite
     player = pygame.transform.scale(
@@ -235,6 +245,7 @@ try:
     FPORT = 18
     BPORT = 19
     DSTAFF = 20
+    SAND = 21
 
     active = DIRT
 
@@ -245,7 +256,7 @@ try:
 
     # a list of resources
     resources = [DIRT, GRASS, WATER, COAL, LAVA, ROCK, DIAM, SAPP, RUBY, GOLD, CARP, SNOW, WOOD, GLASS, BRICK, GSWORD,
-                 DSTAFF]
+                 DSTAFF, SAND]
 
     ########
     # NPCS #
@@ -578,6 +589,8 @@ try:
         BPORT: pygame.transform.scale(pygame.image.load('graphics/temp/backportal.jpg').convert(),
                                       (tilesizex, tilesizey + round(tilesizey / 2))),
         DSTAFF: pygame.transform.scale(pygame.image.load('graphics/temp/DSTAFF.png').convert_alpha(),
+                                       (tilesizex, tilesizey + round(tilesizey / 2))),
+        SAND: pygame.transform.scale(pygame.image.load('graphics/temp/sand.jpg').convert(),
                                        (tilesizex, tilesizey + round(tilesizey / 2)))
     }
 
@@ -980,7 +993,10 @@ try:
                 logger.info("Island #" + str(island) + " is " + str(size * size) + " blocks big at " + str(pos))
                 for row in range(size):
                     for column in range(size):
-                        self.map[0][2][pos[0] + row][pos[1] + column] = GRASS
+                        self.map[0][2][pos[0] + row][pos[1] + column] = SAND
+                for row in range(size-4):
+                    for column in range(size-4):
+                        self.map[0][3][pos[0] + 2 + row][pos[1] + 2 + column] = GRASS
             self.inventory = {
                 DIRT: 0,
                 GRASS: 0,
@@ -1001,6 +1017,7 @@ try:
                 DSTAFF: 0,
                 FPORT: 1,
                 BPORT: 1,
+                SAND: 0,
             }
             self.realm = 0
             self.coins = 1000
@@ -1607,6 +1624,30 @@ try:
                                 inventory[DSTAFF] += 1
                             else:
                                 msg([buycoin1 + "25" + buyonecoin2 + " Staff of Darkness.",
+                                     buycoinboost,
+                                     buycoinmob])
+
+                elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 260 and mx <= (
+                            vmapwidth * tilesizex) / 2 - 155 + 310 and my >= (
+                            vmapheight * tilesizey) / 2 - 155 + 120 and my <= (vmapheight * tilesizey) / 2 - 155 + 160:
+                    if invshow:
+                        active = SAND
+                        sel = ((vmapwidth * tilesizex) / 2 - 155 + 260, (vmapheight * tilesizey) / 2 - 155 + 120)
+                    elif shopshow:
+                        if event.button == 1:
+                            if coins >= 2:
+                                coins -= 2
+                                inventory[SAND] += 1
+                            else:
+                                msg([buycoin1 + "2" + buyonecoin2 + " Sand.",
+                                     buycoinboost,
+                                     buycoinmob])
+                        elif event.button == 3:
+                            if coins >= 20:
+                                coins -= 20
+                                inventory[BRICK] += 10
+                            else:
+                                msg([buycoin1 + "20" + buytencoin2 + " Sand.",
                                      buycoinboost,
                                      buycoinmob])
 

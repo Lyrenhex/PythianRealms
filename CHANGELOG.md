@@ -1,5 +1,11 @@
 ﻿Changelog:
 
+:
+- Added sand.
+- Improved island template for map generation.
+- Added "Scratso" Intro screen.
+-- GitHub Commit --
+
 Alpha.105:
 - Improved Error screen to prevent instant closing.
 - Optimised some additional code.

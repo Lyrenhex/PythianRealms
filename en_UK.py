@@ -13,6 +13,7 @@ texture1 = """Choose your texture pack! You can install texture packs by copying
 %APPDATA%/PythianRealms/Game)"""
 texturehead = "Texture Packs"
 
+presenting = "presents..."
 loadingmsg = "Loading PythianRealms..."
 
 presse = "Press E to continue"
