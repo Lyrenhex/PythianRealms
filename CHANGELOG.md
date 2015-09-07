@@ -5,6 +5,9 @@
 - Improved island template for map generation.
 - Added "Scratso" Intro screen.
 -- GitHub Commit --
+- Reorganised texture packs has resulted in some code changes...
+- Removed some dead items.
+-- GitHub Commit --
 
 Alpha.105:
 - Improved Error screen to prevent instant closing.

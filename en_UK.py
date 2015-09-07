@@ -20,20 +20,20 @@ presse = "Press E to continue"
 pressspace = "Press SPACE to Start"
 
 err1 = """PythianRealms has encountered an error and has stopped running. To protect your existing saves,
-            your work was NOT saved when this error occurred."""
+your work was NOT saved when this error occurred."""
 err2 = "Please try to screenshot this window and send it to Adonis at adonis@icronium.com"
 err3 = """If this problem continues to occur after restarting PythianRealms, please consider wiping your
-            PythianRealms game data, or forcing an update."""
+PythianRealms game data, or forcing an update."""
 err4 = """If this error has only began occuring after the latest update, please consider downloading an earlier
-            update from http://scratso.com/pythianrealms/catalog.php"""
+update from http://scratso.com/pythianrealms/catalog.php"""
 err5 = "Technical Information:"
 
 welcome = "Welcome to PythianRealms!"
 welcome2 = "You are running version "
 welcomedev = """This is a Public Alpha Development version of PythianRealms. All feedback is appreciated.
-                    Want to help give feedback? Simply email me at scratso@icronium.com!"""
+Want to help give feedback? Simply email me at adonis@icronium.com!"""
 welcomedonate = """PythianRealms cannot thrive without donations. Why not help us out by donating? You can donate
-                    over at http://www.scratso.com/PythianRealms"""
+over at http://www.scratso.com/PythianRealms"""
 welcome3 = "Please make sure that you have fun, and spread the word!"
 welcome4 = """PROTIP: You can find a load of helpful guides by going to the Docs directory from where you ran the
 launcher."""
@@ -68,7 +68,7 @@ buycoinboost = "100 coin boosts are given every 5 minutes."
 buycoinmob = "You can also earn coins by slaying evil monsters, or by completing quests."
 
 pickupmodenotice =  """Pickup mode changes will not immediately take effect, and will be shown after pressing F
-                            to exit pickup mode."""
+to exit pickup mode."""
 
 darkness = "Darkness"
 darkdesc = ["The light of the devil burns your target.",
@@ -76,7 +76,7 @@ darkdesc = ["The light of the devil burns your target.",
 
 targetselect = "Please select a target."
 targetinstruct = """In order to select a target, simply click on any hostile (red name) NPC that you
-                                 wish to attack. Then you can try this again."""
+wish to attack. Then you can try this again."""
 
 musicplaying = "Now Playing: "
 musicalbum = "Album: "

@@ -210,17 +210,17 @@ try:
             pygame.Surface((mapwidth * tilesizex, mapheight * tilesizey), pygame.SRCALPHA, 32).convert_alpha())
 
     # fonts
-    gamefont = pygame.font.Font("graphics/temp//gameFont.ttf", 12)
-    gamefontl = pygame.font.Font("graphics/temp//gameFont.ttf", 18)
-    magichead = pygame.font.Font("graphics/temp//gameFont.ttf", 60)
-    magicbody = pygame.font.Font("graphics/temp//gameFont.ttf", 36)
+    gamefont = pygame.font.Font("graphics/temp/misc/gameFont.ttf", 12)
+    gamefontl = pygame.font.Font("graphics/temp/misc/gameFont.ttf", 18)
+    magichead = pygame.font.Font("graphics/temp/misc/gameFont.ttf", 60)
+    magicbody = pygame.font.Font("graphics/temp/misc/gameFont.ttf", 36)
 
     activetxt = gamefont.render("Active", True, white)
     activesurf.blit(activetxt, (5, 5))
 
     pygame.display.set_caption("PythianRealms")
     # set the window icon
-    pygame.display.set_icon(pygame.image.load("graphics/temp//logo-small.png").convert_alpha())
+    pygame.display.set_icon(pygame.image.load("graphics/temp/misc/logo-small.png").convert_alpha())
 
     # set up scratso screen
     display.fill((9,9,9))
@@ -228,7 +228,7 @@ try:
     display.blit(loadtext, (
                     vmapwidth * tilesizex / 2 - round((len(presenting) / 2) * 16),
                     vmapheight * tilesizey / 3 * 2))
-    display.blit(pygame.image.load("graphics/temp/scratso.png"), (vmapwidth * tilesizex / 2 - 351, 200))
+    display.blit(pygame.image.load("graphics/temp/misc/scratso.png"), (vmapwidth * tilesizex / 2 - 351, 200))
     pygame.display.update()
     time.sleep(3)
 
@@ -236,12 +236,12 @@ try:
     display.fill(white)
     loadtext = gamefont.render(loadingmsg, True, black)
     display.blit(loadtext, (0, vmapheight * tilesizey - 12))
-    display.blit(pygame.image.load("graphics/temp//logo.png"), (vmapwidth * tilesizex / 2 - 360, 0))
+    display.blit(pygame.image.load("graphics/temp/misc/logo.png"), (vmapwidth * tilesizex / 2 - 360, 0))
     pygame.display.update()
 
     # load the player sprite
     player = pygame.transform.scale(
-        pygame.image.load("graphics/temp//" + str(premium) + "/player_right.png").convert_alpha(),
+        pygame.image.load("graphics/temp/player/player_right.png").convert_alpha(),
         (tilesizex, tilesizey))
 
     # load the hp bar
@@ -266,10 +266,8 @@ try:
     SNOW = 15
     SEL = 16
     GSWORD = 17
-    FPORT = 18
-    BPORT = 19
-    DSTAFF = 20
-    SAND = 21
+    DSTAFF = 18
+    SAND = 19
 
     active = DIRT
 
@@ -513,23 +511,23 @@ try:
         16: 4,
     }
     npcGraphic = {
-        0: pygame.image.load('graphics/temp//smiler.png').convert_alpha(),
-        1: pygame.image.load('graphics/temp//smiler.png').convert_alpha(),
-        2: pygame.image.load('graphics/temp//smiler.png').convert_alpha(),
-        3: pygame.image.load('graphics/temp//void1.png').convert_alpha(),
-        4: pygame.image.load('graphics/temp//smiler.png').convert_alpha(),
-        5: pygame.image.load('graphics/temp//smiler.png').convert_alpha(),
-        6: pygame.image.load('graphics/temp//smiler.png').convert_alpha(),
-        7: pygame.image.load('graphics/temp//smiler.png').convert_alpha(),
-        8: pygame.image.load('graphics/temp//smiler.png').convert_alpha(),
-        9: pygame.image.load('graphics/temp/smiler.png').convert_alpha(),
-        10: pygame.image.load('graphics/temp/smiler.png').convert_alpha(),
-        11: pygame.image.load('graphics/temp/smiler.png').convert_alpha(),
-        12: pygame.image.load('graphics/temp/smiler.png').convert_alpha(),
-        13: pygame.image.load('graphics/temp/smiler.png').convert_alpha(),
-        14: pygame.image.load('graphics/temp/smiler.png').convert_alpha(),
-        15: pygame.image.load('graphics/temp/smiler.png').convert_alpha(),
-        16: pygame.image.load('graphics/temp/smiler.png').convert_alpha(),
+        0: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
+        1: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
+        2: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
+        3: pygame.image.load('graphics/temp/npcs/void1.png').convert_alpha(),
+        4: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
+        5: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
+        6: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
+        7: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
+        8: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
+        9: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
+        10: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
+        11: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
+        12: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
+        13: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
+        14: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
+        15: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
+        16: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
     }
     global npcName
     npcName = {
@@ -571,50 +569,46 @@ try:
 
     # a dictionary linking resources to textures
     textures = {
-        DIRT: pygame.transform.scale(pygame.image.load('graphics/temp/dirt.jpg').convert(),
+        DIRT: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/dirt.jpg').convert(),
                                      (tilesizex, tilesizey + round(tilesizey / 2))),
-        GRASS: pygame.transform.scale(pygame.image.load('graphics/temp/grass.jpg').convert(),
+        GRASS: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/grass.jpg').convert(),
                                       (tilesizex, tilesizey + round(tilesizey / 2))),
-        WATER: pygame.transform.scale(pygame.image.load('graphics/temp/water.jpg').convert(),
+        WATER: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/water.jpg').convert(),
                                       (tilesizex, tilesizey + round(tilesizey / 2))),
-        COAL: pygame.transform.scale(pygame.image.load('graphics/temp/coal.jpg').convert(),
+        COAL: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/coal.jpg').convert(),
                                      (tilesizex, tilesizey + round(tilesizey / 2))),
-        LAVA: pygame.transform.scale(pygame.image.load('graphics/temp/lava.jpg').convert(),
+        LAVA: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/lava.jpg').convert(),
                                      (tilesizex, tilesizey + round(tilesizey / 2))),
-        ROCK: pygame.transform.scale(pygame.image.load('graphics/temp/rock.jpg').convert(),
+        ROCK: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/rock.jpg').convert(),
                                      (tilesizex, tilesizey + round(tilesizey / 2))),
-        DIAM: pygame.transform.scale(pygame.image.load('graphics/temp/diamond.jpg').convert(),
+        DIAM: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/diamond.jpg').convert(),
                                      (tilesizex, tilesizey + round(tilesizey / 2))),
-        SAPP: pygame.transform.scale(pygame.image.load('graphics/temp/sapphire.jpg').convert(),
+        SAPP: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/sapphire.jpg').convert(),
                                      (tilesizex, tilesizey + round(tilesizey / 2))),
-        RUBY: pygame.transform.scale(pygame.image.load('graphics/temp/ruby.jpg').convert(),
+        RUBY: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/ruby.jpg').convert(),
                                      (tilesizex, tilesizey + round(tilesizey / 2))),
-        GOLD: pygame.transform.scale(pygame.image.load('graphics/temp/gold.jpg').convert(),
+        GOLD: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/gold.jpg').convert(),
                                      (tilesizex, tilesizey + round(tilesizey / 2))),
-        AIR: pygame.transform.scale(pygame.image.load('graphics/temp/air.png').convert_alpha(),
+        AIR: pygame.transform.scale(pygame.image.load('graphics/temp/misc/air.png').convert_alpha(),
                                     (tilesizex, tilesizey + round(tilesizey / 2))),
-        WOOD: pygame.transform.scale(pygame.image.load('graphics/temp/wood.jpg').convert(),
+        WOOD: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/wood.jpg').convert(),
                                      (tilesizex, tilesizey + round(tilesizey / 2))),
-        GLASS: pygame.transform.scale(pygame.image.load('graphics/temp/glass.png').convert_alpha(),
+        GLASS: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/glass.png').convert_alpha(),
                                       (tilesizex, tilesizey + round(tilesizey / 2))),
-        BRICK: pygame.transform.scale(pygame.image.load('graphics/temp/brick.jpg').convert(),
+        BRICK: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/brick.jpg').convert(),
                                       (tilesizex, tilesizey + round(tilesizey / 2))),
-        CARP: pygame.transform.scale(pygame.image.load('graphics/temp/carpet/mid.jpg').convert(),
+        CARP: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/carpet/mid.jpg').convert(),
                                      (tilesizex, tilesizey + round(tilesizey / 2))),
-        SNOW: pygame.transform.scale(pygame.image.load('graphics/temp/snow.jpg').convert(),
+        SNOW: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/snow.jpg').convert(),
                                      (tilesizex, tilesizey + round(tilesizey / 2))),
         # NTS: Limited edition Item! To be removed on New Year's Day.
-        SEL: pygame.transform.scale(pygame.image.load('graphics/temp/sel.png').convert_alpha(),
+        SEL: pygame.transform.scale(pygame.image.load('graphics/temp/misc/sel.png').convert_alpha(),
                                     (tilesizex, tilesizey + round(tilesizey / 2))),
-        GSWORD: pygame.transform.scale(pygame.image.load('graphics/temp/gsword.png').convert_alpha(),
+        GSWORD: pygame.transform.scale(pygame.image.load('graphics/temp/items/gsword.png').convert_alpha(),
                                        (tilesizex, tilesizey + round(tilesizey / 2))),
-        FPORT: pygame.transform.scale(pygame.image.load('graphics/temp/forportal.jpg').convert(),
-                                      (tilesizex, tilesizey + round(tilesizey / 2))),
-        BPORT: pygame.transform.scale(pygame.image.load('graphics/temp/backportal.jpg').convert(),
-                                      (tilesizex, tilesizey + round(tilesizey / 2))),
-        DSTAFF: pygame.transform.scale(pygame.image.load('graphics/temp/DSTAFF.png').convert_alpha(),
+        DSTAFF: pygame.transform.scale(pygame.image.load('graphics/temp/items/DSTAFF.png').convert_alpha(),
                                        (tilesizex, tilesizey + round(tilesizey / 2))),
-        SAND: pygame.transform.scale(pygame.image.load('graphics/temp/sand.jpg').convert(),
+        SAND: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/sand.jpg').convert(),
                                        (tilesizex, tilesizey + round(tilesizey / 2)))
     }
 
@@ -796,7 +790,7 @@ try:
             display.blit(loadtext, (0, vmapheight * tilesizey + 32))
         else:
             display.blit(loadtext, (0, vmapheight * tilesizey - 18))
-        display.blit(pygame.image.load("graphics/temp/logo.png"), (vmapwidth * tilesizex / 2 - 360, 0))
+        display.blit(pygame.image.load("graphics/temp/misc/logo.png"), (vmapwidth * tilesizex / 2 - 360, 0))
         pygame.display.update()
 
 
@@ -822,7 +816,7 @@ try:
                     change = True
                     messageactive = False
         display.fill(white)
-        display.blit(pygame.image.load("graphics/temp/logo.png"), (vmapwidth * tilesizex - 950, -100))
+        display.blit(pygame.image.load("graphics/temp/misc/logo.png"), (vmapwidth * tilesizex - 950, -100))
         text = magichead.render(pressspace, True, black)
         display.blit(text, (
             vmapwidth * tilesizex / 2 - round((len(pressspace) / 2) * 27), vmapheight * tilesizey / 3 * 2))
@@ -1039,8 +1033,6 @@ try:
                 BRICK: 0,
                 GSWORD: 0,
                 DSTAFF: 0,
-                FPORT: 1,
-                BPORT: 1,
                 SAND: 0,
             }
             self.realm = 0
@@ -1111,7 +1103,7 @@ try:
         # if the right arrow is pressed
         if keys[pygame.K_RIGHT]:  # and playerTile[0] < mapwidth - 1
             player = pygame.transform.scale(
-                pygame.image.load("graphics/temp/" + str(premium) + "/player_right.png").convert_alpha(),
+                pygame.image.load("graphics/temp/player/player_right.png").convert_alpha(),
                 (tilesizex, tilesizey))
             if playerTile[0] != 99:
                 try:
@@ -1132,7 +1124,7 @@ try:
                     pass
         if keys[pygame.K_LEFT]:
             player = pygame.transform.scale(
-                pygame.image.load("graphics/temp/" + str(premium) + "/player_left.png").convert_alpha(),
+                pygame.image.load("graphics/temp/player/player_left.png").convert_alpha(),
                 (tilesizex, tilesizey))
             if playerTile[0] != 0:
                 try:
@@ -1811,52 +1803,50 @@ try:
                     display = pygame.display.set_mode((vmapwidth * tilesizex, vmapheight * tilesizey),
                                                       HWSURFACE | DOUBLEBUF)  # |RESIZABLE later
                     textures = {
-                        DIRT: pygame.transform.scale(pygame.image.load('graphics/temp/dirt.jpg').convert(),
-                                                     (tilesizex, tilesizey)),
-                        GRASS: pygame.transform.scale(pygame.image.load('graphics/temp/grass.jpg').convert(),
-                                                      (tilesizex, tilesizey)),
-                        WATER: pygame.transform.scale(pygame.image.load('graphics/temp/water.jpg').convert(),
-                                                      (tilesizex, tilesizey)),
-                        COAL: pygame.transform.scale(pygame.image.load('graphics/temp/coal.jpg').convert(),
-                                                     (tilesizex, tilesizey)),
-                        LAVA: pygame.transform.scale(pygame.image.load('graphics/temp/lava.jpg').convert(),
-                                                     (tilesizex, tilesizey)),
-                        ROCK: pygame.transform.scale(pygame.image.load('graphics/temp/rock.jpg').convert(),
-                                                     (tilesizex, tilesizey)),
-                        DIAM: pygame.transform.scale(pygame.image.load('graphics/temp/diamond.jpg').convert(),
-                                                     (tilesizex, tilesizey)),
-                        SAPP: pygame.transform.scale(pygame.image.load('graphics/temp/sapphire.jpg').convert(),
-                                                     (tilesizex, tilesizey)),
-                        RUBY: pygame.transform.scale(pygame.image.load('graphics/temp/ruby.jpg').convert(),
-                                                     (tilesizex, tilesizey)),
-                        GOLD: pygame.transform.scale(pygame.image.load('graphics/temp/gold.jpg').convert(),
-                                                     (tilesizex, tilesizey)),
-                        AIR: pygame.transform.scale(pygame.image.load('graphics/temp/air.png').convert_alpha(),
-                                                    (tilesizex, tilesizey)),
-                        WOOD: pygame.transform.scale(pygame.image.load('graphics/temp/wood.jpg').convert(),
-                                                     (tilesizex * 2, tilesizey * 2)),
-                        GLASS: pygame.transform.scale(pygame.image.load('graphics/temp/glass.png').convert_alpha(),
-                                                      (tilesizex * 2, tilesizey * 2)),
-                        BRICK: pygame.transform.scale(pygame.image.load('graphics/temp/brick.jpg').convert(),
-                                                      (tilesizex * 2, tilesizey * 2)),
-                        CARP: pygame.transform.scale(pygame.image.load('graphics/temp/carpet/mid.jpg').convert(),
-                                                     (tilesizex, tilesizey)),
-                        SNOW: pygame.transform.scale(pygame.image.load('graphics/temp/snow.jpg').convert(),
-                                                     (tilesizex, tilesizey)),
+                        DIRT: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/dirt.jpg').convert(),
+                                                     (tilesizex, tilesizey + round(tilesizey / 2))),
+                        GRASS: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/grass.jpg').convert(),
+                                                      (tilesizex, tilesizey + round(tilesizey / 2))),
+                        WATER: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/water.jpg').convert(),
+                                                      (tilesizex, tilesizey + round(tilesizey / 2))),
+                        COAL: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/coal.jpg').convert(),
+                                                     (tilesizex, tilesizey + round(tilesizey / 2))),
+                        LAVA: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/lava.jpg').convert(),
+                                                     (tilesizex, tilesizey + round(tilesizey / 2))),
+                        ROCK: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/rock.jpg').convert(),
+                                                     (tilesizex, tilesizey + round(tilesizey / 2))),
+                        DIAM: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/diamond.jpg').convert(),
+                                                     (tilesizex, tilesizey + round(tilesizey / 2))),
+                        SAPP: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/sapphire.jpg').convert(),
+                                                     (tilesizex, tilesizey + round(tilesizey / 2))),
+                        RUBY: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/ruby.jpg').convert(),
+                                                     (tilesizex, tilesizey + round(tilesizey / 2))),
+                        GOLD: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/gold.jpg').convert(),
+                                                     (tilesizex, tilesizey + round(tilesizey / 2))),
+                        AIR: pygame.transform.scale(pygame.image.load('graphics/temp/misc/air.png').convert_alpha(),
+                                                    (tilesizex, tilesizey + round(tilesizey / 2))),
+                        WOOD: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/wood.jpg').convert(),
+                                                     (tilesizex, tilesizey + round(tilesizey / 2))),
+                        GLASS: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/glass.png').convert_alpha(),
+                                                      (tilesizex, tilesizey + round(tilesizey / 2))),
+                        BRICK: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/brick.jpg').convert(),
+                                                      (tilesizex, tilesizey + round(tilesizey / 2))),
+                        CARP: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/carpet/mid.jpg').convert(),
+                                                     (tilesizex, tilesizey + round(tilesizey / 2))),
+                        SNOW: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/snow.jpg').convert(),
+                                                     (tilesizex, tilesizey + round(tilesizey / 2))),
                         # NTS: Limited edition Item! To be removed on New Year's Day.
-                        SEL: pygame.transform.scale(pygame.image.load('graphics/temp/grass.jpg').convert(),
-                                                    (tilesizex, tilesizey)),
-                        GSWORD: pygame.transform.scale(pygame.image.load('graphics/temp/gsword.png').convert_alpha(),
-                                                       (tilesizex, tilesizey)),
-                        FPORT: pygame.transform.scale(pygame.image.load('graphics/temp/forportal.jpg').convert(),
-                                                      (tilesizex, tilesizey)),
-                        BPORT: pygame.transform.scale(pygame.image.load('graphics/temp/backportal.jpg').convert(),
-                                                      (tilesizex, tilesizey)),
-                        DSTAFF: pygame.transform.scale(pygame.image.load('graphics/temp/dstaff.png').convert_alpha(),
-                                                       (tilesizex, tilesizey))
+                        SEL: pygame.transform.scale(pygame.image.load('graphics/temp/misc/sel.png').convert_alpha(),
+                                                    (tilesizex, tilesizey + round(tilesizey / 2))),
+                        GSWORD: pygame.transform.scale(pygame.image.load('graphics/temp/items/gsword.png').convert_alpha(),
+                                                       (tilesizex, tilesizey + round(tilesizey / 2))),
+                        DSTAFF: pygame.transform.scale(pygame.image.load('graphics/temp/items/DSTAFF.png').convert_alpha(),
+                                                       (tilesizex, tilesizey + round(tilesizey / 2))),
+                        SAND: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/sand.jpg').convert(),
+                                                     (tilesizex, tilesizey + round(tilesizey / 2)))
                     }
                     player = pygame.transform.scale(
-                        pygame.image.load("graphics/temp/" + str(premium) + "/player_right.png").convert_alpha(),
+                        pygame.image.load("graphics/temp/player/player_right.png").convert_alpha(),
                         (tilesizex, tilesizey))
                     change = True
                     for z in range(mapz):
@@ -1957,7 +1947,7 @@ try:
                                 if selectednpc is not None:
                                     if selectednpc[0] == item and selectednpc[1] == curnpc:
                                         npcselimg = pygame.transform.scale(
-                                            pygame.image.load("graphics/temp/selnpc.png").convert_alpha(),
+                                            pygame.image.load("graphics/temp/misc/selnpc.png").convert_alpha(),
                                             (tilesizex * 3, tilesizey + round(tilesizey / 2)))
                                         npcsurf.blit(npcselimg, (npcPosX[item][curnpc] * tilesizex - tilesizex,
                                                                  npcPosY[item][curnpc] * tilesizey))
@@ -2193,12 +2183,12 @@ try:
             display.blit(author, (138, vmapheight * tilesizey - 92))
             display.blit(playtime, (142, vmapheight * tilesizey - 76))
             display.blit(volume, (146, vmapheight * tilesizey - 58))
-            display.blit(pygame.image.load("graphics/temp/minus.png").convert_alpha(), (269, vmapheight * tilesizey - 56))
-            display.blit(pygame.image.load("graphics/temp/plus.png").convert_alpha(), (289, vmapheight * tilesizey - 56))
-            display.blit(pygame.image.load("graphics/temp/prev.png").convert_alpha(), (560, vmapheight * tilesizey - 98))
-            display.blit(pygame.image.load("graphics/temp/pause.png").convert_alpha(), (600, vmapheight * tilesizey - 98))
-            display.blit(pygame.image.load("graphics/temp/play.png").convert_alpha(), (640, vmapheight * tilesizey - 98))
-            display.blit(pygame.image.load("graphics/temp/skip.png").convert_alpha(), (680, vmapheight * tilesizey - 98))
+            display.blit(pygame.image.load("graphics/temp/music/minus.png").convert_alpha(), (269, vmapheight * tilesizey - 56))
+            display.blit(pygame.image.load("graphics/temp/music/plus.png").convert_alpha(), (289, vmapheight * tilesizey - 56))
+            display.blit(pygame.image.load("graphics/temp/music/prev.png").convert_alpha(), (560, vmapheight * tilesizey - 98))
+            display.blit(pygame.image.load("graphics/temp/music/pause.png").convert_alpha(), (600, vmapheight * tilesizey - 98))
+            display.blit(pygame.image.load("graphics/temp/music/play.png").convert_alpha(), (640, vmapheight * tilesizey - 98))
+            display.blit(pygame.image.load("graphics/temp/music/skip.png").convert_alpha(), (680, vmapheight * tilesizey - 98))
             pygame.draw.rect(display, savecol, ((vmapwidth * tilesizex) / 2 - 100, 255, 200, 40))
             display.blit(magicbody.render(menusave, True, white), ((vmapwidth * tilesizex) / 2 - 90, 257))
             pygame.draw.rect(display, screencol, ((vmapwidth * tilesizex) / 2 - 100, 300, 200, 40))
@@ -2209,7 +2199,7 @@ try:
             display.blit(magicbody.render(menuirc, True, white), ((vmapwidth * tilesizex) / 2 - 60, 392))
             pygame.draw.rect(display, quitcol, ((vmapwidth * tilesizex) / 2 - 100, 435, 200, 40))
             display.blit(magicbody.render(menuquit, True, white), ((vmapwidth * tilesizex) / 2 - 90, 437))
-            display.blit(pygame.image.load("graphics/temp/logo2.png"), ((vmapwidth * tilesizex - 30) / 2 - 360, 15))
+            display.blit(pygame.image.load("graphics/temp/misc/logo2.png"), ((vmapwidth * tilesizex - 30) / 2 - 360, 15))
             display.blit(gamefont.render(versiontag + version, True, blue), (15, (vmapheight * tilesizey) - 27))
             for event in pygame.event.get():
                 if event.type == KEYDOWN:
