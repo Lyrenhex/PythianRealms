@@ -8,6 +8,15 @@
 - Reorganised texture packs has resulted in some code changes...
 - Removed some dead items.
 -- GitHub Commit --
+- Added "micro-terminal" for license stuff before starting the game.
+- Added alpha/beta messages.
+- Finally added a .gitignore
+- Created Map Catalog at http://scratso.com/datastore/pythianrealms/maps
+- Added "Share Map" button to ingame menu, which will upload the map to the catalog
+- Added "Get Maps" button to ingame menu, which opens the catalog
+- Added "Import Map" button to ingame menu, which will import a downloaded map (overwriting your current map)
+-- GitHub Commit --
+
 
 Alpha.105:
 - Improved Error screen to prevent instant closing.

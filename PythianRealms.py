@@ -1,3 +1,4 @@
+# according to PEP 8, it's better to waste a tonne of space like this??
 import sys
 import os
 import time
@@ -12,6 +13,8 @@ import zipfile
 import shutil
 import easygui
 import logging
+import ftplib
+import urllib.request
 from variables import *
 from en_UK import *
 
@@ -40,7 +43,7 @@ version = "Alpha.105"
 # Encompass the entire program in a try statement for the error reporter.
 try:
     online = False
-    server = False  # set to true to enable mysql connections.
+    server = False  # set to true to enable mysql connections. DON'T!
     chat = True
     channel = "#PythianRealms"
 
@@ -118,15 +121,80 @@ try:
     # Print the GNU GPL
     print("""
     PythianRealms  Copyright (C) 2015 Adonis Megalos
-    This program comes with ABSOLUTELY NO WARRANTY.
+    This program comes with ABSOLUTELY NO WARRANTY; type 'show w'.
     This is free software, and you are welcome to redistribute it
-    under certain conditions.
+    under certain conditions; type 'show c'.
     http://gnu.org/licenses/gpl.html for details.
+    Otherwise, type 'run' to play.
     """)
+
+    i = 1
+    while i == 1:
+        cmd = input("> ").lower()
+        if cmd == "show w":
+            print("""
+    15. Disclaimer of Warranty.
+
+    THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE
+    LAW. EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR
+    OTHER PARTIES PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND,
+    EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE
+    ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU.
+    SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY
+    SERVICING, REPAIR OR CORRECTION.
+    """)
+        elif cmd == "show c":
+            print("""
+    2. Basic Permissions.
+
+    All rights granted under this License are granted for the term of copyright
+    on the Program, and are irrevocable provided the stated conditions are met.
+    This License explicitly affirms your unlimited permission to run the
+    unmodified Program. The output from running a covered work is covered by
+    this License only if the output, given its content, constitutes a covered
+    work. This License acknowledges your rights of fair use or other equivalent,
+    as provided by copyright law. You may make, run and propagate covered works
+    that you do not convey, without conditions so long as your license otherwise
+    remains in force. You may convey covered works to others for the sole purpose
+    of having them make modifications exclusively for you, or provide you with
+    facilities for running those works, provided that you comply with the terms
+    of this License in conveying all material for which you do not control
+    copyright. Those thus making or running the covered works for you must do
+    so exclusively on your behalf, under your direction and control, on terms
+    that prohibit them from making any copies of your copyrighted material outside
+    their relationship with you. Conveying under any other circumstances is
+    permitted solely under the conditions stated below. Sublicensing is not
+    allowed; section 10 makes it unnecessary.
+    """)
+        elif cmd == "run":
+            i = 0
+        else:
+            print("Unknown command.")
+
 
     #####################
     # OPERATING SYSTEMS #
     #####################
+
+    # can't be bothered changing when it leaves alpha
+    if "Alpha" in version:
+        print("""
+    Please be aware that this is alpha-level software, and some changes may
+    severely affect the game's experience or break the game on your device.
+    If this happens, please create an issue at
+    https://github.com/Scratso/PythianRealms . Additionally, previous versions
+    are available for download from there.
+        Thank you.
+    """)
+    elif "Beta" in version:
+        print("""
+    Please be aware that this is beta-level software, and some changes may
+    severely affect the game's experience or cause errors and problems. If this
+    happens, please create an issue at https://github.com/Scratso/PythianRealms.
+    Additionally, previous versions are available for download from there.
+        Thank you.
+    """)
 
     useros = sys.platform
     logger.info("Operating System Environment: " + useros + ".")
@@ -283,6 +351,10 @@ try:
     ########
     # NPCS #
     ########
+
+# Best way to describe this:
+# link every npc to a number, and refer to that npc as a number. Then add sub-numbers depending on how many of each npc
+# you want to exist.
 
     # 0 = Mr. Smiler, 1 = Werewolf, 2 = Sssnake, 3 = Void Chunk A, 4 = (Custom) Tudor, 5 = Old Man, 6 = Jared's Wife,
     # 7 = Calem, 8 = Bjorvik, 9 = Stephan,
@@ -616,7 +688,7 @@ try:
     fps = 0
     cachedscreen = []
 
-    # music vars
+    # music vars - the music files start at 1, so the names and stuff must start at 1 too, hence buffer.
     tracks = ["Buffer",
               "Short But Sweet",
               "This is BLUESHIFT",
@@ -645,7 +717,7 @@ try:
                "PROTODOME",
                "PROTODOME"]
     covers = ["Buffer",
-              "graphics/temp/logo-small.png",
+              "graphics/temp/misc/logo-small.png",
               "music/protodome200.gif",
               "music/protodome200.gif",
               "music/protodome200.gif",
@@ -674,14 +746,7 @@ try:
             pygame.mixer.music.set_volume(m)
             pygame.mixer.music.play()
         except Exception:
-            try:
-                pygame.mixer.music.load('music/' + str(music) + '.mid')
-                pygame.mixer.music.set_volume(0.75)
-                pygame.mixer.music.play()
-            except Exception as e:
-                logger.error("Music failed to Initialize. Game will run in silence instead. Error: %s" % e)
-                silence = True
-
+            logger.error("Music failed to Initialize. Game will run in silence instead. Error: %s" % e)
 
     def msg(message=["A message wasn't found! Tell Scratso!"]):
         message.append("")
@@ -702,6 +767,9 @@ try:
                 textoffset += 12
             pygame.display.update()
 
+
+# Notice: the following error reporting function is designed based on the BSOD, as my computer was experiencing
+# BSODs while programming this.
 
     def err(err="ERROR_NOT_PROVIDED", trace="NO TRACEBACK PROVIDED\nERR 0x01"):
         display = pygame.display.set_mode((vmapwidth * tilesizex, vmapheight * tilesizey), HWSURFACE | DOUBLEBUF)
@@ -747,7 +815,7 @@ try:
             time.sleep(1)
 
 
-    def magic_out():
+    def magic_out(): # pretty sure this isn't used, but it was an idea. nts: work on this at some point
         magicsurf.fill((0, 0, 0, 100))
         pygame.display.update()
         time.sleep(0.01)
@@ -842,7 +910,7 @@ try:
                     "R: Enable Pickup Mode",
                     "F: Disable Pickup Mode",
                     "T: Toggle RPG/Construction Realm",
-                    "C: Open PythianRealms IRC Chat"]
+                    "C: Open PythianRealms IRC Chat"] # nts: update keybindings
     msg(startupnotes)
 
     changedz = [0, 1, 2, 3]  # 0,1,2,3 after you add the loading system. Until then, this'll do.
@@ -1835,7 +1903,7 @@ try:
                                                      (tilesizex, tilesizey + round(tilesizey / 2))),
                         SNOW: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/snow.jpg').convert(),
                                                      (tilesizex, tilesizey + round(tilesizey / 2))),
-                        # NTS: Limited edition Item! To be removed on New Year's Day.
+                        # NTS: Limited edition Item! To be removed on New Year's Day. 12/09/2015: temporary = permanent
                         SEL: pygame.transform.scale(pygame.image.load('graphics/temp/misc/sel.png').convert_alpha(),
                                                     (tilesizex, tilesizey + round(tilesizey / 2))),
                         GSWORD: pygame.transform.scale(pygame.image.load('graphics/temp/items/gsword.png').convert_alpha(),
@@ -2153,8 +2221,11 @@ try:
 
         if menu:
             savecol = black
+            sharecol = black
             screencol = black
+            dlcol = black
             credcol = black
+            impcol = black
             irccol = black
             quitcol = black
             screensurf = pygame.Surface((mapwidth * tilesizex, mapheight * tilesizey))
@@ -2191,10 +2262,16 @@ try:
             display.blit(pygame.image.load("graphics/temp/music/skip.png").convert_alpha(), (680, vmapheight * tilesizey - 98))
             pygame.draw.rect(display, savecol, ((vmapwidth * tilesizex) / 2 - 100, 255, 200, 40))
             display.blit(magicbody.render(menusave, True, white), ((vmapwidth * tilesizex) / 2 - 90, 257))
+            pygame.draw.rect(display, sharecol, ((vmapwidth * tilesizex) / 2 - 310, 255, 200, 40))
+            display.blit(magicbody.render(menushare, True, white), ((vmapwidth * tilesizex) / 2 - 300, 257))
             pygame.draw.rect(display, screencol, ((vmapwidth * tilesizex) / 2 - 100, 300, 200, 40))
             display.blit(magicbody.render(menuscreenshot, True, white), ((vmapwidth * tilesizex) / 2 - 92, 302))
+            pygame.draw.rect(display, dlcol, ((vmapwidth * tilesizex) / 2 - 310, 300, 200, 40))
+            display.blit(magicbody.render(menudownload, True, white), ((vmapwidth * tilesizex) / 2 - 300, 302))
             pygame.draw.rect(display, credcol, ((vmapwidth * tilesizex) / 2 - 100, 345, 200, 40))
             display.blit(magicbody.render(menucredits, True, white), ((vmapwidth * tilesizex) / 2 - 60, 347))
+            pygame.draw.rect(display, impcol, ((vmapwidth * tilesizex) / 2 - 310, 345, 200, 40))
+            display.blit(magicbody.render(menuimport, True, white), ((vmapwidth * tilesizex) / 2 - 300, 347))
             pygame.draw.rect(display, irccol, ((vmapwidth * tilesizex) / 2 - 100, 390, 200, 40))
             display.blit(magicbody.render(menuirc, True, white), ((vmapwidth * tilesizex) / 2 - 60, 392))
             pygame.draw.rect(display, quitcol, ((vmapwidth * tilesizex) / 2 - 100, 435, 200, 40))
@@ -2211,16 +2288,31 @@ try:
                         savecol = green
                     else:
                         savecol = black
+                    if ((vmapwidth * tilesizex) / 2 - 310 <= mx <= (vmapwidth * tilesizex) / 2 - 110) and (
+                                    255 <= my <= 295):
+                        sharecol = green
+                    else:
+                        sharecol = black
                     if ((vmapwidth * tilesizex) / 2 - 100 <= mx <= (vmapwidth * tilesizex) / 2 + 100) and (
                                     300 <= my <= 340):
                         screencol = green
                     else:
                         screencol = black
+                    if ((vmapwidth * tilesizex) / 2 - 310 <= mx <= (vmapwidth * tilesizex) / 2 - 110) and (
+                                    300 <= my <= 340):
+                        dlcol = green
+                    else:
+                        dlcol = black
                     if ((vmapwidth * tilesizex) / 2 - 100 <= mx <= (vmapwidth * tilesizex) / 2 + 100) and (
                                     345 <= my <= 385):
                         credcol = green
                     else:
                         credcol = black
+                    if ((vmapwidth * tilesizex) / 2 - 310 <= mx <= (vmapwidth * tilesizex) / 2 + 110) and (
+                                    345 <= my <= 385):
+                        impcol = green
+                    else:
+                        impcol = black
                     if ((vmapwidth * tilesizex) / 2 - 100 <= mx <= (vmapwidth * tilesizex) / 2 + 100) and (
                                     390 <= my <= 430):
                         irccol = green
@@ -2242,6 +2334,35 @@ try:
                         data.store()
                         logger.info("Game saved.")
                         easygui.msgbox(savean, saveanhead)
+                    elif ((vmapwidth * tilesizex) / 2 - 310 <= mx <= (vmapwidth * tilesizex) / 2 - 110) and (
+                                    255 <= my <= 295):
+                        f = open("tempmap.txt", "a")
+                        # loop through each layer
+                        for layer in range(mapz):  # changedz
+                            # loop through each row
+                            for row in range(mapheight):
+                                # loop through each column in the row
+                                for column in range(mapwidth):
+                                    f.write(str(tilemap[layer][row][column])+"|")
+                        f.close()
+                        file = "tempmap"
+                        pygame.image.save(game, file + ".png")
+                        ftp = ftplib.FTP("ftp.scratso.com", "PythianRealms", "prshare")
+                        mapsock = urllib.request.urlopen("http://scratso.com/pythianrealms/mapgen.php")
+                        mapnum = str(mapsock.read()).split("'")[1]
+                        mapsock.close()
+                        f = open("tempmap.txt", "rb")
+                        ftp.storbinary("STOR "+mapnum+".prm", f)
+                        f.close()
+                        f = open("tempmap.png", "rb")
+                        ftp.storbinary("STOR "+mapnum+".png", f)
+                        f.close()
+                        os.remove("tempmap.txt")
+                        os.remove("tempmap.png")
+                        easygui.msgbox("Uploaded map to http://scratso.com/datastore/pythianrealms/\
+                                           maps#"+mapnum)
+                        logger.info("Uploaded map to http://scratso.com/datastore/pythianrealms/\
+                                           maps#"+mapnum)
                     elif vmapheight * tilesizey - 56 <= my <= vmapheight * tilesizey - 38:
                         if 269 <= mx <= 287:
                             pygame.mixer.music.set_volume(pygame.mixer.music.get_volume() - 0.01)
@@ -2260,11 +2381,14 @@ try:
                             initMusic()
                     elif ((vmapwidth * tilesizex) / 2 - 100 <= mx <= (vmapwidth * tilesizex) / 2 + 100) and (
                                     300 <= my <= 340):
-                        file = easygui.filesavebox()
-                        time.sleep(1)
-                        pygame.image.save(game, file + ".png")
-                        easygui.msgbox(screenshotsaved + file + ".png")
+                        file = easygui.filesavebox(filetypes=["*.png"])
+                        time.sleep(10)
+                        pygame.image.save(game, file)
+                        easygui.msgbox(screenshotsaved + file)
                         logger.info("Saved screenshot.")
+                    elif ((vmapwidth * tilesizex) / 2 - 310 <= mx <= (vmapwidth * tilesizex) / 2 - 110) and (
+                                    300 <= my <= 340):
+                        webbrowser.open("http://www.scratso.com/datastore/pythianrealms/maps")
                     elif ((vmapwidth * tilesizex) / 2 - 100 <= mx <= (vmapwidth * tilesizex) / 2 + 100) and (
                                     345 <= my <= 385):
                         f = open("Docs/CREDITS.md", "r")
@@ -2272,6 +2396,23 @@ try:
                         f.close()
                         # noinspection PyTypeChecker
                         easygui.textbox(credstexty, credstexty, r)
+                    elif ((vmapwidth * tilesizex) / 2 - 310 <= mx <= (vmapwidth * tilesizex) / 2 + 110) and (
+                                    345 <= my <= 385):
+                        if easygui.ynbox("Importing a map will replace your current map. Are you sure?", "Warning"):
+                            file = easygui.fileopenbox(filetypes=["*.prm"])
+                            time.sleep(10)
+                            change = True
+                            read = open(file, 'r')
+                            read2 = read.read()
+                            read3 = read2.split("|")
+                            file = 0
+                            for ly in range(mapz):
+                                for rw in range(mapheight):
+                                    for cl in range(mapwidth):
+                                        read4 = int(read3[file])
+                                        tilemap[ly][rw][cl] = read4
+                                        file = file + 1
+                            read.close()
                     elif ((vmapwidth * tilesizex) / 2 - 100 <= mx <= (vmapwidth * tilesizex) / 2 + 100) and (
                                     390 <= my <= 430):
                         # Open Multiplayer Chat System
@@ -2330,12 +2471,16 @@ try:
 
 except Exception as e:
     try:
-        err(str(e), traceback.format_exc())
         logger.error(str(e) + "\n" + traceback.format_exc())
+        err(str(e), traceback.format_exc())
     except:
         try:
             logger.error(str(e) + "\n" + traceback.format_exc())
+            while True:
+                time.sleep(1)
         except:
             print(str(e) + "\n" + traceback.format_exc())
+            while True:
+                time.sleep(1)
             # easygui.exceptionbox("""Oops! Something went wrong. But don't worry! Because I'm so amazingly kind,
             # you need only send me this error report below and I'll get right on it.""", "An Error Ocurred!")
