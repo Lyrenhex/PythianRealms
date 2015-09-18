@@ -15,8 +15,10 @@ import easygui
 import logging
 import ftplib
 import urllib.request
-from variables import *
-from en_UK import *
+import pygame
+from pygame.locals import *
+from com.scratso.pr.variables import *
+from com.scratso.pr.locales.en_UK import *
 
 # -*- coding: utf-8 -*-
 
@@ -59,12 +61,11 @@ try:
     # SET UP POPUP WINDOWS #
     ########################
 
-    def msgbox(title, mtext):
+    def msgbox(title, mtext): # not sure if this is still used
         easygui.msgbox(mtext, title)
 
 
-    class Settings(
-        easygui.EgStore):
+    class Settings(easygui.EgStore): # member details save/loading system
         def __init__(self, filename):  # filename is required
             # -------------------------------------------------
             # Specify default/initial values for variables that
@@ -208,9 +209,7 @@ try:
     # SET UP PYGAME #
     #################
 
-    import pygame
-    from pygame.locals import *
-
+    # try to center the game window
     try:
         os.environ['SDL_VIDEO_CENTERED'] = '1'
     except Exception as e:
@@ -1922,47 +1921,38 @@ try:
             if event.type == NPCMOVE:
                 for npc in NPCs:
                     for npcd in NPCcount[npc]:
-                        if NPCtype[npc] == "Hostile" and (
-                                                    playerTile[0] - npcPosX[npc][npcd] == 0 or npcPosX[npc][npcd] -
-                                            playerTile[
-                                                0] == 0 or playerTile[1] - npcPosY[npc][npcd] == 0 or npcPosY[npc][
-                                    npcd] -
-                                    playerTile[1] == 0):
+                        if False: # NPCtype[npc] == "Hostile" and (playerTile[0] - npcPosX[npc][npcd] == 0 or npcPosX[npc][npcd] - playerTile[0] == 0 or playerTile[1] - npcPosY[npc][npcd] == 0 or npcPosY[npc][npcd] - playerTile[1] == 0):
                             playerHP -= 1
                         else:
                             if 0 < npcPosX[npc][npcd] < mapwidth - 1 and 0 < npcPosY[npc][npcd] < mapheight - 1:
-                                if NPCtype[npc] == "Hostile" and (playerTile[0] - npcPosX[npc][npcd] == 1 or \
-                                                                playerTile[0] - npcPosX[npc][npcd] == 0 or \
-                                                                playerTile[0] - npcPosX[npc][npcd] == -1) and \
-                                        (playerTile[1] - npcPosY[npc][npcd] == 1 or \
-                                        playerTile[1] - npcPosY[npc][npcd] == 0 or \
-                                        playerTile[1] - npcPosY[npc][npcd] == -1):
+                                if NPCtype[npc] == "Hostile" and (-1 <= playerTile[0] - npcPosX[npc][npcd] <= 1) and \
+                                        (-1 <= playerTile[1] - npcPosY[npc][npcd] <= 1):
                                     # go right
-                                    logger.info(npc + " attacks you.")
+                                    logger.info(str(npc) + " attacks you.")
                                     playerHP -= NPCdamage[npc]
-                                if NPCtype[npc] == "Hostile" and playerTile[0] - npcPosX[npc][npcd] <= 5 and playerTile[
-                                    0] - npcPosX[npc][npcd] >= 1:
+                                if NPCtype[npc] == "Hostile" and -5 <= playerTile[0] - npcPosX[npc][npcd] <= 5 and -5 <= playerTile[
+                                    0] - npcPosX[npc][npcd] <= 5:
                                     # go right
                                     movementTile = tilemap[npcPosZ[npc]][npcPosY[npc][npcd]][npcPosX[npc][npcd] + 1]
                                     if movementTile == AIR:
                                         # change the player's x position
                                         npcPosX[npc][npcd] += 1
-                                elif NPCtype[npc] == "Hostile" and npcPosX[npc][npcd] - playerTile[0] <= 5 and \
-                                                        npcPosX[npc][npcd] - playerTile[0] >= 1:
+                                elif NPCtype[npc] == "Hostile" and -5 <= npcPosX[npc][npcd] - playerTile[0] <= 5 and \
+                                                        -5 <= npcPosX[npc][npcd] - playerTile[0] <= 5:
                                     # go left
                                     movementTile = tilemap[npcPosZ[npc]][npcPosY[npc][npcd]][npcPosX[npc][npcd] - 1]
                                     if movementTile == AIR:
                                         # change the player's x position
                                         npcPosX[npc][npcd] -= 1
-                                elif NPCtype[npc] == "Hostile" and playerTile[1] - npcPosY[npc][npcd] <= 5 and \
-                                                        playerTile[1] - npcPosY[npc][npcd] >= 1:
+                                elif NPCtype[npc] == "Hostile" and -5 <= playerTile[1] - npcPosY[npc][npcd] <= 5 and \
+                                                        -5 <= playerTile[1] - npcPosY[npc][npcd] <= 5:
                                     # go down
                                     movementTile = tilemap[npcPosZ[npc]][npcPosY[npc][npcd] + 1][npcPosX[npc][npcd]]
                                     if movementTile == AIR:
                                         # change the player's x position
                                         npcPosY[npc][npcd] += 1
-                                elif NPCtype[npc] == "Hostile" and npcPosY[npc][npcd] - playerTile[1] <= 5 and \
-                                                        npcPosY[npc][npcd] - playerTile[1] >= 1:
+                                elif NPCtype[npc] == "Hostile" and -5 <= npcPosY[npc][npcd] - playerTile[1] <= 5 and \
+                                                        -5 <= npcPosY[npc][npcd] - playerTile[1] <= 5:
                                     # go up
                                     movementTile = tilemap[npcPosZ[npc]][npcPosY[npc][npcd] - 1][npcPosX[npc][npcd]]
                                     if movementTile == AIR:

@@ -16,7 +16,10 @@
 - Added "Get Maps" button to ingame menu, which opens the catalog
 - Added "Import Map" button to ingame menu, which will import a downloaded map (overwriting your current map)
 -- GitHub Commit --
-
+- Improved workspace layout
+- Should now have fixed issue #9
+- Improved documentation (see #15)
+-- GitHub Commit --
 
 Alpha.105:
 - Improved Error screen to prevent instant closing.
