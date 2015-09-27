@@ -40,7 +40,7 @@ from com.scratso.pr.locales.en_UK import *
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-version = "Alpha.105"
+version = "Beta.120"
 
 # Encompass the entire program in a try statement for the error reporter.
 try:
@@ -55,7 +55,8 @@ try:
         chatnote]
 
     staff = {"Scratso": staffowner,
-             "SapphireCoyote": staffmod}
+             "SapphireCoyote": staffmod,
+             "Scratso^logs": staffowner}
 
     ########################
     # SET UP POPUP WINDOWS #

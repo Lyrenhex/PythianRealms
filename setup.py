@@ -1,16 +1,14 @@
 import py_compile, os,cx_Freeze,sys,shutil
 
-os.chdir("C:\\Users\\Scratso\\Documents\\GitHub\\PythianRealms-Dev")
-
 executables = [cx_Freeze.Executable("PythianRealms.py")]
 
 cx_Freeze.setup(
     name="PythianRealms",
-    author="Damian Heaton",
-    version="0.0.0.1",
+    author="Adonis Megalos",
+    version="0.120",
     options={"build_exe": {"packages":["pygame"],
                            "excludes": [],
-                           "include_files":["data","graphics","music","changelog.md","Docs","libraries2.zip","variables.py","en_UK.py"]} },
+                           "include_files":["data","graphics","music","com","changelog.md","Docs","libraries2.zip","GNU GPL.txt"]} },
     executables = executables
 
     )

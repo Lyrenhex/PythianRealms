@@ -1,6 +1,9 @@
 ﻿Changelog:
 
 :
+- Updated "Scratso" intro screen.
+
+Beta.120:
 - Added sand.
 - Improved island template for map generation.
 - Added "Scratso" Intro screen.
