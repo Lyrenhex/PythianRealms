@@ -1,18 +1,30 @@
 ﻿Changelog:
 
-:
-- Updated "Scratso" intro screen.
+2016.:
+- Updated "Scratso" intro screen
+- Increased ping timeout minimum time, to hopefully counteract the random connection losses (ref: #20)
+- Fixed issue where Credits and Import Map buttons would both light up when you hovered oer the Credits button on the ingame menu (ref: #19)
+- Fixed some issues with the chat system. Will be doing more work on this in future (ref: #14)
+- Added players online notice when you join chat
+- Added /who command to chat, which tells you who's online
+- Added /help command to chat, which opens a help page
+- Added F1 button, which opens a help page
+- Slightly optimised event handler
+- Fixed issue where shop and inventory could not show
+- Increased Z-Axis Limit to 10 (because 4 levels for a release software is bad...) -- the map catalog has been cleared to prevent errors arising from out-of-date maps
+- Removed logging message from the chat welcome message
+-- GitHub Commit --
 
 Beta.120:
 - Added sand.
-- Improved island template for map generation.
-- Added "Scratso" Intro screen.
+- Improved island template for map generation
+- Added "Scratso" Intro screen
 -- GitHub Commit --
 - Reorganised texture packs has resulted in some code changes...
-- Removed some dead items.
+- Removed some dead items
 -- GitHub Commit --
-- Added "micro-terminal" for license stuff before starting the game.
-- Added alpha/beta messages.
+- Added "micro-terminal" for license stuff before starting the game
+- Added alpha/beta messages
 - Finally added a .gitignore
 - Created Map Catalog at http://scratso.com/datastore/pythianrealms/maps
 - Added "Share Map" button to ingame menu, which will upload the map to the catalog

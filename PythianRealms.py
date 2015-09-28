@@ -40,7 +40,7 @@ from com.scratso.pr.locales.en_UK import *
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-version = "Beta.120"
+version = "2016.120"
 
 # Encompass the entire program in a try statement for the error reporter.
 try:
@@ -51,8 +51,8 @@ try:
 
     messages = [
         chatwelcome,
-        chatstaff,
-        chatnote]
+        chatstaff
+        ]
 
     staff = {"Scratso": staffowner,
              "SapphireCoyote": staffmod,
@@ -973,7 +973,7 @@ try:
     def ircthread():
         con = 0
         last_ping = time.time()
-        threshold = 3 * 60  # five minutes, make this whatever you want
+        threshold = 7 * 60  # seven minutes, make this whatever you want
         while True:
             text = str(irc.recv(2040))
             unraw = text.split("\\r\\n")
@@ -1008,24 +1008,26 @@ try:
                             0] + chatkick2 + text + "\"")
                 elif "\\x01" in text:
                     text = text.split("\\x01")[1].split("ACTION ")[1]
-                    addchat("* " + nick + " " + text + " *")
+                    addchat("* " + line.split(":")[1].split("!")[0] + " " + text + " *")
                 elif line.find("NICK :") != -1:
-                    addchat(nick + chatnick + text)
+                    addchat(line.split(":")[1].split("!")[0] + chatnick + line.split(":", 2)[2])
                 elif line.find("QUIT :") != -1:
-                    addchat(nick + chatleave)
+                    addchat(line.split(":")[1].split("!")[0] + chatleave)
                 elif line.find("PART #PythianRealms") != -1:
-                    addchat(nick + chatleave)
+                    addchat(line.split(":")[1].split("!")[0] + chatleave)
                 elif nick != "Service" and "MODE " not in line:
                     addchat(nick + ": " + text)
                 elif nick == "Service" and text == "You have not registered":
                     con += 1
-                    if con >= 2:
+                    if con >= 3:
                         addchat(chatlost)
                         break
                 elif nick == "Service" and text == "Nickname is already in use":
                     addchat(chatnicku)
                     addchat(chatlost)
                     break
+                elif line.find("353") != -1:
+                    addchat("*** Players online: " + text)
                 if (time.time() - last_ping) > threshold:
                     addchat(chatlost)
                     break
@@ -1179,7 +1181,7 @@ try:
                         playerTile[0]] != AIR:
                         xoffset += tilesizex
                     else:
-                        if tilemap[playerz][playerTile[1]][playerTile[0]] != AIR and playerz < 3:  # tilemap[z][y][x]
+                        if tilemap[playerz][playerTile[1]][playerTile[0]] != AIR and playerz < mapz-1:  # tilemap[z][y][x]
                             playerz += 1
                         try:
                             if tilemap[playerz - 1][playerTile[1]][
@@ -1200,7 +1202,7 @@ try:
                         playerTile[0]] != AIR:
                         xoffset -= tilesizex
                     else:
-                        if tilemap[playerz][playerTile[1]][playerTile[0]] != AIR and playerz < 3:  # tilemap[z][y][x]
+                        if tilemap[playerz][playerTile[1]][playerTile[0]] != AIR and playerz < mapz-1:  # tilemap[z][y][x]
                             playerz += 1
                         try:
                             if tilemap[playerz - 1][playerTile[1]][
@@ -1218,7 +1220,7 @@ try:
                         playerTile[0]] != AIR:
                         yoffset -= tilesizey
                     else:
-                        if tilemap[playerz][playerTile[1]][playerTile[0]] != AIR and playerz < 3:  # tilemap[z][y][x]
+                        if tilemap[playerz][playerTile[1]][playerTile[0]] != AIR and playerz < mapz-1:  # tilemap[z][y][x]
                             playerz += 1
                         try:
                             if tilemap[playerz - 1][playerTile[1]][
@@ -1236,7 +1238,7 @@ try:
                         playerTile[0]] != AIR:
                         yoffset += tilesizey
                     else:
-                        if tilemap[playerz][playerTile[1]][playerTile[0]] != AIR and playerz < 3:  # tilemap[z][y][x]
+                        if tilemap[playerz][playerTile[1]][playerTile[0]] != AIR and playerz < mapz-1:  # tilemap[z][y][x]
                             playerz += 1
                         try:
                             if tilemap[playerz - 1][playerTile[1]][
@@ -1251,9 +1253,9 @@ try:
         for event in pygame.event.get():
             if event.type == SECONDCOUNTDOWN:
                 boost -= 1
-            if event.type == USEREVENT:
+            elif event.type == USEREVENT:
                 initMusic()
-            if event.type == SAVE:
+            elif event.type == SAVE:
                 logger.info("Auto-saving...")
                 data.realm = realm
                 data.map[realm] = tilemap
@@ -1261,7 +1263,7 @@ try:
                 data.coins = coins
                 data.store()
                 logger.info("Save complete.")
-            if event.type == QUIT:
+            elif event.type == QUIT:
                 if chat:
                     irc.send(bytes("QUIT :Client exited.\n", "utf-8"))
                     irc.close()
@@ -1288,7 +1290,7 @@ try:
                 except Exception as e:
                     logger.error(e)
                 sys.exit("User has quit the application.")
-            if event.type == MOUSEBUTTONDOWN:
+            elif event.type == MOUSEBUTTONDOWN:
                 if place:
                     x = math.floor(mx / tilesizex - xoffset / tilesizex)
                     y = math.floor(my / tilesizey - yoffset / tilesizey)
@@ -1741,29 +1743,35 @@ try:
                     elif not silence:
                         silence = True
                         pygame.mixer.music.stop()
-                if mx >= 50 and mx <= 60 and my >= 55 and my <= 65 and opt:
+                elif mx >= 50 and mx <= 60 and my >= 55 and my <= 65 and opt:
                     if activeoverlay:
                         activeoverlay = False
                     elif not activeoverlay:
                         activeoverlay = True
-                if (50 <= mx <= 60) and (75 <= my <= 85) and opt:
+                elif (50 <= mx <= 60) and (75 <= my <= 85) and opt:
                     if seamless:
                         seamless = False
                     else:
                         seamless = True
-                if mx >= 50 and mx <= 60 and my >= 95 and my <= 105 and opt:
+                elif mx >= 50 and mx <= 60 and my >= 95 and my <= 105 and opt:
                     if smoothwalk:
                         smoothwalk = False
                     else:
                         smoothwalk = True
 
-                if mx >= 0 and mx <= vmapwidth * tilesizex and my >= vmapheight * tilesizey + 38 and \
+                elif mx >= 0 and mx <= vmapwidth * tilesizex and my >= vmapheight * tilesizey + 38 and \
                         (my <= vmapheight * tilesizey + 50):
                     if chat:
                         msg = easygui.enterbox(chatentermsg, chathead)
                         if msg is not None:
-                            irc.send(bytes("PRIVMSG " + channel + " :" + msg + "\n", "utf-8"))
-                            addchat(chaty + msg)
+                            if msg == "/who":
+                                irc.send(bytes("NAMES :" + channel + "\n", "utf-8"))
+                            elif msg == "/help":
+                                addchat("*** PythianRealms "+version.split(".")[0]+" revision "+version.split(".")[1]+".")
+                                webbrowser.open("http://scratso.com/pythianrealms/help.php", 2, True)
+                            else:
+                                irc.send(bytes("PRIVMSG " + channel + " :" + msg + "\n", "utf-8"))
+                                addchat(chaty + msg)
 
                 x = math.floor(mx / tilesizex - xoffset / tilesizex)
                 y = math.floor(my / tilesizey - yoffset / tilesizey)
@@ -1774,32 +1782,34 @@ try:
                                 selectednpc = (npc, npcd)
                             else:
                                 selectednpc = None
-            if event.type == KEYDOWN:
+            elif event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     menu = True
-                if event.key == K_F3:
+                elif event.key == K_F1:
+                    webbrowser.open("http://scratso.com/pythianrealms/help.php", 2, True)
+                elif event.key == K_F3:
                     debug = not debug
-                if event.key == K_MINUS:
+                elif event.key == K_MINUS:
                     if zaxis >= 1:
                         zaxis -= 1
-                if event.key == K_EQUALS:
-                    if zaxis <= 2:
+                elif event.key == K_EQUALS:
+                    if zaxis <= mapz-2: # z limit - 2
                         zaxis += 1
-                if event.key == K_q:
+                elif event.key == K_q:
                     if realm == 2 or premium:
                         changedz = []
                         pickup = True
                         msg([
                            pickupmodenotice])
-                if event.key == K_r:
+                elif event.key == K_r:
                     if realm == 2 or premium:
                         changedz = []
                         place = True
-                if event.key == K_i:
+                elif event.key == K_i:
                     invshow = not invshow
-                if event.key == K_h:
+                elif event.key == K_h:
                     shopshow = not shopshow
-                if event.key == K_m:
+                elif event.key == K_m:
                     if inventory[DSTAFF] > 0:
                         if selectednpc is not None:
                             if NPCtype[selectednpc[0]] == "Hostile":
@@ -1813,7 +1823,7 @@ try:
                             msg(["Hey, premium member!",
                                  "Did you know that you can buy a Staff of Darkness in the shop (H) for just 25 coins?",
                                  "Why not go do that, and then try this key again!"])
-                if event.key == K_SPACE:
+                elif event.key == K_SPACE:
                     if selectednpc is not None:
                         if NPCtype[selectednpc[0]] == "Hostile":
                             if (npcPosX[selectednpc[0]][selectednpc[1]] == playerTile[0] and npcPosY[selectednpc[0]][
@@ -1828,7 +1838,7 @@ try:
                                 selectednpc = None
                             else:
                                 selectednpc = None
-                if event.key == K_t:
+                elif event.key == K_t:
                     logger.info("Saving Realm " + str(realm) + "...")
                     data.map[realm] = tilemap
                     data.store()
@@ -1863,7 +1873,7 @@ try:
                     change = True
 
                     tilemap = data.map[realm]
-                if event.key == K_TAB:
+                elif event.key == K_TAB:
                     if tilesizex == 64:
                         tilesizex, tilesizey = 16, 16
                     else:
@@ -1919,7 +1929,7 @@ try:
                     change = True
                     for z in range(mapz):
                         changedz.append(z)
-            if event.type == NPCMOVE:
+            elif event.type == NPCMOVE:
                 for npc in NPCs:
                     for npcd in NPCcount[npc]:
                         if False: # NPCtype[npc] == "Hostile" and (playerTile[0] - npcPosX[npc][npcd] == 0 or npcPosX[npc][npcd] - playerTile[0] == 0 or playerTile[1] - npcPosY[npc][npcd] == 0 or npcPosY[npc][npcd] - playerTile[1] == 0):
@@ -2141,7 +2151,7 @@ try:
             curitem = 1
             for item in resources:
                 # add the image
-                if item == AIR or item == BPORT or item == FPORT:
+                if item == AIR:
                     continue
                 if curitem <= newrow:
                     shopsurf.blit(textures[item], (placePosition, yoff))
@@ -2177,7 +2187,7 @@ try:
                 #                textures[WATER] = pygame.image.load("graphics/temp/water_1.jpg")
                 #                wateranim = 1
                 # add the image
-                if item == AIR or item == BPORT or item == FPORT:
+                if item == AIR:
                     continue
                 if curitem <= newrow:
                     invsurf.blit(textures[item], (placePosition, yoff))
@@ -2299,7 +2309,7 @@ try:
                         credcol = green
                     else:
                         credcol = black
-                    if ((vmapwidth * tilesizex) / 2 - 310 <= mx <= (vmapwidth * tilesizex) / 2 + 110) and (
+                    if ((vmapwidth * tilesizex) / 2 - 310 <= mx <= (vmapwidth * tilesizex) / 2 - 110) and (
                                     345 <= my <= 385):
                         impcol = green
                     else:

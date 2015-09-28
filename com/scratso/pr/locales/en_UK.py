@@ -3,7 +3,6 @@ __author__ = "Scratso"
 chatwelcome = """Welcome to the PythianRealms Online Chat System. If you have a problem with another player, please
 contact a moderator or above."""
 chatstaff = "Moderators will have the \"[Mod]\" prefix, and owners will have the \"[Owner]\" prefix."
-chatnote = "Note: Ingame chat is logged, however during times of technical issues, some messages might not be logged."
 
 staffowner = "Owner"
 staffmod = "Mod"
@@ -38,7 +37,7 @@ welcome3 = "Please make sure that you have fun, and spread the word!"
 welcome4 = """PROTIP: You can find a load of helpful guides by going to the Docs directory from where you ran the
 launcher."""
 
-clickchat = "Click here to chat!"
+clickchat = "Click here to chat! (press F1 for help or type /help in chat)"
 chathead = "PythianRealms Chat"
 chatjoin = " has joined the chat!"
 chatkicky = "You were kicked from Chat for, \""
