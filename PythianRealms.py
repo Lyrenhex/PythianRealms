@@ -40,7 +40,7 @@ from com.scratso.pr.locales.en_UK import *
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-version = "2016.120"
+version = "2016.132"
 
 # Encompass the entire program in a try statement for the error reporter.
 try:

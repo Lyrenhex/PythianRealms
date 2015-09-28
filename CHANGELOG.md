@@ -1,6 +1,6 @@
 ﻿Changelog:
 
-2016.:
+2016.132:
 - Updated "Scratso" intro screen
 - Increased ping timeout minimum time, to hopefully counteract the random connection losses (ref: #20)
 - Fixed issue where Credits and Import Map buttons would both light up when you hovered oer the Credits button on the ingame menu (ref: #19)
@@ -13,7 +13,6 @@
 - Fixed issue where shop and inventory could not show
 - Increased Z-Axis Limit to 10 (because 4 levels for a release software is bad...) -- the map catalog has been cleared to prevent errors arising from out-of-date maps
 - Removed logging message from the chat welcome message
--- GitHub Commit --
 
 Beta.120:
 - Added sand.
