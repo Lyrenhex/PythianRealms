@@ -50,7 +50,10 @@ chatnicku = "Sorry, that name's already in use!"
 chatentermsg = "Chat message:"
 chaty = "You: "
 
-enterun = "Enter Username. It cannot contain spaces."
+enterchk = """PythianRealms has an online chat system, but requires that you
+have a Scratso.com account to use it. Do you wish to use the chat system?"""
+enterun = "Scratso.com Username"
+enterpw = "Scratso.com Password"
 
 saveselect = "Please select a save file."
 saveselhead = "Select a Save!"

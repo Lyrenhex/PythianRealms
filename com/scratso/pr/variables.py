@@ -36,6 +36,7 @@ coins = 1000  # 1000 coins to start, and per boost
 global screen_image
 screen_image = None
 
+global playerHP
 playerHP = 100
 
 # visible map sizes. There is always hidden map.

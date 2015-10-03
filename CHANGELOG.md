@@ -1,5 +1,13 @@
 ﻿Changelog:
 
+2016.137:
+- Integrated chatbox into the game more, as shop "not enough money" notifications are now displayed there.
+- Added a "too far away" notice if you're too far away for a melee attack.
+- Fixed issue where npcs would not die at 0% health. (ref: #24)
+- Probably fixed boost bug where the boost wouldn't be given. It appears to be that if you lag and it skips over 0 seconds left, it will just keep counting down, checking for exactly 0. Changed == to <= to account for this. (ref: #23)
+- Added Scratso.com account integration to add user security. (ref: #22)
+-- GitHub Commit --
+
 2016.132:
 - Updated "Scratso" intro screen
 - Increased ping timeout minimum time, to hopefully counteract the random connection losses (ref: #20)

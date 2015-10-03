@@ -40,7 +40,7 @@ from com.scratso.pr.locales.en_UK import *
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-version = "2016.132"
+version = "2016.137"
 
 # Encompass the entire program in a try statement for the error reporter.
 try:
@@ -50,6 +50,7 @@ try:
     channel = "#PythianRealms"
 
     messages = [
+        "",
         chatwelcome,
         chatstaff
         ]
@@ -935,39 +936,48 @@ try:
 
     change = True
 
-    if chat:
+    def login():
         if settings.username is None:
-            un = easygui.enterbox(enterun, chathead)
+            un,pw = easygui.multpasswordbox("Scratso.com account information. This is for online chat. If yoy do not want online chat, please leave blank.", chathead, [enterun, enterpw])
         else:
-            un = settings.username
-        if un:
+            un,pw = settings.username,settings.password
+        if (un is not None and un != "") and (pw is not None and pw != ""):
             try:
-                irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                print("connecting to irc.editingarchive.com...")
-                irc.connect(("irc.editingarchive.com", 6667))
-                irc.send(bytes("USER " + un + " " + un + " " + un + " :PythianRealms Game Chat\n", "utf-8"))
-                irc.send(bytes("NICK " + un + "\n", "utf-8"))
-                text = str(irc.recv(2040))
-                unraw = text.split("\\r\\n")
-                for line in unraw:
-                    print(line)
-                    try:
-                        nick = line.split(":")[1].split("!")[0]
-                        text = line.split(":", 2)[2]
-                    except:
-                        nick = "Service"
-                    if line.find("PING :") != -1:
-                        irc.send(bytes('PONG :' + line.split(" :")[1].upper() + '\r\n', "utf-8"))
-                irc.send(bytes("JOIN " + channel + "\n", "utf-8"))
-                display = pygame.display.set_mode((vmapwidth * tilesizex, vmapheight * tilesizey + 50),
-                                                  HWSURFACE | DOUBLEBUF)  # |RESIZABLE later
-                settings.username = un
-                settings.store()
+                check = str(urllib.request.urlopen('http://scratso.com/accounts/print.php?user='+un+"&password="+pw).read()).split("'")[1]
+                if check == "Log in.":
+                    global irc
+                    irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    print("connecting to irc.editingarchive.com...")
+                    irc.connect(("irc.editingarchive.com", 6667))
+                    irc.send(bytes("USER " + un + " " + un + " " + un + " :PythianRealms Game Chat\n", "utf-8"))
+                    irc.send(bytes("NICK " + un + "\n", "utf-8"))
+                    text = str(irc.recv(2040))
+                    unraw = text.split("\\r\\n")
+                    for line in unraw:
+                        print(line)
+                        try:
+                            nick = line.split(":")[1].split("!")[0]
+                            text = line.split(":", 2)[2]
+                        except:
+                            nick = "Service"
+                        if line.find("PING :") != -1:
+                            irc.send(bytes('PONG :' + line.split(" :")[1].upper() + '\r\n', "utf-8"))
+                    irc.send(bytes("JOIN " + channel + "\n", "utf-8"))
+                    display = pygame.display.set_mode((vmapwidth * tilesizex, vmapheight * tilesizey + 50),
+                                                      HWSURFACE | DOUBLEBUF)  # |RESIZABLE later
+                    settings.username = un
+                    settings.password = pw
+                    settings.store()
+                else:
+                    easygui.msgbox(check, "Unable to log in.")
+                    login()
             except Exception as e:
                 logger.error(e)
                 chat = False
         else:
             chat = False
+    if chat:
+        login()
 
 
     def ircthread():
@@ -1141,7 +1151,7 @@ try:
         shownz = [0, 1, 2, 3]
         musictrack.fill(0)
 
-        if boost == 0:
+        if boost <= 0:
             coins += 1000
             boost = 300
 
@@ -1340,17 +1350,13 @@ try:
                                 coins -= 1
                                 inventory[GRASS] += 1
                             else:
-                                msg([buycoin1 + "1" + buyonecoin2 + " Grass.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "1" + buyonecoin2 + " Grass.")
                         elif event.button == 3:
                             if coins >= 10:
                                 coins -= 10
                                 inventory[GRASS] += 10
                             else:
-                                msg([buycoin1 + "10" + buytencoin2 + " Grass.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "10" + buytencoin2 + " Grass.")
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 110 and mx <= (
                             vmapwidth * tilesizex) / 2 - 155 + 150 and my >= (
@@ -1365,17 +1371,13 @@ try:
                                 coins -= 3
                                 inventory[WATER] += 1
                             else:
-                                msg([buycoin1 + "3" + buyonecoin2 + " Water.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "3" + buyonecoin2 + " Water.")
                         elif event.button == 3:
                             if coins >= 30:
                                 coins -= 30
                                 inventory[WATER] += 10
                             else:
-                                msg([buycoin1 + "30" + buytencoin2 + " Water.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "30" + buytencoin2 + " Water.")
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 160 and mx <= (
                             vmapwidth * tilesizex) / 2 - 155 + 200 and my >= (
@@ -1390,17 +1392,13 @@ try:
                                 coins -= 4
                                 inventory[COAL] += 1
                             else:
-                                msg([buycoin1 + "4" + buyonecoin2 + " Coal.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "4" + buyonecoin2 + " Coal.")
                         elif event.button == 3:
                             if coins >= 40:
                                 coins -= 40
                                 inventory[COAL] += 10
                             else:
-                                msg([buycoin1 + "40" + buytencoin2 + " Coal.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "40" + buytencoin2 + " Coal.")
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 210 and mx <= (
                             vmapwidth * tilesizex) / 2 - 155 + 250 and my >= (
@@ -1415,18 +1413,13 @@ try:
                                 coins -= 5
                                 inventory[LAVA] += 1
                             else:
-                                msg([buycoin1 + "5" + buyonecoin2 + " Lava.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "5" + buyonecoin2 + " Lava.")
                         elif event.button == 3:
                             if coins >= 50:
                                 coins -= 50
                                 inventory[LAVA] += 10
                             else:
-                                msg([buycoin1 + "50" + buytencoin2 + " Lava.",
-                                     buycoinboost,
-                                     buycoinmob])
-
+                                addchat(buycoin1 + "50" + buytencoin2 + " Lava.")
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 260 and mx <= (
                             vmapwidth * tilesizex) / 2 - 155 + 300 and my >= (
@@ -1441,17 +1434,13 @@ try:
                                 coins -= 6
                                 inventory[ROCK] += 1
                             else:
-                                msg([buycoin1 + "6" + buyonecoin2 + " Stone.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "6" + buyonecoin2 + " Stone.")
                         elif event.button == 3:
                             if coins >= 60:
                                 coins -= 60
                                 inventory[ROCK] += 10
                             else:
-                                msg([buycoin1 + "60" + buytencoin2 + " Stone.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "60" + buytencoin2 + " Stone.")
 
 
                 # row 2
@@ -1468,17 +1457,13 @@ try:
                                 coins -= 10
                                 inventory[DIAM] += 1
                             else:
-                                msg([buycoin1 + "10" + buyonecoin2 + " Diamond.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "10" + buyonecoin2 + " Diamond.")
                         elif event.button == 3:
                             if coins >= 100:
                                 coins -= 100
                                 inventory[DIAM] += 10
                             else:
-                                msg([buycoin1 + "100" + buytencoin2 + " Diamond.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "100" + buytencoin2 + " Diamond.")
 
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 60 and mx <= (
@@ -1494,17 +1479,13 @@ try:
                                 coins -= 12
                                 inventory[SAPP] += 1
                             else:
-                                msg([buycoin1 + "12" + buyonecoin2 + " Sapphire.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "12" + buyonecoin2 + " Sapphire.")
                         elif event.button == 3:
                             if coins >= 120:
                                 coins -= 120
                                 inventory[SAPP] += 10
                             else:
-                                msg([buycoin1 + "120" + buytencoin2 + " Sapphire.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "120" + buytencoin2 + " Sapphire.")
 
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 110 and mx <= (
@@ -1520,17 +1501,13 @@ try:
                                 coins -= 14
                                 inventory[RUBY] += 1
                             else:
-                                msg([buycoin1 + "14" + buyonecoin2 + " Ruby.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "14" + buyonecoin2 + " Ruby.")
                         elif event.button == 3:
                             if coins >= 140:
                                 coins -= 140
                                 inventory[RUBY] += 10
                             else:
-                                msg([buycoin1 + "140" + buytencoin2 + " Ruby.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "140" + buytencoin2 + " Ruby.")
 
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 160 and mx <= (
@@ -1546,17 +1523,13 @@ try:
                                 coins -= 13
                                 inventory[GOLD] += 1
                             else:
-                                msg([buycoin1 + "13" + buyonecoin2 + " Gold.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "13" + buyonecoin2 + " Gold.")
                         elif event.button == 3:
                             if coins >= 130:
                                 coins -= 130
                                 inventory[GOLD] += 10
                             else:
-                                msg([buycoin1 + "130" + buytencoin2 + " Gold.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "130" + buytencoin2 + " Gold.")
 
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 210 and mx <= (
@@ -1572,17 +1545,13 @@ try:
                                 coins -= 9
                                 inventory[CARP] += 1
                             else:
-                                msg([buycoin1 + "9" + buyonecoin2 + " Carpet.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "9" + buyonecoin2 + " Carpet.")
                         elif event.button == 3:
                             if coins >= 90:
                                 coins -= 90
                                 inventory[CARP] += 10
                             else:
-                                msg([buycoin1 + "90" + buytencoin2 + " Carpet.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "90" + buytencoin2 + " Carpet.")
 
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 260 and mx <= (
@@ -1598,17 +1567,13 @@ try:
                                 coins -= 7
                                 inventory[SNOW] += 1
                             else:
-                                msg([buycoin1 + "7" + buyonecoin2 + " Snow.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "7" + buyonecoin2 + " Snow.")
                         elif event.button == 3:
                             if coins >= 70:
                                 coins -= 70
                                 inventory[SNOW] += 10
                             else:
-                                msg([buycoin1 + "70" + buytencoin2 + " Snow.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "70" + buytencoin2 + " Snow.")
 
 
                 # row 3
@@ -1625,17 +1590,13 @@ try:
                                 coins -= 7
                                 inventory[WOOD] += 1
                             else:
-                                msg([buycoin1 + "7" + buyonecoin2 + " Wood.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "7" + buyonecoin2 + " Wood.")
                         elif event.button == 3:
                             if coins >= 70:
                                 coins -= 70
                                 inventory[WOOD] += 10
                             else:
-                                msg([buycoin1 + "70" + buytencoin2 + " Wood.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "70" + buytencoin2 + " Wood.")
 
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 60 and mx <= (
@@ -1650,9 +1611,7 @@ try:
                                 coins -= 8
                                 inventory[GLASS] += 1
                             else:
-                                msg([buycoin1 + "8" + buyonecoin2 + " Glass.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "8" + buyonecoin2 + " Glass.")
                         elif event.button == 3:
                             if coins >= 80:
                                 coins -= 80
@@ -1661,6 +1620,7 @@ try:
                                 msg([buycoin1 + "80" + buytencoin2 + " Glass.",
                                      buycoinboost,
                                      buycoinmob])
+                                addchat(buycoin1 + "80" + buytencoin2 + " Glass.")
 
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 110 and mx <= (
@@ -1675,17 +1635,13 @@ try:
                                 coins -= 9
                                 inventory[BRICK] += 1
                             else:
-                                msg([buycoin1 + "9" + buyonecoin2 + " Brick.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "9" + buyonecoin2 + " Brick.")
                         elif event.button == 3:
                             if coins >= 90:
                                 coins -= 90
                                 inventory[BRICK] += 10
                             else:
-                                msg([buycoin1 + "90" + buytencoin2 + " Brick.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "90" + buytencoin2 + " Brick.")
 
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 160 and mx <= (
@@ -1696,9 +1652,7 @@ try:
                             coins -= 12
                             inventory[GSWORD] += 1
                         else:
-                            msg([buycoin1 + "12" + buyonecoin2 + " Iron Sword.",
-                                     buycoinboost,
-                                     buycoinmob])
+                            addchat(buycoin1 + "12" + buyonecoin2 + " Iron Sword.")
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 210 and mx <= (
                             vmapwidth * tilesizex) / 2 - 155 + 260 and my >= (
@@ -1709,9 +1663,7 @@ try:
                                 coins -= 25
                                 inventory[DSTAFF] += 1
                             else:
-                                msg([buycoin1 + "25" + buyonecoin2 + " Staff of Darkness.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "25" + buyonecoin2 + " Staff of Darkness.")
 
                 elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 260 and mx <= (
                             vmapwidth * tilesizex) / 2 - 155 + 310 and my >= (
@@ -1725,17 +1677,13 @@ try:
                                 coins -= 2
                                 inventory[SAND] += 1
                             else:
-                                msg([buycoin1 + "2" + buyonecoin2 + " Sand.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "2" + buyonecoin2 + " Sand.")
                         elif event.button == 3:
                             if coins >= 20:
                                 coins -= 20
                                 inventory[BRICK] += 10
                             else:
-                                msg([buycoin1 + "20" + buytencoin2 + " Sand.",
-                                     buycoinboost,
-                                     buycoinmob])
+                                addchat(buycoin1 + "20" + buytencoin2 + " Sand.")
 
                 if mx >= 50 and mx <= 60 and my >= 15 and my <= 25 and opt:
                     if silence:
@@ -1762,16 +1710,16 @@ try:
                 elif mx >= 0 and mx <= vmapwidth * tilesizex and my >= vmapheight * tilesizey + 38 and \
                         (my <= vmapheight * tilesizey + 50):
                     if chat:
-                        msg = easygui.enterbox(chatentermsg, chathead)
-                        if msg is not None:
-                            if msg == "/who":
+                        msgn = easygui.enterbox(chatentermsg, chathead)
+                        if msgn is not None:
+                            if msgn == "/who":
                                 irc.send(bytes("NAMES :" + channel + "\n", "utf-8"))
-                            elif msg == "/help":
+                            elif msgn == "/help":
                                 addchat("*** PythianRealms "+version.split(".")[0]+" revision "+version.split(".")[1]+".")
                                 webbrowser.open("http://scratso.com/pythianrealms/help.php", 2, True)
                             else:
-                                irc.send(bytes("PRIVMSG " + channel + " :" + msg + "\n", "utf-8"))
-                                addchat(chaty + msg)
+                                irc.send(bytes("PRIVMSG " + channel + " :" + msgn + "\n", "utf-8"))
+                                addchat(chaty + msgn)
 
                 x = math.floor(mx / tilesizex - xoffset / tilesizex)
                 y = math.floor(my / tilesizey - yoffset / tilesizey)
@@ -1799,8 +1747,7 @@ try:
                     if realm == 2 or premium:
                         changedz = []
                         pickup = True
-                        msg([
-                           pickupmodenotice])
+                        addchat(pickupmodenotice)
                 elif event.key == K_r:
                     if realm == 2 or premium:
                         changedz = []
@@ -1837,7 +1784,7 @@ try:
                                     NPChealth[selectednpc[0]][selectednpc[1]] -= 6
                                 selectednpc = None
                             else:
-                                selectednpc = None
+                                addchat("You're too far away to attack! You must be within 5 blocks of the enemy.")
                 elif event.key == K_t:
                     logger.info("Saving Realm " + str(realm) + "...")
                     data.map[realm] = tilemap
@@ -1990,7 +1937,6 @@ try:
                                     movementTile = tilemap[npcPosZ[npc]][npcPosY[npc][npcd]][npcPosX[npc][npcd] + 1]
                                     if movementTile == AIR:
                                         npcPosX[npc][npcd] += 1
-                pygame.event.pump()
                 realm = data.realm
                 npcsurf.fill(0)
                 # for each NPC
@@ -2009,8 +1955,14 @@ try:
                                 NPCname = gamefont.render(str(npcName[item]), True, red)
                                 npcsurf.blit(NPCname, (
                                     npcPosX[item][curnpc] * tilesizex, npcPosY[item][curnpc] * tilesizey - 15))
-                                percent = NPChealth[item][curnpc] / NPCmaxHealth[item]
-                                NHP = gamefont.render(str(round(percent * 100)) + "%", True, red)
+                                percent = NPChealth[item][curnpc] / NPCmaxHealth[item] * 100
+                                if percent <= 0:
+                                    npcPosX[item][curnpc] = random.randint(0,mapwidth-1)
+                                    npcPosY[item][curnpc] = random.randint(0,mapheight-1)
+                                    coins += npcDrop[item]
+                                    NPChealth[item][curnpc] = NPCmaxHealth[item]
+                                    percent = 100
+                                NHP = gamefont.render(str(round(percent)) + "%", True, red)                                    
                                 npcsurf.blit(NHP, (
                                     npcPosX[item][curnpc] * tilesizex, npcPosY[item][curnpc] * tilesizey - 27))
                                 if selectednpc is not None:
@@ -2032,7 +1984,7 @@ try:
                                     npcPosX[item][curnpc] * tilesizex, npcPosY[item][curnpc] * tilesizey - 15))
                                 #                    else:
                                 #                        npcPosZ[item] = 2
-
+        pygame.event.pump()
         if playerz == 0:
             if tilemap[playerz + 1][playerTile[1]][playerTile[0]] != AIR:
                 shownz = [0]
@@ -2454,13 +2406,12 @@ try:
                         #                textoffset += 12
             pygame.display.update()
 
-        if chat:
-            pygame.draw.rect(display, black, (0, vmapheight * tilesizey, vmapwidth * tilesizex, 50))
-            pygame.draw.rect(display, white, (0, vmapheight * tilesizey + 38, vmapwidth * tilesizex, 12))
-            display.blit(chatmsg, (2, vmapheight * tilesizey + 38))
-            display.blit(gamefont.render(messages[-3], True, white), (0, vmapheight * tilesizey))
-            display.blit(gamefont.render(messages[-2], True, white), (0, vmapheight * tilesizey + 12))
-            display.blit(gamefont.render(messages[-1], True, white), (0, vmapheight * tilesizey + 24))
+        pygame.draw.rect(display, black, (0, vmapheight * tilesizey, vmapwidth * tilesizex, 50))
+        pygame.draw.rect(display, white, (0, vmapheight * tilesizey + 38, vmapwidth * tilesizex, 12))
+        display.blit(chatmsg, (2, vmapheight * tilesizey + 38))
+        display.blit(gamefont.render(messages[-3], True, white), (0, vmapheight * tilesizey))
+        display.blit(gamefont.render(messages[-2], True, white), (0, vmapheight * tilesizey + 12))
+        display.blit(gamefont.render(messages[-1], True, white), (0, vmapheight * tilesizey + 24))
 
         pygame.display.update((0, 0, vmapwidth * tilesizex, vmapheight * tilesizey + 50))
 
