@@ -937,6 +937,7 @@ try:
     change = True
 
     def login():
+        global un
         if settings.username is None:
             un,pw = easygui.multpasswordbox("Scratso.com account information. This is for online chat. If yoy do not want online chat, please leave blank.", chathead, [enterun, enterpw])
         else:
