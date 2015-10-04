@@ -1,5 +1,19 @@
 ﻿Changelog:
 
+2016.147:
+- Updated staff list.
+- Menu logo changed to the 2016 edition.
+- Game title is now "PythianRealms 2016".
+- Improved menu layout.
+- Fixed issue where boosts wouldn't be given while in the menu.
+- Fixed issue where pressing the "X" button in the menu wouldn't do anything.
+- Fixed issue where music would not continuously play while in the menu.
+
+2016.140:
+- Fixed issue with sharing maps. (ref: #25)
+- Fixed some issues with the Scratso.com integration.
+- Added /nsid NickServ identification command. (ref: #26)
+
 2016.137:
 - Integrated chatbox into the game more, as shop "not enough money" notifications are now displayed there.
 - Added a "too far away" notice if you're too far away for a melee attack.

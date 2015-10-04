@@ -5,7 +5,7 @@ executables = [cx_Freeze.Executable("PythianRealms.py")]
 cx_Freeze.setup(
     name="PythianRealms",
     author="Adonis Megalos",
-    version="2016.132",
+    version="2016.147",
     options={"build_exe": {"packages":["pygame"],
                            "excludes": [],
                            "include_files":["data","graphics","music","com","changelog.md","Docs","libraries2.zip","GNU GPL.txt"]} },

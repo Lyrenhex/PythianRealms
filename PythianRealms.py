@@ -40,13 +40,13 @@ from com.scratso.pr.locales.en_UK import *
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-version = "2016.137"
+version = "2016.147"
 
 # Encompass the entire program in a try statement for the error reporter.
 try:
     online = False
     server = False  # set to true to enable mysql connections. DON'T!
-    chat = True
+    chat = None
     channel = "#PythianRealms"
 
     messages = [
@@ -56,8 +56,8 @@ try:
         ]
 
     staff = {"Scratso": staffowner,
-             "SapphireCoyote": staffmod,
-             "Scratso^logs": staffowner}
+             "Scratsy": staffowner,
+             "SapphireCoyote": staffmod}
 
     ########################
     # SET UP POPUP WINDOWS #
@@ -287,7 +287,7 @@ try:
     activetxt = gamefont.render("Active", True, white)
     activesurf.blit(activetxt, (5, 5))
 
-    pygame.display.set_caption("PythianRealms")
+    pygame.display.set_caption("PythianRealms 2016")
     # set the window icon
     pygame.display.set_icon(pygame.image.load("graphics/temp/misc/logo-small.png").convert_alpha())
 
@@ -936,13 +936,13 @@ try:
 
     change = True
 
-    def login():
+    while chat is None:
         global un
         if settings.username is None:
-            un,pw = easygui.multpasswordbox("Scratso.com account information. This is for online chat. If yoy do not want online chat, please leave blank.", chathead, [enterun, enterpw])
+            un,pw = easygui.multpasswordbox("Scratso.com account information. This is for online chat. If you do not want online chat, please leave blank.", chathead, [enterun, enterpw])
         else:
             un,pw = settings.username,settings.password
-        if (un is not None and un != "") and (pw is not None and pw != ""):
+        if (un is not None and un != "" and un != " " and un != False) and (pw is not None and pw != "" and pw != " " and pw != False):
             try:
                 check = str(urllib.request.urlopen('http://scratso.com/accounts/print.php?user='+un+"&password="+pw).read()).split("'")[1]
                 if check == "Log in.":
@@ -969,82 +969,85 @@ try:
                     settings.username = un
                     settings.password = pw
                     settings.store()
+                    chat = True
                 else:
                     easygui.msgbox(check, "Unable to log in.")
-                    login()
             except Exception as e:
                 logger.error(e)
                 chat = False
         else:
             chat = False
-    if chat:
-        login()
+    print(chat)
+    if chat == False:
+        display = pygame.display.set_mode((vmapwidth * tilesizex, vmapheight * tilesizey + 38),
+                                                      HWSURFACE | DOUBLEBUF)  # |RESIZABLE later
 
 
     def ircthread():
-        con = 0
-        last_ping = time.time()
-        threshold = 7 * 60  # seven minutes, make this whatever you want
-        while True:
-            text = str(irc.recv(2040))
-            unraw = text.split("\\r\\n")
-            for line in unraw:
-                try:
-                    nick = line.split(":")[1].split("!")[0]
+        if chat:
+            con = 0
+            last_ping = time.time()
+            threshold = 7 * 60  # seven minutes, make this whatever you want
+            while True:
+                text = str(irc.recv(2040))
+                unraw = text.split("\\r\\n")
+                for line in unraw:
                     try:
-                        nick = "[" + staff[nick] + "] " + nick
+                        nick = line.split(":")[1].split("!")[0]
+                        try:
+                            nick = "[" + staff[nick] + "] " + nick
+                        except:
+                            print(end="")
+                        chan = line.split(" :")[0].split(" ")[2]
+                        text = line.split(":", 2)[2]
                     except:
-                        print(end="")
-                    chan = line.split(" :")[0].split(" ")[2]
-                    text = line.split(":", 2)[2]
-                except:
-                    nick = "Service"
-                if "Serv" in nick or "irc.editingarchive.com" in nick:
-                    nick = "Service"
-                print("<" + nick + "> " + text)
-                if line.find("PING :") != -1 and nick == "Service":
-                    irc.send(bytes('PONG :' + line.split(" :")[1].upper() + '\r\n', "utf-8"))
-                    last_ping = time.time()
-                elif line.find("JOIN :") != -1:
-                    irc.send(bytes("JOIN " + channel + "\n", "utf-8"))
-                    if nick != un and nick != "Service":
-                        addchat(nick + chatjoin)
-                elif line.find("KICK ") != -1:
-                    if line.split("#PythianRealms ")[1].split(" :")[0] == un:
-                        addchat(chatkicky + text + "\"")
+                        nick = "Service"
+                    if "Serv" in nick or "irc.editingarchive.com" in nick:
+                        nick = "Service"
+                    print("<" + nick + "> " + text)
+                    if line.find("PING :") != -1 and nick == "Service":
+                        irc.send(bytes('PONG :' + line.split(" :")[1].upper() + '\r\n', "utf-8"))
+                        last_ping = time.time()
+                    elif line.find("JOIN :") != -1:
+                        irc.send(bytes("JOIN " + channel + "\n", "utf-8"))
+                        if nick != un and nick != "Service":
+                            addchat(nick + chatjoin)
+                    elif line.find("KICK ") != -1:
+                        if line.split("#PythianRealms ")[1].split(" :")[0] == un:
+                            addchat(chatkicky + text + "\"")
+                            addchat(chatlost)
+                            break
+                        else:
+                            addchat(nick + chatkick1 + line.split("#PythianRealms ")[1].split(" :")[
+                                0] + chatkick2 + text + "\"")
+                    elif "\\x01" in text:
+                        text = text.split("\\x01")[1].split("ACTION ")[1]
+                        addchat("* " + line.split(":")[1].split("!")[0] + " " + text + " *")
+                    elif line.find("NICK :") != -1:
+                        addchat(line.split(":")[1].split("!")[0] + chatnick + line.split(":", 2)[2])
+                    elif line.find("QUIT :") != -1:
+                        addchat(line.split(":")[1].split("!")[0] + chatleave)
+                    elif line.find("PART #PythianRealms") != -1:
+                        addchat(line.split(":")[1].split("!")[0] + chatleave)
+                    elif nick != "Service" and "MODE " not in line:
+                        addchat(nick + ": " + text)
+                    elif nick == "Service" and text == "You have not registered":
+                        con += 1
+                        if con >= 3:
+                            addchat(chatlost)
+                            break
+                    elif nick == "Service" and text == "Nickname is already in use":
+                        addchat(chatnicku)
                         addchat(chatlost)
                         break
-                    else:
-                        addchat(nick + chatkick1 + line.split("#PythianRealms ")[1].split(" :")[
-                            0] + chatkick2 + text + "\"")
-                elif "\\x01" in text:
-                    text = text.split("\\x01")[1].split("ACTION ")[1]
-                    addchat("* " + line.split(":")[1].split("!")[0] + " " + text + " *")
-                elif line.find("NICK :") != -1:
-                    addchat(line.split(":")[1].split("!")[0] + chatnick + line.split(":", 2)[2])
-                elif line.find("QUIT :") != -1:
-                    addchat(line.split(":")[1].split("!")[0] + chatleave)
-                elif line.find("PART #PythianRealms") != -1:
-                    addchat(line.split(":")[1].split("!")[0] + chatleave)
-                elif nick != "Service" and "MODE " not in line:
-                    addchat(nick + ": " + text)
-                elif nick == "Service" and text == "You have not registered":
-                    con += 1
-                    if con >= 3:
+                    elif line.find("353") != -1:
+                        addchat("*** Players online: " + text)
+                    if (time.time() - last_ping) > threshold:
                         addchat(chatlost)
                         break
-                elif nick == "Service" and text == "Nickname is already in use":
-                    addchat(chatnicku)
-                    addchat(chatlost)
-                    break
-                elif line.find("353") != -1:
-                    addchat("*** Players online: " + text)
-                if (time.time() - last_ping) > threshold:
-                    addchat(chatlost)
-                    break
-            else:
-                continue
-            break
+                else:
+                    continue
+                break
 
 
     class Save(
@@ -1718,6 +1721,9 @@ try:
                             elif msgn == "/help":
                                 addchat("*** PythianRealms "+version.split(".")[0]+" revision "+version.split(".")[1]+".")
                                 webbrowser.open("http://scratso.com/pythianrealms/help.php", 2, True)
+                            elif msgn.split(" ")[0] == "/nsid":
+                                addchat("*** Submitted password to NickServ.")
+                                irc.send(bytes("PRIVMSG NickServ :IDENTIFY "+msgn.split(" ",1)[1]+"\n", "utf-8"))
                             else:
                                 irc.send(bytes("PRIVMSG " + channel + " :" + msgn + "\n", "utf-8"))
                                 addchat(chaty + msgn)
@@ -2214,72 +2220,103 @@ try:
             display.blit(pygame.image.load("graphics/temp/music/pause.png").convert_alpha(), (600, vmapheight * tilesizey - 98))
             display.blit(pygame.image.load("graphics/temp/music/play.png").convert_alpha(), (640, vmapheight * tilesizey - 98))
             display.blit(pygame.image.load("graphics/temp/music/skip.png").convert_alpha(), (680, vmapheight * tilesizey - 98))
-            pygame.draw.rect(display, savecol, ((vmapwidth * tilesizex) / 2 - 100, 255, 200, 40))
-            display.blit(magicbody.render(menusave, True, white), ((vmapwidth * tilesizex) / 2 - 90, 257))
-            pygame.draw.rect(display, sharecol, ((vmapwidth * tilesizex) / 2 - 310, 255, 200, 40))
-            display.blit(magicbody.render(menushare, True, white), ((vmapwidth * tilesizex) / 2 - 300, 257))
-            pygame.draw.rect(display, screencol, ((vmapwidth * tilesizex) / 2 - 100, 300, 200, 40))
-            display.blit(magicbody.render(menuscreenshot, True, white), ((vmapwidth * tilesizex) / 2 - 92, 302))
-            pygame.draw.rect(display, dlcol, ((vmapwidth * tilesizex) / 2 - 310, 300, 200, 40))
-            display.blit(magicbody.render(menudownload, True, white), ((vmapwidth * tilesizex) / 2 - 300, 302))
-            pygame.draw.rect(display, credcol, ((vmapwidth * tilesizex) / 2 - 100, 345, 200, 40))
-            display.blit(magicbody.render(menucredits, True, white), ((vmapwidth * tilesizex) / 2 - 60, 347))
-            pygame.draw.rect(display, impcol, ((vmapwidth * tilesizex) / 2 - 310, 345, 200, 40))
-            display.blit(magicbody.render(menuimport, True, white), ((vmapwidth * tilesizex) / 2 - 300, 347))
-            pygame.draw.rect(display, irccol, ((vmapwidth * tilesizex) / 2 - 100, 390, 200, 40))
-            display.blit(magicbody.render(menuirc, True, white), ((vmapwidth * tilesizex) / 2 - 60, 392))
-            pygame.draw.rect(display, quitcol, ((vmapwidth * tilesizex) / 2 - 100, 435, 200, 40))
-            display.blit(magicbody.render(menuquit, True, white), ((vmapwidth * tilesizex) / 2 - 90, 437))
-            display.blit(pygame.image.load("graphics/temp/misc/logo2.png"), ((vmapwidth * tilesizex - 30) / 2 - 360, 15))
+            pygame.draw.rect(display, savecol, ((vmapwidth * tilesizex) / 2 + 5, 285, 200, 40))
+            display.blit(magicbody.render(menusave, True, white), ((vmapwidth * tilesizex) / 2 + 15, 287))
+            pygame.draw.rect(display, sharecol, ((vmapwidth * tilesizex) / 2 - 205, 285, 200, 40))
+            display.blit(magicbody.render(menushare, True, white), ((vmapwidth * tilesizex) / 2 - 190, 287))
+            pygame.draw.rect(display, screencol, ((vmapwidth * tilesizex) / 2 + 5, 330, 200, 40))
+            display.blit(magicbody.render(menuscreenshot, True, white), ((vmapwidth * tilesizex) / 2 + 15, 332))
+            pygame.draw.rect(display, dlcol, ((vmapwidth * tilesizex) / 2 - 205, 330, 200, 40))
+            display.blit(magicbody.render(menudownload, True, white), ((vmapwidth * tilesizex) / 2 - 190, 332))
+            pygame.draw.rect(display, credcol, ((vmapwidth * tilesizex) / 2 + 5, 375, 200, 40))
+            display.blit(magicbody.render(menucredits, True, white), ((vmapwidth * tilesizex) / 2 + 15, 377))
+            pygame.draw.rect(display, impcol, ((vmapwidth * tilesizex) / 2 - 205, 375, 200, 40))
+            display.blit(magicbody.render(menuimport, True, white), ((vmapwidth * tilesizex) / 2 - 200, 377))
+            pygame.draw.rect(display, irccol, ((vmapwidth * tilesizex) / 2 + 5, 420, 200, 40))
+            display.blit(magicbody.render(menuirc, True, white), ((vmapwidth * tilesizex) / 2 + 15, 422))
+            pygame.draw.rect(display, quitcol, ((vmapwidth * tilesizex) / 2 - 205, 420, 200, 40))
+            display.blit(magicbody.render(menuquit, True, white), ((vmapwidth * tilesizex) / 2 - 190, 422))
+            display.blit(pygame.image.load("graphics/temp/misc/logo2016.png"), ((vmapwidth * tilesizex - 30) / 2 - 360, 15))
             display.blit(gamefont.render(versiontag + version, True, blue), (15, (vmapheight * tilesizey) - 27))
             for event in pygame.event.get():
-                if event.type == KEYDOWN:
+                if event.type == SECONDCOUNTDOWN:
+                    boost -= 1
+                elif event.type == USEREVENT:
+                    initMusic()
+                elif event.type == KEYDOWN:
                     if event.key == K_ESCAPE:
                         menu = False
+                elif event.type == QUIT:
+                    if chat:
+                        irc.send(bytes("QUIT :Client exited.\n", "utf-8"))
+                        irc.close()
+                    if easygui.ynbox(savequery):
+                        logger.info("Saving game...")
+                        data.realm = realm
+                        data.map[realm] = tilemap
+                        data.inventory = inventory
+                        data.coins = coins
+                        data.store()
+                        logger.info("Game saved.")
+                    try:
+                        logger.info("Removing previous temporary texture files...")
+                        for the_file in os.listdir("graphics/temp/"):
+                            file_path = os.path.join("graphics", "temp", the_file)
+                            try:
+                                if os.path.isfile(file_path):
+                                    os.remove(file_path)
+                                elif os.path.isdir(file_path):
+                                    shutil.rmtree(file_path)
+                            except Exception as e:
+                                logger.error(e)
+                        os.rmdir("graphics/temp/")
+                    except Exception as e:
+                        logger.error(e)
+                    sys.exit("User has quit the application.")
                 elif event.type == MOUSEMOTION:
-                    if ((vmapwidth * tilesizex) / 2 - 100 <= mx <= (vmapwidth * tilesizex) / 2 + 100) and (
-                                    255 <= my <= 295):
+                    if ((vmapwidth * tilesizex) / 2 + 5 <= mx <= (vmapwidth * tilesizex) / 2 + 205) and (
+                                    285 <= my <= 325):
                         savecol = green
                     else:
                         savecol = black
-                    if ((vmapwidth * tilesizex) / 2 - 310 <= mx <= (vmapwidth * tilesizex) / 2 - 110) and (
-                                    255 <= my <= 295):
+                    if ((vmapwidth * tilesizex) / 2 - 205 <= mx <= (vmapwidth * tilesizex) / 2 - 5) and (
+                                    285 <= my <= 325):
                         sharecol = green
                     else:
                         sharecol = black
-                    if ((vmapwidth * tilesizex) / 2 - 100 <= mx <= (vmapwidth * tilesizex) / 2 + 100) and (
-                                    300 <= my <= 340):
+                    if ((vmapwidth * tilesizex) / 2 + 5 <= mx <= (vmapwidth * tilesizex) / 2 + 205) and (
+                                    330 <= my <= 370):
                         screencol = green
                     else:
                         screencol = black
-                    if ((vmapwidth * tilesizex) / 2 - 310 <= mx <= (vmapwidth * tilesizex) / 2 - 110) and (
-                                    300 <= my <= 340):
+                    if ((vmapwidth * tilesizex) / 2 - 205 <= mx <= (vmapwidth * tilesizex) / 2 - 5) and (
+                                    330 <= my <= 370):
                         dlcol = green
                     else:
                         dlcol = black
-                    if ((vmapwidth * tilesizex) / 2 - 100 <= mx <= (vmapwidth * tilesizex) / 2 + 100) and (
-                                    345 <= my <= 385):
+                    if ((vmapwidth * tilesizex) / 2 + 5 <= mx <= (vmapwidth * tilesizex) / 2 + 205) and (
+                                    375 <= my <= 415):
                         credcol = green
                     else:
                         credcol = black
-                    if ((vmapwidth * tilesizex) / 2 - 310 <= mx <= (vmapwidth * tilesizex) / 2 - 110) and (
-                                    345 <= my <= 385):
+                    if ((vmapwidth * tilesizex) / 2 - 205 <= mx <= (vmapwidth * tilesizex) / 2 - 5) and (
+                                    375 <= my <= 415):
                         impcol = green
                     else:
                         impcol = black
-                    if ((vmapwidth * tilesizex) / 2 - 100 <= mx <= (vmapwidth * tilesizex) / 2 + 100) and (
-                                    390 <= my <= 430):
+                    if ((vmapwidth * tilesizex) / 2 + 5 <= mx <= (vmapwidth * tilesizex) / 2 + 205) and (
+                                    420 <= my <= 460):
                         irccol = green
                     else:
                         irccol = black
-                    if ((vmapwidth * tilesizex) / 2 - 100 <= mx <= (vmapwidth * tilesizex) / 2 + 100) and (
-                                    435 <= my <= 475):
+                    if ((vmapwidth * tilesizex) / 2 - 205 <= mx <= (vmapwidth * tilesizex) / 2 - 5) and (
+                                    420 <= my <= 460):
                         quitcol = red
                     else:
                         quitcol = black
                 elif event.type == MOUSEBUTTONDOWN:
-                    if ((vmapwidth * tilesizex) / 2 - 100 <= mx <= (vmapwidth * tilesizex) / 2 + 100) and (
-                                    255 <= my <= 295):
+                    if ((vmapwidth * tilesizex) / 2 + 5 <= mx <= (vmapwidth * tilesizex) / 2 + 205) and (
+                                    285 <= my <= 325):
                         logger.info("Saving game...")
                         data.realm = realm
                         data.map[realm] = tilemap
@@ -2288,8 +2325,8 @@ try:
                         data.store()
                         logger.info("Game saved.")
                         easygui.msgbox(savean, saveanhead)
-                    elif ((vmapwidth * tilesizex) / 2 - 310 <= mx <= (vmapwidth * tilesizex) / 2 - 110) and (
-                                    255 <= my <= 295):
+                    elif ((vmapwidth * tilesizex) / 2 - 205 <= mx <= (vmapwidth * tilesizex) / 2 - 5) and (
+                                    285 <= my <= 325):
                         f = open("tempmap.txt", "a")
                         # loop through each layer
                         for layer in range(mapz):  # changedz
@@ -2301,7 +2338,7 @@ try:
                         f.close()
                         file = "tempmap"
                         pygame.image.save(game, file + ".png")
-                        ftp = ftplib.FTP("ftp.scratso.com", "PythianRealms", "prshare")
+                        ftp = ftplib.FTP("ftp.scratso.com", "prmaps@scratso.com", "prshare")
                         mapsock = urllib.request.urlopen("http://scratso.com/pythianrealms/mapgen.php")
                         mapnum = str(mapsock.read()).split("'")[1]
                         mapsock.close()
@@ -2333,25 +2370,25 @@ try:
                             pygame.mixer.music.unpause()
                         elif 680 <= mx <= 714:
                             initMusic()
-                    elif ((vmapwidth * tilesizex) / 2 - 100 <= mx <= (vmapwidth * tilesizex) / 2 + 100) and (
-                                    300 <= my <= 340):
+                    elif ((vmapwidth * tilesizex) / 2 + 5 <= mx <= (vmapwidth * tilesizex) / 2 + 205) and (
+                                    330 <= my <= 370):
                         file = easygui.filesavebox(filetypes=["*.png"])
                         time.sleep(10)
                         pygame.image.save(game, file)
                         easygui.msgbox(screenshotsaved + file)
                         logger.info("Saved screenshot.")
-                    elif ((vmapwidth * tilesizex) / 2 - 310 <= mx <= (vmapwidth * tilesizex) / 2 - 110) and (
-                                    300 <= my <= 340):
+                    elif ((vmapwidth * tilesizex) / 2 - 205 <= mx <= (vmapwidth * tilesizex) / 2 - 5) and (
+                                    330 <= my <= 370):
                         webbrowser.open("http://www.scratso.com/datastore/pythianrealms/maps")
-                    elif ((vmapwidth * tilesizex) / 2 - 100 <= mx <= (vmapwidth * tilesizex) / 2 + 100) and (
-                                    345 <= my <= 385):
+                    elif ((vmapwidth * tilesizex) / 2 + 5 <= mx <= (vmapwidth * tilesizex) / 2 + 205) and (
+                                    375 <= my <= 415):
                         f = open("Docs/CREDITS.md", "r")
                         r = f.readlines()
                         f.close()
                         # noinspection PyTypeChecker
                         easygui.textbox(credstexty, credstexty, r)
-                    elif ((vmapwidth * tilesizex) / 2 - 310 <= mx <= (vmapwidth * tilesizex) / 2 + 110) and (
-                                    345 <= my <= 385):
+                    elif ((vmapwidth * tilesizex) / 2 - 205 <= mx <= (vmapwidth * tilesizex) / 2 - 5) and (
+                                    375 <= my <= 415):
                         if easygui.ynbox("Importing a map will replace your current map. Are you sure?", "Warning"):
                             file = easygui.fileopenbox(filetypes=["*.prm"])
                             time.sleep(10)
@@ -2367,13 +2404,13 @@ try:
                                         tilemap[ly][rw][cl] = read4
                                         file = file + 1
                             read.close()
-                    elif ((vmapwidth * tilesizex) / 2 - 100 <= mx <= (vmapwidth * tilesizex) / 2 + 100) and (
-                                    390 <= my <= 430):
+                    elif ((vmapwidth * tilesizex) / 2 + 5 <= mx <= (vmapwidth * tilesizex) / 2 + 205) and (
+                                    420 <= my <= 460):
                         # Open Multiplayer Chat System
                         webbrowser.open("https://irc.editingarchive.com:8080/?channels=PlatSwag")
                         logger.info("IRC Opened.")
-                    elif ((vmapwidth * tilesizex) / 2 - 100 <= mx <= (vmapwidth * tilesizex) / 2 + 100) and (
-                                    435 <= my <= 475):
+                    elif ((vmapwidth * tilesizex) / 2 - 205 <= mx <= (vmapwidth * tilesizex) / 2 - 5) and (
+                                    420 <= my <= 460):
                         if chat:
                             irc.send(bytes("QUIT :Client exited.\n", "utf-8"))
                             irc.close()
@@ -2407,12 +2444,19 @@ try:
                         #                textoffset += 12
             pygame.display.update()
 
-        pygame.draw.rect(display, black, (0, vmapheight * tilesizey, vmapwidth * tilesizex, 50))
-        pygame.draw.rect(display, white, (0, vmapheight * tilesizey + 38, vmapwidth * tilesizex, 12))
-        display.blit(chatmsg, (2, vmapheight * tilesizey + 38))
-        display.blit(gamefont.render(messages[-3], True, white), (0, vmapheight * tilesizey))
-        display.blit(gamefont.render(messages[-2], True, white), (0, vmapheight * tilesizey + 12))
-        display.blit(gamefont.render(messages[-1], True, white), (0, vmapheight * tilesizey + 24))
+        if chat:
+            pygame.draw.rect(display, black, (0, vmapheight * tilesizey, vmapwidth * tilesizex, 50))
+            pygame.draw.rect(display, white, (0, vmapheight * tilesizey + 38, vmapwidth * tilesizex, 12))
+            display.blit(chatmsg, (2, vmapheight * tilesizey + 38))
+            display.blit(gamefont.render(messages[-3], True, white), (0, vmapheight * tilesizey))
+            display.blit(gamefont.render(messages[-2], True, white), (0, vmapheight * tilesizey + 12))
+            display.blit(gamefont.render(messages[-1], True, white), (0, vmapheight * tilesizey + 24))
+        else:
+            pygame.draw.rect(display, black, (0, vmapheight * tilesizey, vmapwidth * tilesizex, 38))
+            display.blit(chatmsg, (2, vmapheight * tilesizey + 38))
+            display.blit(gamefont.render(messages[-3], True, white), (0, vmapheight * tilesizey))
+            display.blit(gamefont.render(messages[-2], True, white), (0, vmapheight * tilesizey + 12))
+            display.blit(gamefont.render(messages[-1], True, white), (0, vmapheight * tilesizey + 24))
 
         pygame.display.update((0, 0, vmapwidth * tilesizex, vmapheight * tilesizey + 50))
 
