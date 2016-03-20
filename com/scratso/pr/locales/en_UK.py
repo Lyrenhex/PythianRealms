@@ -12,6 +12,10 @@ texture1 = """Choose your texture pack! You can install texture packs by copying
 %APPDATA%/PythianRealms/Game)"""
 texturehead = "Texture Packs"
 
+locale1 = """Please select a language. More languages may be available for this
+version of PythianRealms online at scratso.com/pythianrealms."""
+localehead = "Language Selection"
+
 presenting = "presents..."
 loadingmsg = "Loading PythianRealms..."
 
@@ -20,7 +24,7 @@ pressspace = "Press SPACE to Start"
 
 err1 = """PythianRealms has encountered an error and has stopped running. To protect your existing saves,
 your work was NOT saved when this error occurred."""
-err2 = "Please try to screenshot this window and send it to Adonis at adonis@icronium.com"
+err2 = "Please try to screenshot this window and send it to Adonis at scratso@yahoo.com"
 err3 = """If this problem continues to occur after restarting PythianRealms, please consider wiping your
 PythianRealms game data, or forcing an update."""
 err4 = """If this error has only began occuring after the latest update, please consider downloading an earlier
@@ -30,7 +34,7 @@ err5 = "Technical Information:"
 welcome = "Welcome to PythianRealms!"
 welcome2 = "You are running version "
 welcomedev = """This is a Public Alpha Development version of PythianRealms. All feedback is appreciated.
-Want to help give feedback? Simply email me at adonis@icronium.com!"""
+Want to help give feedback? Simply email me at scratso@yahoo.com!"""
 welcomedonate = """PythianRealms cannot thrive without donations. Why not help us out by donating? You can donate
 over at http://www.scratso.com/PythianRealms"""
 welcome3 = "Please make sure that you have fun, and spread the word!"
@@ -57,15 +61,15 @@ enterpw = "Scratso.com Password"
 
 saveselect = "Please select a save file."
 saveselhead = "Select a Save!"
-savechoices = ["Save #1", "Save #2", "Save#3", "Save #4"]
+savechoices = ["Save #1", "Save #2", "Save #3", "Save #4"]
 savequery = "Would you like to save your game?"
 
 noblocks = "Out of Blocks!"
 noblocksmsg = "Sorry, but your inventory's out of the currently selected tile!"
 
 buycoin1 = "You need "
-buyonecoin2 = " coins to buy 1"
-buytencoin2 = " coins to buy 10"
+buyonecoin2 = " coins to buy 1 of this item."
+buytencoin2 = " coins to buy 10 of this item."
 buycoinboost = "100 coin boosts are given every 5 minutes."
 buycoinmob = "You can also earn coins by slaying evil monsters, or by completing quests."
 
@@ -96,7 +100,7 @@ tilename = "Player Tile: "
 regionname = "Player Region: "
 fpsname = "FPS: "
 imagename1 = "Image Quality: "
-imagename2 = "bit (Tab to cycle) (32bit recommended)"
+imagename2 = "bit"
 playerzname = "Player Z Pos: "
 mapoffname1 = "Map Offset: ("
 mapoffname2 = ", "
@@ -123,3 +127,5 @@ savean = "Your game has been saved successfully."
 saveanhead = "Saved!"
 screenshotsaved = "The screenshot has been saved to "
 credstexty = "PythianRealms Credits"
+credstextnote = """PythianRealms Credits; Also available in the Docs folder where you installed PythianRealms. License information can be found in the
+GNU GPL.txt file in the installation directory."""

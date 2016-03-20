@@ -19,12 +19,13 @@ import pygame
 from pygame.locals import *
 from com.scratso.pr.variables import *
 from com.scratso.pr.locales.en_UK import *
+# from com.scratso.pr.locales.google import *
 
 # -*- coding: utf-8 -*-
 
 """
     PythianRealms Singleplayer Construction Sandbox
-    Copyright (C) 2015 Adonis Megalos <adonis@icronium.com>
+    Copyright (C) 2016 Adonis Megalos <scratso@yahoo.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -40,14 +41,16 @@ from com.scratso.pr.locales.en_UK import *
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-version = "2016.147"
+version = "2016.168"
 
 # Encompass the entire program in a try statement for the error reporter.
-try:
+try:    
     online = False
     server = False  # set to true to enable mysql connections. DON'T!
     chat = None
     channel = "#PythianRealms"
+
+    fullscreen = False
 
     messages = [
         "",
@@ -123,7 +126,7 @@ try:
 
     # Print the GNU GPL
     print("""
-    PythianRealms  Copyright (C) 2015 Adonis Megalos
+    """ + gameName + """  Copyright (C) 2016 Adonis Megalos
     This program comes with ABSOLUTELY NO WARRANTY; type 'show w'.
     This is free software, and you are welcome to redistribute it
     under certain conditions; type 'show c'.
@@ -206,6 +209,7 @@ try:
     logger.info("Operating System Name: " + platform.system())
     logger.info("Processor: " + platform.processor())
     logger.info("Game Version: " + version)
+    logger.info("Game Quality: " + str(tilesizex))
 
     #################
     # SET UP PYGAME #
@@ -215,7 +219,7 @@ try:
     try:
         os.environ['SDL_VIDEO_CENTERED'] = '1'
     except Exception as e:
-        logger.error("Unable to auto-center PythianRealms Window. Error: %s" % e)
+        logger.error("Unable to auto-center " + gameName + " Window. Error: %s" % e)
 
     # colours
     black = (0, 0, 0)
@@ -251,6 +255,32 @@ try:
     with zipfile.ZipFile("graphics/" + texturepack + ".zip", "r") as z:
         z.extractall("graphics/temp/")
 
+    musicpack = "music"
+    try:
+        os.mkdir("music/temp/")
+    except:
+        logger.info("Removing previous temporary music files...")
+        for the_file in os.listdir("music/temp/"):
+            file_path = os.path.join("music", "temp", the_file)
+            try:
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+            except Exception as e:
+                logger.error(e)
+        os.rmdir("music/temp/")
+        os.mkdir("music/temp/")
+    logger.info("Extracting music...")
+    with zipfile.ZipFile("music/" + musicpack + ".zip", "r") as z:
+        z.extractall("music/temp/")
+
+##    localfiles = [os.path.splitext(f)[0] for f in os.listdir(os.path.join("com", "scratso", "pr", "locales")) if
+##                   os.path.isfile(os.path.join("com", "scratso", "pr", "locales", f)) and ".py" in f and
+##                   f != "__init__.py"]
+##
+##    locale = easygui.choicebox(locale1, localehead, localfiles)
+
     # set up the displays
     pygame.init()
     display = pygame.display.set_mode((vmapwidth * tilesizex, vmapheight * tilesizey),
@@ -258,6 +288,7 @@ try:
     mapsurf = pygame.Surface((mapwidth * tilesizex, mapheight * tilesizey))
     mapsurf.fill(brown)
     prevsurf = pygame.Surface((mapwidth * tilesizex, mapheight * tilesizey), pygame.SRCALPHA, 32).convert_alpha()
+    prevplacesurf = pygame.Surface((mapwidth * tilesizex, mapheight * tilesizey), pygame.SRCALPHA, 32).convert_alpha()
     npcsurf = pygame.Surface((mapwidth * tilesizex, mapheight * tilesizey), pygame.SRCALPHA, 32).convert_alpha()
     activesurf = pygame.Surface((tilesizex + 10, tilesizey + 27), pygame.SRCALPHA, 32).convert_alpha()
     activesurf.fill((23, 100, 255, 50))
@@ -266,12 +297,14 @@ try:
     musicsurf.fill((23, 100, 255, 50))
     musictrack = pygame.Surface((vmapwidth / 3 * tilesizex, 36), pygame.SRCALPHA, 32).convert_alpha()
     musictrack.fill(0)
-    invsurf = pygame.Surface((310, 310), pygame.SRCALPHA, 32).convert_alpha()
+    invsurf = pygame.Surface((620, 620), pygame.SRCALPHA, 32).convert_alpha()
     invsurf.fill((23, 100, 255, 50))
-    shopsurf = pygame.Surface((310, 310), pygame.SRCALPHA, 32).convert_alpha()
+    shopsurf = pygame.Surface((620, 620), pygame.SRCALPHA, 32).convert_alpha()
     shopsurf.fill((23, 100, 255, 50))
     magicsurf = pygame.Surface((vmapwidth * tilesizex, vmapheight * tilesizey), pygame.SRCALPHA, 32).convert_alpha()
     magicsurf.fill(0)
+    watersurf = pygame.Surface((vmapwidth * tilesizex, vmapheight * tilesizey), pygame.SRCALPHA, 32).convert_alpha()
+    watersurf.fill((0, 0, 255, 75))
 
     layersurfs = []
     for layer in range(mapz):
@@ -287,25 +320,53 @@ try:
     activetxt = gamefont.render("Active", True, white)
     activesurf.blit(activetxt, (5, 5))
 
-    pygame.display.set_caption("PythianRealms 2016")
+    pygame.display.set_caption(gameName + " " + gameYear)
     # set the window icon
-    pygame.display.set_icon(pygame.image.load("graphics/temp/misc/logo-small.png").convert_alpha())
+    pygame.display.set_icon(pygame.image.load("graphics/temp/misc/icon.ico"))
 
-    # set up scratso screen
-    display.fill((9,9,9))
-    loadtext = magicbody.render(presenting, True, white)
-    display.blit(loadtext, (
-                    vmapwidth * tilesizex / 2 - round((len(presenting) / 2) * 16),
-                    vmapheight * tilesizey / 3 * 2))
-    display.blit(pygame.image.load("graphics/temp/misc/scratso.png"), (vmapwidth * tilesizex / 2 - 351, 200))
-    pygame.display.update()
-    time.sleep(3)
+##    # set up scratso screen
+##    display.fill((9,9,9))
+##    loadtext = magicbody.render(presenting, True, white)
+##    display.blit(loadtext, (
+##                    vmapwidth * tilesizex / 2 - round((len(presenting) / 2) * 16),
+##                    vmapheight * tilesizey / 3 * 2))
+##    display.blit(pygame.image.load("graphics/temp/misc/scratso.png"), (vmapwidth * tilesizex / 2 - 351, 200))
+##    pygame.display.update()
+##    time.sleep(3)
+    # allow movie to play sound
+    pygame.mixer.quit()
+    # play intro movie
+    FPS = 60
+    clock = pygame.time.Clock()
+    movie = pygame.movie.Movie('Scratso_games_intro.mpg')
+
+    movie.set_display(display, (0, 0, tilesizex * vmapwidth, tilesizey * vmapheight))
+    movie.play()
+
+    start = time.time()
+
+    playing = True
+    while playing:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                movie.stop()
+                playing = False
+
+        now = time.time()
+        if now - start >= 10:
+            movie.stop()
+            playing = False
+
+        pygame.display.update()
+        clock.tick(FPS)
+    # enable game sounds
+    pygame.mixer.init()
 
     # set up loading screen
     display.fill(white)
     loadtext = gamefont.render(loadingmsg, True, black)
     display.blit(loadtext, (0, vmapheight * tilesizey - 12))
-    display.blit(pygame.image.load("graphics/temp/misc/logo.png"), (vmapwidth * tilesizex / 2 - 360, 0))
+    display.blit(pygame.image.load("graphics/temp/misc/logo.png"), (vmapwidth * tilesizex - 1200, -50))
     pygame.display.update()
 
     # load the player sprite
@@ -338,16 +399,59 @@ try:
     DSTAFF = 18
     SAND = 19
 
+    prices = {
+        DIRT : 0,
+        GRASS : 1,
+        WATER : 3,
+        COAL : 4,
+        LAVA : 5,
+        ROCK : 6,
+        DIAM : 10,
+        SAPP : 12,
+        RUBY : 14,
+        GOLD : 13,
+        CARP : 9,
+        SNOW : 7,
+        WOOD : 7,
+        GLASS : 8,
+        BRICK : 9,
+        GSWORD : 12,
+        DSTAFF : 25,
+        SAND : 2
+        }
+
+    physics = {
+        DIRT : "solid",
+        GRASS : "solid",
+        WATER : "liquid",
+        COAL : "solid",
+        LAVA : "liquid",
+        ROCK : "solid",
+        DIAM : "solid",
+        SAPP : "solid",
+        RUBY : "solid",
+        GOLD : "solid",
+        AIR : "liquid",
+        CARP : "solid",
+        SNOW : "solid",
+        WOOD : "solid",
+        GLASS : "solid",
+        BRICK : "solid",
+        GSWORD : "weapon",
+        DSTAFF : "weapon",
+        SAND : "solid"
+        }
+
     active = DIRT
 
-    sel = ((vmapwidth * tilesizex) / 2 - 155 + 10, (vmapheight * tilesizey) / 2 - 155 + 20)
-    sel2 = ((vmapwidth * tilesizex) / 2 - 155 + 10, (vmapheight * tilesizey) / 2 - 155 + 120)
+    sel = ((vmapwidth * tilesizex) / 2 - 310 + 10, (vmapheight * tilesizey) / 2 - 310 + 20)
+    sel2 = ((vmapwidth * tilesizex) / 2 - 310 + 10, (vmapheight * tilesizey) / 2 - 310 + 120)
 
     seamless = False
 
     # a list of resources
-    resources = [DIRT, GRASS, WATER, COAL, LAVA, ROCK, DIAM, SAPP, RUBY, GOLD, CARP, SNOW, WOOD, GLASS, BRICK, GSWORD,
-                 DSTAFF, SAND]
+    resources = [DIRT, GRASS, WATER, COAL, LAVA, ROCK, DIAM, SAPP, RUBY, GOLD,
+                 CARP, SNOW, WOOD, GLASS, BRICK, GSWORD, DSTAFF, SAND]
 
     ########
     # NPCS #
@@ -357,132 +461,64 @@ try:
 # link every npc to a number, and refer to that npc as a number. Then add sub-numbers depending on how many of each npc
 # you want to exist.
 
-    # 0 = Mr. Smiler, 1 = Werewolf, 2 = Sssnake, 3 = Void Chunk A, 4 = (Custom) Tudor, 5 = Old Man, 6 = Jared's Wife,
-    # 7 = Calem, 8 = Bjorvik, 9 = Stephan,
-    # 10 = King Rhask, 11  = Rakjoke, 12 = Rakjoke's Friend, 13 = Homeless Man, 14 = Stranger, 15 = Blood Hound,
-    # 16 = (Custom) Amnesiac
-    NPCs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+    # 0 = Penguin, 1 = Poacher, 4 = (Custom) Tudor, 16 = (Custom) Amnesiac
+    NPCs = [0, 1, 2, 3]
     npcDrop = {
         0: 0,
-        1: 2,
+        1: 10,
         2: 0,
-        3: 4,
-        4: 0,
-        5: 0,
-        6: 0,
-        7: 0,
-        8: 0,
-        9: 0,
-        10: 0,
-        11: 0,
-        12: 0,
-        13: 0,
-        14: 0,
-        15: 3,
-        16: 1,
+        3: 6
     }
     # NPC ID : { CHUNK : [LIST OF NPC NUMBERS IN CHUNK] },
     NPCcount = {
-        0: [0],
-        1: [0, 1, 2, 3, 4, 5],
+        0: [0, 1, 2, 3, 4],
+        1: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
         2: [0],
-        3: [0],
-        4: [0],
-        5: [0],
-        6: [0],
-        7: [0],
-        8: [0],
-        9: [0],
-        10: [0],
-        11: [0],
-        12: [0],
-        13: [0],
-        14: [0],
-        15: [0, 1],
-        16: [0],
+        3: [0]
     }
     NPCrealm = {
         0: 0,
         1: 0,
-        2: 1,
+        2: 0,
         3: 0,
-        4: 0,
-        5: 0,
-        6: 0,
-        7: 0,
-        8: 0,
-        9: 0,
-        10: 0,
-        11: 0,
-        12: 0,
-        13: 0,
-        14: 0,
-        15: 0,
-        16: 0,
     }
     NPCtype = {
         0: "Friendly",
         1: "Hostile",
-        2: "Hostile",
+        2: "Friendly",
         3: "Hostile",
-        4: "Friendly",
-        5: "Friendly",
-        6: "Friendly",
-        7: "Friendly",
-        8: "Friendly",
-        9: "Friendly",
-        10: "Friendly",
-        11: "Friendly",
-        12: "Friendly",
-        13: "Friendly",
-        14: "Friendly",
-        15: "Hostile",
-        16: "Hostile",
     }
     NPCdamage = {
         0: 0,
-        1: 4,
-        2: 20,
-        3: 20,
-        4: 0,
-        5: 0,
-        6: 0,
-        7: 0,
-        8: 0,
-        9: 0,
-        10: 0,
-        11: 0,
-        12: 0,
-        13: 0,
-        14: 0,
-        15: 15,
-        16: 8,
+        1: 6,
+        2: 0,
+        3: 8,
     }
     # NPC ID : {  NPC NUMBER : NPC NUMBER HP  }
     NPChealth = {
-        0: {0: 1},
+        0: {0: 1,
+            1: 1,
+            2: 1,
+            3: 1,
+            4: 1},
         1: {0: 24,
             1: 24,
             2: 24,
             3: 24,
             4: 24,
-            5: 24},
-        2: {0: 570},
+            5: 24,
+            6: 24,
+            7: 24,
+            8: 24,
+            9: 24,
+            10:24,
+            11:24,
+            12:24,
+            12:24,
+            13:24,
+            14:24},
+        2: {0: 1},
         3: {0: 48},
-        4: {0: 1},
-        5: {0: 1},
-        6: {0: 1},
-        7: {0: 1},
-        8: {0: 1},
-        9: {0: 1},
-        10: {0: 1},
-        11: {0: 1},
-        12: {0: 1},
-        13: {0: 1},
-        14: {0: 1},
-        15: {0: 30,
-             1: 30},
-        16: {0: 48},
     }
     # for npc in NPCs:
     #    for chunk in range(25):
@@ -497,130 +533,76 @@ try:
     NPCmaxHealth = {
         0: 1,
         1: 24,
-        2: 570,
+        2: 1,
         3: 48,
-        4: 1,
-        5: 1,
-        6: 1,
-        7: 1,
-        8: 1,
-        9: 1,
-        10: 1,
-        11: 1,
-        12: 1,
-        13: 1,
-        14: 1,
-        15: 30,
-        16: 48,
     }
     # NPC ID : { NPC NUMBER : NPC NUMBER pos },
     npcPosX = {
-        0: {0: 5},
+        0: {0: random.randint(0, mapwidth - 1),
+            1: random.randint(0, mapwidth - 1),
+            2: random.randint(0, mapwidth - 1),
+            3: random.randint(0, mapwidth - 1),
+            4: random.randint(0, mapwidth - 1)},
         1: {0: random.randint(0, mapwidth - 1),
             1: random.randint(0, mapwidth - 1),
             2: random.randint(0, mapwidth - 1),
             3: random.randint(0, mapwidth - 1),
             4: random.randint(0, mapwidth - 1),
-            5: random.randint(0, mapwidth - 1)},
+            5: random.randint(0, mapwidth - 1),
+            6: random.randint(0, mapwidth - 1),
+            7: random.randint(0, mapwidth - 1),
+            8: random.randint(0, mapwidth - 1),
+            9: random.randint(0, mapwidth - 1),
+            10:random.randint(0, mapwidth - 1),
+            11:random.randint(0, mapwidth - 1),
+            12:random.randint(0, mapwidth - 1),
+            13:random.randint(0, mapwidth - 1),
+            14:random.randint(0, mapwidth - 1)},
         2: {0: random.randint(0, mapwidth - 1)},
         3: {0: random.randint(0, mapwidth - 1)},
-        4: {0: random.randint(0, mapwidth - 1)},
-        5: {0: random.randint(0, mapwidth - 1)},
-        6: {0: random.randint(0, mapwidth - 1)},
-        7: {0: random.randint(0, mapwidth - 1)},
-        8: {0: random.randint(0, mapwidth - 1)},
-        9: {0: random.randint(0, mapwidth - 1)},
-        10: {0: random.randint(0, mapwidth - 1)},
-        11: {0: random.randint(0, mapwidth - 1)},
-        12: {0: random.randint(0, mapwidth - 1)},
-        13: {0: random.randint(0, mapwidth - 1)},
-        14: {0: random.randint(0, mapwidth - 1)},
-        15: {0: random.randint(0, mapwidth - 1),
-             1: random.randint(0, mapwidth - 1)},
-        16: {0: random.randint(0, mapwidth - 1)},
     }
     npcPosY = {
-        0: {0: 5},
+        0: {0: random.randint(0, mapheight - 1),
+            1: random.randint(0, mapheight - 1),
+            2: random.randint(0, mapheight - 1),
+            3: random.randint(0, mapheight - 1),
+            4: random.randint(0, mapheight - 1)},
         1: {0: random.randint(0, mapheight - 1),
             1: random.randint(0, mapheight - 1),
             2: random.randint(0, mapheight - 1),
             3: random.randint(0, mapheight - 1),
             4: random.randint(0, mapheight - 1),
-            5: random.randint(0, mapheight - 1)},
+            5: random.randint(0, mapheight - 1),
+            6: random.randint(0, mapheight - 1),
+            7: random.randint(0, mapheight - 1),
+            8: random.randint(0, mapheight - 1),
+            9: random.randint(0, mapheight - 1),
+            10:random.randint(0, mapheight - 1),
+            11:random.randint(0, mapheight - 1),
+            12:random.randint(0, mapheight - 1),
+            13:random.randint(0, mapheight - 1),
+            14:random.randint(0, mapheight - 1)},
         2: {0: random.randint(0, mapheight - 1)},
         3: {0: random.randint(0, mapheight - 1)},
-        4: {0: random.randint(0, mapheight - 1)},
-        5: {0: random.randint(0, mapheight - 1)},
-        6: {0: random.randint(0, mapheight - 1)},
-        7: {0: random.randint(0, mapheight - 1)},
-        8: {0: random.randint(0, mapheight - 1)},
-        9: {0: random.randint(0, mapheight - 1)},
-        10: {0: random.randint(0, mapheight - 1)},
-        11: {0: random.randint(0, mapheight - 1)},
-        12: {0: random.randint(0, mapheight - 1)},
-        13: {0: random.randint(0, mapheight - 1)},
-        14: {0: random.randint(0, mapheight - 1)},
-        15: {0: random.randint(0, mapheight - 1),
-             1: random.randint(0, mapheight - 1)},
-        16: {0: random.randint(0, mapheight - 1)},
     }
     npcPosZ = {
         0: 4,
         1: 4,
         2: 4,
         3: 4,
-        4: 4,
-        5: 4,
-        6: 4,
-        7: 4,
-        8: 4,
-        9: 4,
-        10: 4,
-        11: 4,
-        12: 4,
-        13: 4,
-        14: 4,
-        15: 4,
-        16: 4,
     }
     npcGraphic = {
-        0: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
-        1: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
-        2: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
-        3: pygame.image.load('graphics/temp/npcs/void1.png').convert_alpha(),
-        4: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
-        5: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
-        6: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
-        7: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
-        8: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
-        9: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
-        10: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
-        11: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
-        12: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
-        13: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
-        14: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
-        15: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
-        16: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
+        0: pygame.image.load('graphics/temp/npcs/penguin.png').convert_alpha(),
+        1: pygame.image.load('graphics/temp/player-old/player_right.png').convert_alpha(),
+        2: pygame.image.load('graphics/temp/npcs/void1.png').convert_alpha(),
+        3: pygame.image.load('graphics/temp/npcs/smiler.png').convert_alpha(),
     }
     global npcName
     npcName = {
-        0: "Mr. Smiler",
-        1: "Werewolf",
-        2: "Ssssnake",
-        3: "Void Chunk A",
-        4: "Tudor",
-        5: "Old Man",
-        6: "Jared's Wife",
-        7: "Calem",
-        8: "Bjorvik",
-        9: "Stephan",
-        10: "King Rhask",
-        11: "Rakjoke",
-        12: "Rakjoke's F.",
-        13: "Homeless Man",
-        14: "Stranger",
-        15: "Blood Hound",
-        16: "(C) Amnesiac",
+        0: "Penguin",
+        1: "Poacher",
+        2: "Tudor",
+        3: "Amnesiac",
     }
 
     #    # Is the user 13 or older?
@@ -698,7 +680,21 @@ try:
               "Are You Gunna Eat That",
               "Oh I Feel Just Fine... (Because I'm Making Macaroni)",
               "Magnetic Jellyfish Dance Party",
-              "Four Color Hero"]
+              "Four Color Hero",
+              "BSOD'd",
+              "BLUENOISE",
+              "There's Always Next Week",
+              "Nostalgia Breaks Hearts",
+              "Analogue Dream Girl",
+              "Grayscale",
+              "This Broken Heart Has Too Many Pieces",
+              "Hello World",
+              "9am Skies",
+              "Blueberry Jam",
+              "Bitmap Blues",
+              "Heat Death",
+              "Her #0000ff Eyes",
+              "Zero-G Lemonade"]
     albums = ["Buffer",
               "None (SoundCloud)",
               "BLUESHIFT",
@@ -707,7 +703,21 @@ try:
               "BLUESHIFT",
               "BLUESHIFT",
               "BLUESHIFT",
-              "BLUESHIFT"]
+              "BLUESHIFT",
+              "BLUESCREEN",
+              "BLUESCREEN",
+              "BLUESCREEN",
+              "BLUESCREEN",
+              "BLUESCREEN",
+              "BLUESCREEN",
+              "BLUESCREEN",
+              "BLUENOISE",
+              "BLUENOISE",
+              "BLUENOISE",
+              "BLUENOISE",
+              "BLUENOISE",
+              "BLUENOISE",
+              "BLUENOISE"]
     authors = ["Buffer",
                "SmileBoy",
                "PROTODOME",
@@ -716,16 +726,44 @@ try:
                "PROTODOME",
                "PROTODOME",
                "PROTODOME",
+               "PROTODOME",
+               "PROTODOME",
+               "PROTODOME",
+               "PROTODOME",
+               "PROTODOME",
+               "PROTODOME",
+               "PROTODOME",
+               "PROTODOME",
+               "PROTODOME",
+               "PROTODOME",
+               "PROTODOME",
+               "PROTODOME",
+               "PROTODOME",
+               "PROTODOME",
                "PROTODOME"]
     covers = ["Buffer",
-              "graphics/temp/misc/logo-small.png",
-              "music/protodome200.gif",
-              "music/protodome200.gif",
-              "music/protodome200.gif",
-              "music/protodome200.gif",
-              "music/protodome200.gif",
-              "music/protodome200.gif",
-              "music/protodome200.gif"]
+              "graphics/temp/misc/icon.ico",
+              "music/temp/protodome200.gif",
+              "music/temp/protodome200.gif",
+              "music/temp/protodome200.gif",
+              "music/temp/protodome200.gif",
+              "music/temp/protodome200.gif",
+              "music/temp/protodome200.gif",
+              "music/temp/protodome200.gif",
+              "music/temp/bluescreen200.gif",
+              "music/temp/bluescreen200.gif",
+              "music/temp/bluescreen200.gif",
+              "music/temp/bluescreen200.gif",
+              "music/temp/bluescreen200.gif",
+              "music/temp/bluescreen200.gif",
+              "music/temp/bluescreen200.gif",
+              "music/temp/bluenoise200.gif",
+              "music/temp/bluenoise200.gif",
+              "music/temp/bluenoise200.gif",
+              "music/temp/bluenoise200.gif",
+              "music/temp/bluenoise200.gif",
+              "music/temp/bluenoise200.gif",
+              "music/temp/bluenoise200.gif"]
     music = 0
     pygame.mixer.music.set_volume(0.75)
 
@@ -735,7 +773,7 @@ try:
         logger.info(
             "Initializing Music...")  # if this process fails and it starts in silent mode, you screwed something up...
                                       # or you don't have speakers, ofc.
-        if music == 8:
+        if music == 22:
             music = 1
         else:
             music += 1
@@ -743,7 +781,7 @@ try:
         pygame.mixer.music.set_endevent(USEREVENT)
         try:
             m = pygame.mixer.music.get_volume()
-            pygame.mixer.music.load('music/' + str(music) + '.ogg')
+            pygame.mixer.music.load('music/temp/' + str(music) + '.ogg')
             pygame.mixer.music.set_volume(m)
             pygame.mixer.music.play()
         except Exception:
@@ -813,6 +851,7 @@ try:
             textoffset += 12
         pygame.display.update()
         while True:
+            pygame.event.flush()
             time.sleep(1)
 
 
@@ -859,7 +898,7 @@ try:
             display.blit(loadtext, (0, vmapheight * tilesizey + 32))
         else:
             display.blit(loadtext, (0, vmapheight * tilesizey - 18))
-        display.blit(pygame.image.load("graphics/temp/misc/logo.png"), (vmapwidth * tilesizex / 2 - 360, 0))
+        display.blit(pygame.image.load("graphics/temp/misc/logo.png"), (vmapwidth * tilesizex - 1200, -50))
         pygame.display.update()
 
 
@@ -873,8 +912,7 @@ try:
 
         # magicmsg("PythianRealms", ["Welcome back to the land of the living, my friend.",
         # "You've been asleep for a very long time."], False, False)
-
-
+    
     menu = False
     # welcome screen
     messageactive = True
@@ -885,36 +923,36 @@ try:
                     change = True
                     messageactive = False
         display.fill(white)
-        display.blit(pygame.image.load("graphics/temp/misc/logo.png"), (vmapwidth * tilesizex - 950, -100))
+        display.blit(pygame.image.load("graphics/temp/misc/logo.png"), (vmapwidth * tilesizex - 1200, -150))
         text = magichead.render(pressspace, True, black)
         display.blit(text, (
             vmapwidth * tilesizex / 2 - round((len(pressspace) / 2) * 27), vmapheight * tilesizey / 3 * 2))
         pygame.display.update()
 
     # Display all the startup things.
-    startupnotes = [welcome,
-                    welcome2 + version,
-                    welcomedev,
-                    welcomedonate,
-                    "",
-                    welcome3,
-                    "",
-                    welcome4,
-                    "",
-                    "",
-                    "KEYBINDINGS:",
-                    "============",
-                    "Arrow Keys: Move",
-                    "F3: Toggle debug information",
-                    "Q: Enable Build Mode",
-                    "A: Disable Build Mode",
-                    "R: Enable Pickup Mode",
-                    "F: Disable Pickup Mode",
-                    "T: Toggle RPG/Construction Realm",
-                    "C: Open PythianRealms IRC Chat"] # nts: update keybindings
-    msg(startupnotes)
+##    startupnotes = [welcome,
+##                    welcome2 + version,
+##                    welcomedev,
+##                    welcomedonate,
+##                    "",
+##                    welcome3,
+##                    "",
+##                    welcome4,
+##                    "",
+##                    "",
+##                    "KEYBINDINGS:",
+##                    "============",
+##                    "Arrow Keys: Move",
+##                    "F3: Toggle debug information",
+##                    "Q: Enable Build Mode",
+##                    "A: Disable Build Mode",
+##                    "R: Enable Pickup Mode",
+##                    "F: Disable Pickup Mode",
+##                    "T: Toggle RPG/Construction Realm",
+##                    "C: Open " + gameName + " IRC Chat"] # nts: update keybindings
+##    msg(startupnotes)
 
-    changedz = [0, 1, 2, 3]  # 0,1,2,3 after you add the loading system. Until then, this'll do.
+    changedz = list(range(mapz))  # 0,1,2,3 after you add the loading system. Until then, this'll do.
 
     oldNPCposX = None
     oldNPCposY = None
@@ -939,18 +977,19 @@ try:
     while chat is None:
         global un
         if settings.username is None:
-            un,pw = easygui.multpasswordbox("Scratso.com account information. This is for online chat. If you do not want online chat, please leave blank.", chathead, [enterun, enterpw])
+            un,pw = easygui.multpasswordbox("PythianRealms Account Informaton. This is for online chat. If you do not want online chat, please leave blank.", chathead, [enterun, enterpw])
         else:
             un,pw = settings.username,settings.password
         if (un is not None and un != "" and un != " " and un != False) and (pw is not None and pw != "" and pw != " " and pw != False):
             try:
-                check = str(urllib.request.urlopen('http://scratso.com/accounts/print.php?user='+un+"&password="+pw).read()).split("'")[1]
+                logger.info("Logging in as: "+un)
+                check = str(urllib.request.urlopen('http://scratso.com/pythianrealms/acc/print.php?user='+un+"&password="+pw).read()).split("'")[1]
                 if check == "Log in.":
                     global irc
                     irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     print("connecting to irc.editingarchive.com...")
                     irc.connect(("irc.editingarchive.com", 6667))
-                    irc.send(bytes("USER " + un + " " + un + " " + un + " :PythianRealms Game Chat\n", "utf-8"))
+                    irc.send(bytes("USER " + un + " " + un + " " + un + " :" + gameName + " Game Chat\n", "utf-8"))
                     irc.send(bytes("NICK " + un + "\n", "utf-8"))
                     text = str(irc.recv(2040))
                     unraw = text.split("\\r\\n")
@@ -972,6 +1011,7 @@ try:
                     chat = True
                 else:
                     easygui.msgbox(check, "Unable to log in.")
+                    logger.warn("Unable to log in: "+check)
             except Exception as e:
                 logger.error(e)
                 chat = False
@@ -981,6 +1021,7 @@ try:
     if chat == False:
         display = pygame.display.set_mode((vmapwidth * tilesizex, vmapheight * tilesizey + 38),
                                                       HWSURFACE | DOUBLEBUF)  # |RESIZABLE later
+        addchat("You are currently in offline mode, and so chat is disabled. Game notifications will still go here though!")
 
 
     def ircthread():
@@ -1152,7 +1193,10 @@ try:
         display.fill(black)
         # display.fill(blue)
         # magic()
-        shownz = [0, 1, 2, 3]
+        if place or pickup:
+            shownz = list(range(zaxis+1))
+        else:
+            shownz = list(range(mapz))
         musictrack.fill(0)
 
         if boost <= 0:
@@ -1191,15 +1235,14 @@ try:
                 (tilesizex, tilesizey))
             if playerTile[0] != 99:
                 try:
-                    if tilemap[playerz][playerTile[1]][playerTile[0]] != AIR and tilemap[playerz + 1][playerTile[1]][
-                        playerTile[0]] != AIR:
+                    if (physics[tilemap[playerz][playerTile[1]][playerTile[0]]] == "solid" and
+                        physics[tilemap[playerz + 1][playerTile[1]][playerTile[0]]] == "solid"):
                         xoffset += tilesizex
                     else:
-                        if tilemap[playerz][playerTile[1]][playerTile[0]] != AIR and playerz < mapz-1:  # tilemap[z][y][x]
+                        if physics[tilemap[playerz][playerTile[1]][playerTile[0]]] == "solid" and playerz < mapz-1:  # tilemap[z][y][x]
                             playerz += 1
                         try:
-                            if tilemap[playerz - 1][playerTile[1]][
-                                playerTile[0]] == AIR and playerz > 0:  # tilemap[z][y][x]
+                            if physics[tilemap[playerz - 1][playerTile[1]][playerTile[0]]] == "liquid" and playerz > 0:  # tilemap[z][y][x]
                                 playerz -= 1
                         except:
                             pass
@@ -1212,15 +1255,14 @@ try:
                 (tilesizex, tilesizey))
             if playerTile[0] != 0:
                 try:
-                    if tilemap[playerz][playerTile[1]][playerTile[0]] != AIR and tilemap[playerz + 1][playerTile[1]][
-                        playerTile[0]] != AIR:
+                    if (physics[tilemap[playerz][playerTile[1]][playerTile[0]]] == "solid" and
+                        physics[tilemap[playerz + 1][playerTile[1]][playerTile[0]]] == "solid"):
                         xoffset -= tilesizex
                     else:
-                        if tilemap[playerz][playerTile[1]][playerTile[0]] != AIR and playerz < mapz-1:  # tilemap[z][y][x]
+                        if physics[tilemap[playerz][playerTile[1]][playerTile[0]]] == "solid" and playerz < mapz-1:  # tilemap[z][y][x]
                             playerz += 1
                         try:
-                            if tilemap[playerz - 1][playerTile[1]][
-                                playerTile[0]] == AIR and playerz > 0:  # tilemap[z][y][x]
+                            if physics[tilemap[playerz - 1][playerTile[1]][playerTile[0]]] == "liquid" and playerz > 0:  # tilemap[z][y][x]
                                 playerz -= 1
                         except:
                             pass
@@ -1230,15 +1272,14 @@ try:
         if keys[pygame.K_UP]:
             if playerTile[1] != 0:
                 try:
-                    if tilemap[playerz][playerTile[1]][playerTile[0]] != AIR and tilemap[playerz + 1][playerTile[1]][
-                        playerTile[0]] != AIR:
+                    if (physics[tilemap[playerz][playerTile[1]][playerTile[0]]] == "solid" and
+                        physics[tilemap[playerz + 1][playerTile[1]][playerTile[0]]] == "solid"):
                         yoffset -= tilesizey
                     else:
-                        if tilemap[playerz][playerTile[1]][playerTile[0]] != AIR and playerz < mapz-1:  # tilemap[z][y][x]
+                        if physics[tilemap[playerz][playerTile[1]][playerTile[0]]] == "solid" and playerz < mapz-1:  # tilemap[z][y][x]
                             playerz += 1
                         try:
-                            if tilemap[playerz - 1][playerTile[1]][
-                                playerTile[0]] == AIR and playerz > 0:  # tilemap[z][y][x]
+                            if physics[tilemap[playerz - 1][playerTile[1]][playerTile[0]]] == "liquid" and playerz > 0:  # tilemap[z][y][x]
                                 playerz -= 1
                         except:
                             pass
@@ -1248,15 +1289,14 @@ try:
         if keys[pygame.K_DOWN]:
             if playerTile[1] != 99:
                 try:
-                    if tilemap[playerz][playerTile[1]][playerTile[0]] != AIR and tilemap[playerz + 1][playerTile[1]][
-                        playerTile[0]] != AIR:
+                    if (physics[tilemap[playerz][playerTile[1]][playerTile[0]]] == "solid" and
+                        physics[tilemap[playerz + 1][playerTile[1]][playerTile[0]]] == "solid"):
                         yoffset += tilesizey
                     else:
-                        if tilemap[playerz][playerTile[1]][playerTile[0]] != AIR and playerz < mapz-1:  # tilemap[z][y][x]
+                        if physics[tilemap[playerz][playerTile[1]][playerTile[0]]] == "solid" and playerz < mapz-1:  # tilemap[z][y][x]
                             playerz += 1
                         try:
-                            if tilemap[playerz - 1][playerTile[1]][
-                                playerTile[0]] == AIR and playerz > 0:  # tilemap[z][y][x]
+                            if physics[tilemap[playerz - 1][playerTile[1]][playerTile[0]]] == "liquid" and playerz > 0:  # tilemap[z][y][x]
                                 playerz -= 1
                         except:
                             pass
@@ -1267,6 +1307,8 @@ try:
         for event in pygame.event.get():
             if event.type == SECONDCOUNTDOWN:
                 boost -= 1
+                if playerHP < 100:
+                    playerHP += 1
             elif event.type == USEREVENT:
                 initMusic()
             elif event.type == SAVE:
@@ -1289,6 +1331,21 @@ try:
                     data.coins = coins
                     data.store()
                     logger.info("Game saved.")
+                pygame.quit()
+                try:
+                    logger.info("Removing previous temporary music files...")
+                    for the_file in os.listdir("music/temp/"):
+                        file_path = os.path.join("music", "temp", the_file)
+                        try:
+                            if os.path.isfile(file_path):
+                                os.remove(file_path)
+                            elif os.path.isdir(file_path):
+                                shutil.rmtree(file_path)
+                        except Exception as e:
+                            logger.error(e)
+                    os.rmdir("music/temp/")
+                except Exception as e:
+                    logger.error(e)
                 try:
                     logger.info("Removing previous temporary texture files...")
                     for the_file in os.listdir("graphics/temp/"):
@@ -1313,7 +1370,7 @@ try:
                         tilemap[zaxis][y][x] = active
                         if zaxis not in changedz:
                             changedz.append(zaxis)
-                        mapsurf.blit(textures[active], (x * tilesizex, y * tilesizey - zaxis * 16))
+                        prevplacesurf.blit(textures[active], (x * tilesizex, y * tilesizey - zaxis * 16))
                         # print(tilemap[0][y][x])
                     else:
                         magicmsg(noblocks, [noblocksmsg],
@@ -1328,366 +1385,42 @@ try:
                             changedz.append(zaxis)
                             # change = True
                             # print(tilemap[0][y][x])
-                # row 1
-                if mx >= (vmapwidth * tilesizex) / 2 - 155 + 10 and mx <= (
-                            vmapwidth * tilesizex) / 2 - 155 + 50 and my >= (
-                    vmapheight * tilesizey) / 2 - 155 + 20 and my <= (
-                            vmapheight * tilesizey) / 2 - 155 + 60:
-                    if invshow:
-                        active = DIRT
-                        sel = ((vmapwidth * tilesizex) / 2 - 155 + 10, (vmapheight * tilesizey) / 2 - 155 + 20)
-                    elif shopshow:
-                        if event.button == 1:
-                            inventory[DIRT] += 1
-                        elif event.button == 3:
-                            inventory[DIRT] += 10
-                elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 60 and mx <= (
-                            vmapwidth * tilesizex) / 2 - 155 + 100 and my >= (
-                    vmapheight * tilesizey) / 2 - 155 + 20 and my <= (
-                            vmapheight * tilesizey) / 2 - 155 + 60:
-                    if invshow:
-                        active = GRASS
-                        sel = ((vmapwidth * tilesizex) / 2 - 155 + 60, (vmapheight * tilesizey) / 2 - 155 + 20)
-                    elif shopshow:
-                        if event.button == 1:
-                            if coins >= 1:
-                                coins -= 1
-                                inventory[GRASS] += 1
-                            else:
-                                addchat(buycoin1 + "1" + buyonecoin2 + " Grass.")
-                        elif event.button == 3:
-                            if coins >= 10:
-                                coins -= 10
-                                inventory[GRASS] += 10
-                            else:
-                                addchat(buycoin1 + "10" + buytencoin2 + " Grass.")
-
-                elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 110 and mx <= (
-                            vmapwidth * tilesizex) / 2 - 155 + 150 and my >= (
-                    vmapheight * tilesizey) / 2 - 155 + 20 and my <= (
-                            vmapheight * tilesizey) / 2 - 155 + 60:
-                    if invshow:
-                        active = WATER
-                        sel = ((vmapwidth * tilesizex) / 2 - 155 + 110, (vmapheight * tilesizey) / 2 - 155 + 20)
-                    elif shopshow:
-                        if event.button == 1:
-                            if coins >= 3:
-                                coins -= 3
-                                inventory[WATER] += 1
-                            else:
-                                addchat(buycoin1 + "3" + buyonecoin2 + " Water.")
-                        elif event.button == 3:
-                            if coins >= 30:
-                                coins -= 30
-                                inventory[WATER] += 10
-                            else:
-                                addchat(buycoin1 + "30" + buytencoin2 + " Water.")
-
-                elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 160 and mx <= (
-                            vmapwidth * tilesizex) / 2 - 155 + 200 and my >= (
-                    vmapheight * tilesizey) / 2 - 155 + 20 and my <= (
-                            vmapheight * tilesizey) / 2 - 155 + 60:
-                    if invshow:
-                        active = COAL
-                        sel = ((vmapwidth * tilesizex) / 2 - 155 + 160, (vmapheight * tilesizey) / 2 - 155 + 20)
-                    elif shopshow:
-                        if event.button == 1:
-                            if coins >= 4:
-                                coins -= 4
-                                inventory[COAL] += 1
-                            else:
-                                addchat(buycoin1 + "4" + buyonecoin2 + " Coal.")
-                        elif event.button == 3:
-                            if coins >= 40:
-                                coins -= 40
-                                inventory[COAL] += 10
-                            else:
-                                addchat(buycoin1 + "40" + buytencoin2 + " Coal.")
-
-                elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 210 and mx <= (
-                            vmapwidth * tilesizex) / 2 - 155 + 250 and my >= (
-                    vmapheight * tilesizey) / 2 - 155 + 20 and my <= (
-                            vmapheight * tilesizey) / 2 - 155 + 60:
-                    if invshow:
-                        active = LAVA
-                        sel = ((vmapwidth * tilesizex) / 2 - 155 + 210, (vmapheight * tilesizey) / 2 - 155 + 20)
-                    elif shopshow:
-                        if event.button == 1:
-                            if coins >= 5:
-                                coins -= 5
-                                inventory[LAVA] += 1
-                            else:
-                                addchat(buycoin1 + "5" + buyonecoin2 + " Lava.")
-                        elif event.button == 3:
-                            if coins >= 50:
-                                coins -= 50
-                                inventory[LAVA] += 10
-                            else:
-                                addchat(buycoin1 + "50" + buytencoin2 + " Lava.")
-
-                elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 260 and mx <= (
-                            vmapwidth * tilesizex) / 2 - 155 + 300 and my >= (
-                    vmapheight * tilesizey) / 2 - 155 + 20 and my <= (
-                            vmapheight * tilesizey) / 2 - 155 + 60:
-                    if invshow:
-                        active = ROCK
-                        sel = ((vmapwidth * tilesizex) / 2 - 155 + 260, (vmapheight * tilesizey) / 2 - 155 + 20)
-                    elif shopshow:
-                        if event.button == 1:
-                            if coins >= 6:
-                                coins -= 6
-                                inventory[ROCK] += 1
-                            else:
-                                addchat(buycoin1 + "6" + buyonecoin2 + " Stone.")
-                        elif event.button == 3:
-                            if coins >= 60:
-                                coins -= 60
-                                inventory[ROCK] += 10
-                            else:
-                                addchat(buycoin1 + "60" + buytencoin2 + " Stone.")
-
-
-                # row 2
-                elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 10 and mx <= (
-                            vmapwidth * tilesizex) / 2 - 155 + 50 and my >= (
-                    vmapheight * tilesizey) / 2 - 155 + 70 and my <= (
-                            vmapheight * tilesizey) / 2 - 155 + 110:
-                    if invshow:
-                        active = DIAM
-                        sel = ((vmapwidth * tilesizex) / 2 - 155 + 10, (vmapheight * tilesizey) / 2 - 155 + 70)
-                    elif shopshow:
-                        if event.button == 1:
-                            if coins >= 10:
-                                coins -= 10
-                                inventory[DIAM] += 1
-                            else:
-                                addchat(buycoin1 + "10" + buyonecoin2 + " Diamond.")
-                        elif event.button == 3:
-                            if coins >= 100:
-                                coins -= 100
-                                inventory[DIAM] += 10
-                            else:
-                                addchat(buycoin1 + "100" + buytencoin2 + " Diamond.")
-
-
-                elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 60 and mx <= (
-                            vmapwidth * tilesizex) / 2 - 155 + 100 and my >= (
-                    vmapheight * tilesizey) / 2 - 155 + 70 and my <= (
-                            vmapheight * tilesizey) / 2 - 155 + 110:
-                    if invshow:
-                        active = SAPP
-                        sel = ((vmapwidth * tilesizex) / 2 - 155 + 60, (vmapheight * tilesizey) / 2 - 155 + 70)
-                    elif shopshow:
-                        if event.button == 1:
-                            if coins >= 12:
-                                coins -= 12
-                                inventory[SAPP] += 1
-                            else:
-                                addchat(buycoin1 + "12" + buyonecoin2 + " Sapphire.")
-                        elif event.button == 3:
-                            if coins >= 120:
-                                coins -= 120
-                                inventory[SAPP] += 10
-                            else:
-                                addchat(buycoin1 + "120" + buytencoin2 + " Sapphire.")
-
-
-                elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 110 and mx <= (
-                            vmapwidth * tilesizex) / 2 - 155 + 150 and my >= (
-                    vmapheight * tilesizey) / 2 - 155 + 70 and my <= (
-                            vmapheight * tilesizey) / 2 - 155 + 110:
-                    if invshow:
-                        active = RUBY
-                        sel = ((vmapwidth * tilesizex) / 2 - 155 + 110, (vmapheight * tilesizey) / 2 - 155 + 70)
-                    elif shopshow:
-                        if event.button == 1:
-                            if coins >= 14:
-                                coins -= 14
-                                inventory[RUBY] += 1
-                            else:
-                                addchat(buycoin1 + "14" + buyonecoin2 + " Ruby.")
-                        elif event.button == 3:
-                            if coins >= 140:
-                                coins -= 140
-                                inventory[RUBY] += 10
-                            else:
-                                addchat(buycoin1 + "140" + buytencoin2 + " Ruby.")
-
-
-                elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 160 and mx <= (
-                            vmapwidth * tilesizex) / 2 - 155 + 200 and my >= (
-                    vmapheight * tilesizey) / 2 - 155 + 70 and my <= (
-                            vmapheight * tilesizey) / 2 - 155 + 110:
-                    if invshow:
-                        active = GOLD
-                        sel = ((vmapwidth * tilesizex) / 2 - 155 + 160, (vmapheight * tilesizey) / 2 - 155 + 70)
-                    elif shopshow:
-                        if event.button == 1:
-                            if coins >= 13:
-                                coins -= 13
-                                inventory[GOLD] += 1
-                            else:
-                                addchat(buycoin1 + "13" + buyonecoin2 + " Gold.")
-                        elif event.button == 3:
-                            if coins >= 130:
-                                coins -= 130
-                                inventory[GOLD] += 10
-                            else:
-                                addchat(buycoin1 + "130" + buytencoin2 + " Gold.")
-
-
-                elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 210 and mx <= (
-                            vmapwidth * tilesizex) / 2 - 155 + 250 and my >= (
-                    vmapheight * tilesizey) / 2 - 155 + 70 and my <= (
-                            vmapheight * tilesizey) / 2 - 155 + 110:
-                    if invshow:
-                        active = CARP
-                        sel = ((vmapwidth * tilesizex) / 2 - 155 + 210, (vmapheight * tilesizey) / 2 - 155 + 70)
-                    elif shopshow:
-                        if event.button == 1:
-                            if coins >= 9:
-                                coins -= 9
-                                inventory[CARP] += 1
-                            else:
-                                addchat(buycoin1 + "9" + buyonecoin2 + " Carpet.")
-                        elif event.button == 3:
-                            if coins >= 90:
-                                coins -= 90
-                                inventory[CARP] += 10
-                            else:
-                                addchat(buycoin1 + "90" + buytencoin2 + " Carpet.")
-
-
-                elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 260 and mx <= (
-                            vmapwidth * tilesizex) / 2 - 155 + 300 and my >= (
-                    vmapheight * tilesizey) / 2 - 155 + 70 and my <= (
-                            vmapheight * tilesizey) / 2 - 155 + 110:
-                    if invshow:
-                        active = SNOW
-                        sel = ((vmapwidth * tilesizex) / 2 - 155 + 260, (vmapheight * tilesizey) / 2 - 155 + 70)
-                    elif shopshow:
-                        if event.button == 1:
-                            if coins >= 7:
-                                coins -= 7
-                                inventory[SNOW] += 1
-                            else:
-                                addchat(buycoin1 + "7" + buyonecoin2 + " Snow.")
-                        elif event.button == 3:
-                            if coins >= 70:
-                                coins -= 70
-                                inventory[SNOW] += 10
-                            else:
-                                addchat(buycoin1 + "70" + buytencoin2 + " Snow.")
-
-
-                # row 3
-                elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 10 and mx <= (
-                            vmapwidth * tilesizex) / 2 - 155 + 50 and my >= (
-                    vmapheight * tilesizey) / 2 - 155 + 120 and my <= (
-                            vmapheight * tilesizey) / 2 - 155 + 160:
-                    if invshow:
-                        active = WOOD
-                        sel = ((vmapwidth * tilesizex) / 2 - 155 + 10, (vmapheight * tilesizey) / 2 - 155 + 120)
-                    elif shopshow:
-                        if event.button == 1:
-                            if coins >= 7:
-                                coins -= 7
-                                inventory[WOOD] += 1
-                            else:
-                                addchat(buycoin1 + "7" + buyonecoin2 + " Wood.")
-                        elif event.button == 3:
-                            if coins >= 70:
-                                coins -= 70
-                                inventory[WOOD] += 10
-                            else:
-                                addchat(buycoin1 + "70" + buytencoin2 + " Wood.")
-
-
-                elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 60 and mx <= (
-                            vmapwidth * tilesizex) / 2 - 155 + 100 and my >= (
-                            vmapheight * tilesizey) / 2 - 155 + 120 and my <= (vmapheight * tilesizey) / 2 - 155 + 160:
-                    if invshow:
-                        active = GLASS
-                        sel = ((vmapwidth * tilesizex) / 2 - 155 + 60, (vmapheight * tilesizey) / 2 - 155 + 120)
-                    elif shopshow:
-                        if event.button == 1:
-                            if coins >= 8:
-                                coins -= 8
-                                inventory[GLASS] += 1
-                            else:
-                                addchat(buycoin1 + "8" + buyonecoin2 + " Glass.")
-                        elif event.button == 3:
-                            if coins >= 80:
-                                coins -= 80
-                                inventory[GLASS] += 10
-                            else:
-                                msg([buycoin1 + "80" + buytencoin2 + " Glass.",
-                                     buycoinboost,
-                                     buycoinmob])
-                                addchat(buycoin1 + "80" + buytencoin2 + " Glass.")
-
-
-                elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 110 and mx <= (
-                            vmapwidth * tilesizex) / 2 - 155 + 150 and my >= (
-                            vmapheight * tilesizey) / 2 - 155 + 120 and my <= (vmapheight * tilesizey) / 2 - 155 + 160:
-                    if invshow:
-                        active = BRICK
-                        sel = ((vmapwidth * tilesizex) / 2 - 155 + 110, (vmapheight * tilesizey) / 2 - 155 + 120)
-                    elif shopshow:
-                        if event.button == 1:
-                            if coins >= 9:
-                                coins -= 9
-                                inventory[BRICK] += 1
-                            else:
-                                addchat(buycoin1 + "9" + buyonecoin2 + " Brick.")
-                        elif event.button == 3:
-                            if coins >= 90:
-                                coins -= 90
-                                inventory[BRICK] += 10
-                            else:
-                                addchat(buycoin1 + "90" + buytencoin2 + " Brick.")
-
-
-                elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 160 and mx <= (
-                            vmapwidth * tilesizex) / 2 - 155 + 200 and my >= (
-                            vmapheight * tilesizey) / 2 - 155 + 120 and my <= (vmapheight * tilesizey) / 2 - 155 + 160:
-                    if shopshow:
-                        if coins >= 12:
-                            coins -= 12
-                            inventory[GSWORD] += 1
-                        else:
-                            addchat(buycoin1 + "12" + buyonecoin2 + " Iron Sword.")
-
-                elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 210 and mx <= (
-                            vmapwidth * tilesizex) / 2 - 155 + 260 and my >= (
-                            vmapheight * tilesizey) / 2 - 155 + 120 and my <= (vmapheight * tilesizey) / 2 - 155 + 160:
-                    if shopshow:
-                        if premium:
-                            if coins >= 25:
-                                coins -= 25
-                                inventory[DSTAFF] += 1
-                            else:
-                                addchat(buycoin1 + "25" + buyonecoin2 + " Staff of Darkness.")
-
-                elif mx >= (vmapwidth * tilesizex) / 2 - 155 + 260 and mx <= (
-                            vmapwidth * tilesizex) / 2 - 155 + 310 and my >= (
-                            vmapheight * tilesizey) / 2 - 155 + 120 and my <= (vmapheight * tilesizey) / 2 - 155 + 160:
-                    if invshow:
-                        active = SAND
-                        sel = ((vmapwidth * tilesizex) / 2 - 155 + 260, (vmapheight * tilesizey) / 2 - 155 + 120)
-                    elif shopshow:
-                        if event.button == 1:
-                            if coins >= 2:
-                                coins -= 2
-                                inventory[SAND] += 1
-                            else:
-                                addchat(buycoin1 + "2" + buyonecoin2 + " Sand.")
-                        elif event.button == 3:
-                            if coins >= 20:
-                                coins -= 20
-                                inventory[BRICK] += 10
-                            else:
-                                addchat(buycoin1 + "20" + buytencoin2 + " Sand.")
+                lowerx = 10
+                upperx = 50
+                lowery = 20
+                uppery = 60
+                index = 1
+                for item in resources:
+                    if (mx >= (vmapwidth * tilesizex) / 2 - 310 + lowerx and
+                        mx <= (vmapwidth * tilesizex) / 2 - 310 + upperx and
+                        my >= (vmapheight * tilesizey) / 2 - 310 + lowery and
+                        my <= (vmapheight * tilesizey) / 2 - 310 + uppery):
+                            if invshow:
+                                if physics[item] != "weapon":
+                                    active = item
+                                    sel = ((vmapwidth * tilesizex) / 2 - 310 + lowerx, (vmapheight * tilesizey) / 2 - 310 + lowery)
+                            elif shopshow:
+                                if event.button == 1:
+                                    if coins >= prices[item]:
+                                        coins -= prices[item]
+                                        inventory[item] += 1
+                                    else:
+                                        addchat(buycoin1 + str(prices[item]) + buyonecoin2)
+                                elif event.button == 3:
+                                    if coins >= (prices[item] * 10):
+                                        coins -= (prices[item] * 10)
+                                        inventory[item] += 10
+                                    else:
+                                        addchat(buycoin1 + str(prices[item] * 10) + buytencoin2)
+                    if index % 12 != 0:
+                        lowerx += 50
+                        upperx += 50
+                    else:
+                        lowerx = 10
+                        upperx = 50
+                        lowery += 50
+                        uppery += 50
+                    index += 1
 
                 if mx >= 50 and mx <= 60 and my >= 15 and my <= 25 and opt:
                     if silence:
@@ -1719,7 +1452,7 @@ try:
                             if msgn == "/who":
                                 irc.send(bytes("NAMES :" + channel + "\n", "utf-8"))
                             elif msgn == "/help":
-                                addchat("*** PythianRealms "+version.split(".")[0]+" revision "+version.split(".")[1]+".")
+                                addchat("*** " + gameName + " "+version.split(".")[0]+" revision "+version.split(".")[1]+".")
                                 webbrowser.open("http://scratso.com/pythianrealms/help.php", 2, True)
                             elif msgn.split(" ")[0] == "/nsid":
                                 addchat("*** Submitted password to NickServ.")
@@ -1742,8 +1475,56 @@ try:
                     menu = True
                 elif event.key == K_F1:
                     webbrowser.open("http://scratso.com/pythianrealms/help.php", 2, True)
+                elif event.key == K_F2:
+                    if fullscreen:
+                        if chat == False:
+                            display = pygame.display.set_mode((vmapwidth * tilesizex, vmapheight * tilesizey + 38),
+                                                      HWSURFACE | DOUBLEBUF)
+                        else:
+                            display = pygame.display.set_mode((vmapwidth * tilesizex, vmapheight * tilesizey + 50),
+                                                      HWSURFACE | DOUBLEBUF)
+                    else:
+                        if chat == False:
+                            display = pygame.display.set_mode((vmapwidth * tilesizex, vmapheight * tilesizey + 38),
+                                                      HWSURFACE | DOUBLEBUF |
+                                                              FULLSCREEN)
+                        else:
+                            display = pygame.display.set_mode((vmapwidth * tilesizex, vmapheight * tilesizey + 50),
+                                                      HWSURFACE | DOUBLEBUF |
+                                                              FULLSCREEN)
                 elif event.key == K_F3:
                     debug = not debug
+                elif event.key == K_INSERT:
+                    # PythianRealms Debug Console Command System
+                    cmd = easygui.enterbox("""This is a console input box. This
+should be used for debug purposes only. Some commands may damage the game /
+cause issues. Use this at your own risk. (This terminal is English only.)""")
+                    if cmd is not None:
+                        if " " in cmd:
+                            command = cmd.split(" ")[0]
+                            dat = cmd.split(" ")[1]
+                            try:
+                                num = int(cmd.split(" ")[2])
+                            except:
+                                num = None
+                            if command == "additem":
+                                dat = int(dat)
+                                try:
+                                    inventory[dat] += num
+                                    addchat("Console: Added "+str(num)+" "+str(dat)+" to inventory.")
+                                except:
+                                    try:
+                                        inventory[data] += 1
+                                        addchat("Console: Added 1 "+str(dat)+" to inventory.")
+                                    except:
+                                        addchat("Error: "+str(dat)+" is not a valid inventory item.")
+                            elif command == "setactive":
+                                dat = int(dat)
+                                active = dat
+                            else:
+                                addchat("Error: Command '"+cmd+"' not recognised.")
+                        else:
+                            addchat("Error: Unknown syntax for console command.")
                 elif event.key == K_MINUS:
                     if zaxis >= 1:
                         zaxis -= 1
@@ -1770,8 +1551,8 @@ try:
                                 magicmsg(darkness, darkdesc, True)
                                 NPChealth[selectednpc[0]][selectednpc[1]] -= 25
                         else:
-                            msg([targetselect,
-                                 targetinstruct])
+                            addchat(targetselect)
+                            addchat(targetinstruct)
                     else:
                         if premium:
                             msg(["Hey, premium member!",
@@ -1827,62 +1608,6 @@ try:
                     change = True
 
                     tilemap = data.map[realm]
-                elif event.key == K_TAB:
-                    if tilesizex == 64:
-                        tilesizex, tilesizey = 16, 16
-                    else:
-                        tilesizex, tilesizey = tilesizex + 16, tilesizey + 16
-                    display = pygame.display.set_mode((vmapwidth * tilesizex, vmapheight * tilesizey),
-                                                      HWSURFACE | DOUBLEBUF)  # |RESIZABLE later
-                    textures = {
-                        DIRT: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/dirt.jpg').convert(),
-                                                     (tilesizex, tilesizey + round(tilesizey / 2))),
-                        GRASS: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/grass.jpg').convert(),
-                                                      (tilesizex, tilesizey + round(tilesizey / 2))),
-                        WATER: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/water.jpg').convert(),
-                                                      (tilesizex, tilesizey + round(tilesizey / 2))),
-                        COAL: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/coal.jpg').convert(),
-                                                     (tilesizex, tilesizey + round(tilesizey / 2))),
-                        LAVA: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/lava.jpg').convert(),
-                                                     (tilesizex, tilesizey + round(tilesizey / 2))),
-                        ROCK: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/rock.jpg').convert(),
-                                                     (tilesizex, tilesizey + round(tilesizey / 2))),
-                        DIAM: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/diamond.jpg').convert(),
-                                                     (tilesizex, tilesizey + round(tilesizey / 2))),
-                        SAPP: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/sapphire.jpg').convert(),
-                                                     (tilesizex, tilesizey + round(tilesizey / 2))),
-                        RUBY: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/ruby.jpg').convert(),
-                                                     (tilesizex, tilesizey + round(tilesizey / 2))),
-                        GOLD: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/gold.jpg').convert(),
-                                                     (tilesizex, tilesizey + round(tilesizey / 2))),
-                        AIR: pygame.transform.scale(pygame.image.load('graphics/temp/misc/air.png').convert_alpha(),
-                                                    (tilesizex, tilesizey + round(tilesizey / 2))),
-                        WOOD: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/wood.jpg').convert(),
-                                                     (tilesizex, tilesizey + round(tilesizey / 2))),
-                        GLASS: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/glass.png').convert_alpha(),
-                                                      (tilesizex, tilesizey + round(tilesizey / 2))),
-                        BRICK: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/brick.jpg').convert(),
-                                                      (tilesizex, tilesizey + round(tilesizey / 2))),
-                        CARP: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/carpet/mid.jpg').convert(),
-                                                     (tilesizex, tilesizey + round(tilesizey / 2))),
-                        SNOW: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/snow.jpg').convert(),
-                                                     (tilesizex, tilesizey + round(tilesizey / 2))),
-                        # NTS: Limited edition Item! To be removed on New Year's Day. 12/09/2015: temporary = permanent
-                        SEL: pygame.transform.scale(pygame.image.load('graphics/temp/misc/sel.png').convert_alpha(),
-                                                    (tilesizex, tilesizey + round(tilesizey / 2))),
-                        GSWORD: pygame.transform.scale(pygame.image.load('graphics/temp/items/gsword.png').convert_alpha(),
-                                                       (tilesizex, tilesizey + round(tilesizey / 2))),
-                        DSTAFF: pygame.transform.scale(pygame.image.load('graphics/temp/items/DSTAFF.png').convert_alpha(),
-                                                       (tilesizex, tilesizey + round(tilesizey / 2))),
-                        SAND: pygame.transform.scale(pygame.image.load('graphics/temp/blocks/sand.jpg').convert(),
-                                                     (tilesizex, tilesizey + round(tilesizey / 2)))
-                    }
-                    player = pygame.transform.scale(
-                        pygame.image.load("graphics/temp/player/player_right.png").convert_alpha(),
-                        (tilesizex, tilesizey))
-                    change = True
-                    for z in range(mapz):
-                        changedz.append(z)
             elif event.type == NPCMOVE:
                 for npc in NPCs:
                     for npcd in NPCcount[npc]:
@@ -1955,7 +1680,7 @@ try:
                         if (npcPosX[item][curnpc] >= mintile[0] and npcPosX[item][curnpc] <= maxtile[0]) and (
                                         npcPosY[item][curnpc] >= mintile[1] and npcPosY[item][curnpc] <= maxtile[1]):
                             # display the npc at the correct position
-                            npcsurf.blit(npcGraphic[item],
+                            npcsurf.blit(pygame.transform.scale(npcGraphic[item], (tilesizex, tilesizey)),
                                          (npcPosX[item][curnpc] * tilesizex, npcPosY[item][curnpc] * tilesizey))
                             if NPCtype[item] == "Hostile":
                                 # display the NPC's name...?
@@ -2012,9 +1737,10 @@ try:
             loading()
             logger.info("Changing the following layers: " + str(changedz))
             change = False
-            mapsurf.fill(brown)
+            # mapsurf.fill(brown)
+            prevplacesurf.fill(0)
             # loop through each layer
-            for layer in range(mapz):  # changedz
+            for layer in changedz:  # mapz
                 layersurfs[layer].fill(0)
                 # loop through each row
                 for row in range(mapheight):
@@ -2022,7 +1748,7 @@ try:
                     for column in range(mapwidth):
                         # draw an image for the resource, in the correct position
                         layersurfs[layer].blit(textures[tilemap[layer][row][column]],
-                                               (column * tilesizex, row * tilesizey - layer * 16))
+                                               (column * tilesizex, row * tilesizey)) #  - layer * 16
             changedz = []
             pass
         if place:
@@ -2042,11 +1768,14 @@ try:
                 change = True
 
         display.blit(mapsurf, (xoffset, yoffset))
+        z = 0
         for layersurf in layersurfs:
             if layersurfs.index(layersurf) in shownz:
-                display.blit(layersurfs[layersurfs.index(layersurf)], (xoffset, yoffset))
+                display.blit(layersurfs[layersurfs.index(layersurf)], (xoffset, yoffset-(z+1)*16))
+            z += 1
         display.blit(npcsurf, (xoffset, yoffset))
         display.blit(prevsurf, (xoffset, yoffset))
+        display.blit(prevplacesurf, (xoffset, yoffset))
         display.blit(player, (
             vmapwidth * tilesizex / 2 - (tilesizex / 2), vmapheight * tilesizey / 2 - (tilesizey / 2) - playerz * 16))
         display.blit(activesurf, (vmapwidth * tilesizex - tilesizex - 10, 0))
@@ -2094,10 +1823,13 @@ try:
             display.blit(pztext, (0, 96))
 
             pptext = gamefont.render(mapoffname1 + str(xoffset) + mapoffname2 + str(yoffset) + mapoffname3, True, white)
-            display.blit(pptext, (0, 112))
+            display.blit(pptext, (0, 108))
 
             rtext = gamefont.render(realmname + str(realm), True, white)
-            display.blit(rtext, (0, 124))
+            display.blit(rtext, (0, 120))
+
+        if tilemap[playerz][playerTile[1]][playerTile[0]] == WATER:
+            display.blit(watersurf, (0, 0))
 
         if shopshow:
             shopsurf.fill((23, 100, 255, 50))
@@ -2106,7 +1838,7 @@ try:
             # display the inventory, starting 10 pixels in
             placePosition = 10
             yoff = 20
-            newrow = 6
+            newrow = 12
             curitem = 1
             for item in resources:
                 # add the image
@@ -2117,7 +1849,9 @@ try:
                     placePosition += 0
                     # add the text showing the amount in the inventory:
                     textObj = gamefont.render(str(inventory[item]), True, white)
-                    shopsurf.blit(textObj, (placePosition, yoff + 20))
+                    shopsurf.blit(textObj, (placePosition, yoff + 35))
+                    textObj = gamefont.render(str(prices[item])+"c", True, white)
+                    shopsurf.blit(textObj, (placePosition, yoff))
                     placePosition += 50
                     if curitem == newrow:
                         curitem = 1
@@ -2125,16 +1859,16 @@ try:
                         placePosition = 10
                     else:
                         curitem += 1
-            display.blit(shopsurf, ((vmapwidth * tilesizex) / 2 - 155, (vmapheight * tilesizey) / 2 - 155))
+            display.blit(shopsurf, ((vmapwidth * tilesizex) / 2 - 310, (vmapheight * tilesizey) / 2 - 310))
 
         if invshow:
             invsurf.fill((23, 100, 255, 50))
-            text = gamefont.render(invtitle, True, black)
+            text = gamefont.render(invtitle, True, white)
             invsurf.blit(text, (1, 1))
             # display the inventory, starting 10 pixels in
             placePosition = 10
             yoff = 20
-            newrow = 6
+            newrow = 12
             curitem = 1
             for item in resources:
                 #      ANIMATION CODE - ADAPT FOR ANIMATED BLOCKS :)
@@ -2153,7 +1887,7 @@ try:
                     placePosition += 0
                     # add the text showing the amount in the inventory:
                     textObj = gamefont.render(str(inventory[item]), True, white)
-                    invsurf.blit(textObj, (placePosition, yoff + 20))
+                    invsurf.blit(textObj, (placePosition, yoff + 35))
                     placePosition += 50
                     if curitem == newrow:
                         curitem = 1
@@ -2161,7 +1895,7 @@ try:
                         placePosition = 10
                     else:
                         curitem += 1
-            display.blit(invsurf, ((vmapwidth * tilesizex) / 2 - 155, (vmapheight * tilesizey) / 2 - 155))
+            display.blit(invsurf, ((vmapwidth * tilesizex) / 2 - 310, (vmapheight * tilesizey) / 2 - 310))
             if activeoverlay:
                 display.blit(textures[SEL], sel)
 
@@ -2236,7 +1970,7 @@ try:
             display.blit(magicbody.render(menuirc, True, white), ((vmapwidth * tilesizex) / 2 + 15, 422))
             pygame.draw.rect(display, quitcol, ((vmapwidth * tilesizex) / 2 - 205, 420, 200, 40))
             display.blit(magicbody.render(menuquit, True, white), ((vmapwidth * tilesizex) / 2 - 190, 422))
-            display.blit(pygame.image.load("graphics/temp/misc/logo2016.png"), ((vmapwidth * tilesizex - 30) / 2 - 360, 15))
+            display.blit(pygame.image.load("graphics/temp/misc/logo2016.png"), ((vmapwidth * tilesizex - 30) / 2 - 360, 60))
             display.blit(gamefont.render(versiontag + version, True, blue), (15, (vmapheight * tilesizey) - 27))
             for event in pygame.event.get():
                 if event.type == SECONDCOUNTDOWN:
@@ -2258,6 +1992,21 @@ try:
                         data.coins = coins
                         data.store()
                         logger.info("Game saved.")
+                    pygame.quit()
+                    try:
+                        logger.info("Removing previous temporary music files...")
+                        for the_file in os.listdir("music/temp/"):
+                            file_path = os.path.join("music", "temp", the_file)
+                            try:
+                                if os.path.isfile(file_path):
+                                    os.remove(file_path)
+                                elif os.path.isdir(file_path):
+                                    shutil.rmtree(file_path)
+                            except Exception as e:
+                                logger.error(e)
+                        os.rmdir("music/temp/")
+                    except Exception as e:
+                        logger.error(e)
                     try:
                         logger.info("Removing previous temporary texture files...")
                         for the_file in os.listdir("graphics/temp/"):
@@ -2386,7 +2135,7 @@ try:
                         r = f.readlines()
                         f.close()
                         # noinspection PyTypeChecker
-                        easygui.textbox(credstexty, credstexty, r)
+                        easygui.textbox(credstextnote, credstexty, r)
                     elif ((vmapwidth * tilesizex) / 2 - 205 <= mx <= (vmapwidth * tilesizex) / 2 - 5) and (
                                     375 <= my <= 415):
                         if easygui.ynbox("Importing a map will replace your current map. Are you sure?", "Warning"):
@@ -2422,6 +2171,21 @@ try:
                             data.coins = coins
                             data.store()
                             logger.info("Game saved.")
+                        pygame.quit()
+                        try:
+                            logger.info("Removing previous temporary music files...")
+                            for the_file in os.listdir("music/temp/"):
+                                file_path = os.path.join("music", "temp", the_file)
+                                try:
+                                    if os.path.isfile(file_path):
+                                        os.remove(file_path)
+                                    elif os.path.isdir(file_path):
+                                        shutil.rmtree(file_path)
+                                except Exception as e:
+                                    logger.error(e)
+                            os.rmdir("music/temp/")
+                        except Exception as e:
+                            logger.error(e)
                         try:
                             logger.info("Removing previous temporary texture files...")
                             for the_file in os.listdir("graphics/temp/"):
@@ -2453,7 +2217,6 @@ try:
             display.blit(gamefont.render(messages[-1], True, white), (0, vmapheight * tilesizey + 24))
         else:
             pygame.draw.rect(display, black, (0, vmapheight * tilesizey, vmapwidth * tilesizex, 38))
-            display.blit(chatmsg, (2, vmapheight * tilesizey + 38))
             display.blit(gamefont.render(messages[-3], True, white), (0, vmapheight * tilesizey))
             display.blit(gamefont.render(messages[-2], True, white), (0, vmapheight * tilesizey + 12))
             display.blit(gamefont.render(messages[-1], True, white), (0, vmapheight * tilesizey + 24))
@@ -2467,6 +2230,16 @@ try:
             pass
 
 except Exception as e:
+    if type(e) is IOError:
+        print("This issue may be a permissions problem. Running " + gameName + """ as an administrator should fix the problem. You could force
+it to run in admin mode by using the following steps:
+1. Right click the application (shortcut).
+2. Click "Properties".
+3. Go to the "Compatibility" tab.
+4. Check "Run this program as an administrator, in the settings section.
+5. Press OK.
+
+""")
     try:
         logger.error(str(e) + "\n" + traceback.format_exc())
         err(str(e), traceback.format_exc())

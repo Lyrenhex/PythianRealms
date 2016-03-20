@@ -1,23 +1,36 @@
 CREDITS
 
-I'd like to thank the following people for their contributions to PythianRealms:
+
+
+Programming:
+Adonis "Scratso" Megalos
 
 Graphics:
 
-- ALinkToTheFuture from 8BitMMO
-- SapphireCoyote from 8BitMMO
+
+- ALinkToTheFuture
+- SapphireCoyote
+- Numberplay
+- Caleb "BetaRuler" Barnes
+- Vojta "Vus" Balcar
 
 Musicians:
 
-- Bumchin from 8BitMMO: Short But Sweet
-- PROTODOME (http://creativecommons.org/licenses/by-nc-nd/3.0/) [http://protodome.bandcamp.com/album/blueshift] BLUESHIFT album.
+
+- SmileBoy: Short But Sweet
+
+- PROTODOME: BLUESHIFT, BLUENOISE, and BLUESCREEN albums.
 
 Fonts:
 
-- gameFont: This font is the Ubuntu Font by Canonical.
-- magicFont: This font is the Ubuntu Font by Canonical.
+
+- Canonical's Ubuntu Font
 
 Support:
 
-- Wing from Indie Rising: Donation.
-- Brandon Fuller: Donation.
+
+- Wing Lee
+- Brandon Fuller
+
+Legal:
+PythianRealms is licensed under the GNU General Public License v3.

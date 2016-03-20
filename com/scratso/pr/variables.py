@@ -4,11 +4,14 @@ __author__ = 'Scratso'
 # VARIABLE DECLARES #
 #####################
 
+gameName = "PythianRealms"
+gameYear = "2016"
+
 tilesizex = 32
 tilesizey = 32
 mapwidth = 100
 mapheight = 100
-mapz = 10
+mapz = 30
 
 realms = 2
 
