@@ -11,7 +11,7 @@ tilesizex = 32
 tilesizey = 32
 mapwidth = 100
 mapheight = 100
-mapz = 30
+mapz = 15
 
 realms = 2
 

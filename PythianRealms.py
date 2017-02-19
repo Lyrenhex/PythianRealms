@@ -45,8 +45,6 @@ version = "2016.168"
 
 # Encompass the entire program in a try statement for the error reporter.
 try:    
-    online = False
-    server = False  # set to true to enable mysql connections. DON'T!
     chat = None
     channel = "#PythianRealms"
 
@@ -69,24 +67,6 @@ try:
     def msgbox(title, mtext): # not sure if this is still used
         easygui.msgbox(mtext, title)
 
-
-    class Settings(easygui.EgStore): # member details save/loading system
-        def __init__(self, filename):  # filename is required
-            # -------------------------------------------------
-            # Specify default/initial values for variables that
-            # this particular application wants to remember.
-            # -------------------------------------------------
-            self.username = None
-            self.password = None
-
-            # -------------------------------------------------
-            # For subclasses of EgStore, these must be
-            # the last two statements in  __init__
-            # -------------------------------------------------
-            self.filename = filename  # this is required
-            self.restore()  # restore values from the storage file if possible
-
-
     # # Initialise the logger #
 
     logger = logging.getLogger('DEBUGGER')
@@ -108,76 +88,7 @@ try:
     # INITIALIZE SETTINGS #
     #######################
 
-    settingsFile = "data\Settings.txt"
-    settings = Settings(settingsFile)
-
-    # print(settings.username)
-
-    if settings.username is None:
-        username = None
-        settings.username = username
-        settings.store()  # persist the settings
-
     opt = False
-    premium = True  # set to false if you actually want people to pay for premium
-
-    if online:
-        logger.info("Is the user a PREMIUM player? " + str(premium))
-
-    # Print the GNU GPL
-    print("""
-    """ + gameName + """  Copyright (C) 2016 Adonis Megalos
-    This program comes with ABSOLUTELY NO WARRANTY; type 'show w'.
-    This is free software, and you are welcome to redistribute it
-    under certain conditions; type 'show c'.
-    http://gnu.org/licenses/gpl.html for details.
-    Otherwise, type 'run' to play.
-    """)
-
-    i = 1
-    while i == 1:
-        cmd = input("> ").lower()
-        if cmd == "show w":
-            print("""
-    15. Disclaimer of Warranty.
-
-    THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE
-    LAW. EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR
-    OTHER PARTIES PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND,
-    EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE
-    ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU.
-    SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY
-    SERVICING, REPAIR OR CORRECTION.
-    """)
-        elif cmd == "show c":
-            print("""
-    2. Basic Permissions.
-
-    All rights granted under this License are granted for the term of copyright
-    on the Program, and are irrevocable provided the stated conditions are met.
-    This License explicitly affirms your unlimited permission to run the
-    unmodified Program. The output from running a covered work is covered by
-    this License only if the output, given its content, constitutes a covered
-    work. This License acknowledges your rights of fair use or other equivalent,
-    as provided by copyright law. You may make, run and propagate covered works
-    that you do not convey, without conditions so long as your license otherwise
-    remains in force. You may convey covered works to others for the sole purpose
-    of having them make modifications exclusively for you, or provide you with
-    facilities for running those works, provided that you comply with the terms
-    of this License in conveying all material for which you do not control
-    copyright. Those thus making or running the covered works for you must do
-    so exclusively on your behalf, under your direction and control, on terms
-    that prohibit them from making any copies of your copyrighted material outside
-    their relationship with you. Conveying under any other circumstances is
-    permitted solely under the conditions stated below. Sublicensing is not
-    allowed; section 10 makes it unnecessary.
-    """)
-        elif cmd == "run":
-            i = 0
-        else:
-            print("Unknown command.")
-
 
     #####################
     # OPERATING SYSTEMS #
@@ -219,7 +130,8 @@ try:
     try:
         os.environ['SDL_VIDEO_CENTERED'] = '1'
     except Exception as e:
-        logger.error("Unable to auto-center " + gameName + " Window. Error: %s" % e)
+        logger.error("Unable to auto-center " + gameName + " Window.\
+ Error: %s" % e)
 
     # colours
     black = (0, 0, 0)
@@ -334,6 +246,7 @@ try:
 ##    pygame.display.update()
 ##    time.sleep(3)
     # allow movie to play sound
+    """
     pygame.mixer.quit()
     # play intro movie
     FPS = 60
@@ -361,6 +274,7 @@ try:
         clock.tick(FPS)
     # enable game sounds
     pygame.mixer.init()
+    """
 
     # set up loading screen
     display.fill(white)
@@ -605,15 +519,6 @@ try:
         3: "Amnesiac",
     }
 
-    #    # Is the user 13 or older?
-    #    if easygui.ynbox("""PythianRealms has an online chat system.
-    # However, if you are below the age of 13, you must have parental consent to use such services.
-    # Are you over the age of 13 or have parental consent?""", "Multiplayer Chat?"):
-            # Open Multiplayer Chat System
-    #        webbrowser.open("https://irc.editingarchive.com:8080/?channels=PythianRealms")
-
-    # webbrowser.open("http://tmcore.co.uk:9090/?channels=PythianRealms")
-
     # use list comprehension to create the tilemap
     tilemap = [[[AIR for w in range(mapwidth)] for h in range(mapheight)] for z in range(mapz)]
 
@@ -807,8 +712,8 @@ try:
             pygame.display.update()
 
 
-# Notice: the following error reporting function is designed based on the BSOD, as my computer was experiencing
-# BSODs while programming this.
+# Notice: the following error reporting function is designed based on the BSOD,
+# as my computer was experiencing BSODs while programming this.
 
     def err(err="ERROR_NOT_PROVIDED", trace="NO TRACEBACK PROVIDED\nERR 0x01"):
         display = pygame.display.set_mode((vmapwidth * tilesizex, vmapheight * tilesizey), HWSURFACE | DOUBLEBUF)
@@ -851,11 +756,10 @@ try:
             textoffset += 12
         pygame.display.update()
         while True:
-            pygame.event.flush()
-            time.sleep(1)
+            pygame.event.pump()
 
-
-    def magic_out(): # pretty sure this isn't used, but it was an idea. nts: work on this at some point
+    def magic_out(): # pretty sure this isn't used, but it was an idea.
+                     # nts: work on this at some point
         magicsurf.fill((0, 0, 0, 100))
         pygame.display.update()
         time.sleep(0.01)
@@ -866,7 +770,8 @@ try:
             time.sleep(0.01)
 
 
-    def magicmsg(head="Oops", message=["A message wasn't found! Tell Scratso!"], fade=True, append=True):
+    def magicmsg(head="Oops", message=["A message wasn't found! Tell Scratso!"],
+                 fade=True, append=True):
         if append:
             message.append("")
             message.append(presse)
@@ -879,12 +784,15 @@ try:
                         messageactive = False
             display.fill(black)
             text = magichead.render(head, True, purple)
-            display.blit(text, (vmapwidth * tilesizex / 2 - round((len(head) / 2) * 30), vmapheight * tilesizey / 3))
+            display.blit(text, (vmapwidth * tilesizex / 2
+                                - round((len(head) / 2) * 30),
+                                vmapheight * tilesizey / 3))
             textoffset = 70
             for line in message:
                 text = magicbody.render(line, True, purple)
                 display.blit(text, (
-                    vmapwidth * tilesizex / 2 - round((len(line) / 2) * 16), vmapheight * tilesizey / 3 + textoffset))
+                    vmapwidth * tilesizex / 2 - round((len(line) / 2) * 16),
+                    vmapheight * tilesizey / 3 + textoffset))
                 textoffset += 36
             pygame.display.update()
         if fade:
@@ -898,7 +806,8 @@ try:
             display.blit(loadtext, (0, vmapheight * tilesizey + 32))
         else:
             display.blit(loadtext, (0, vmapheight * tilesizey - 18))
-        display.blit(pygame.image.load("graphics/temp/misc/logo.png"), (vmapwidth * tilesizex - 1200, -50))
+        display.blit(pygame.image.load("graphics/temp/misc/logo.png"),
+                     (vmapwidth * tilesizex - 1200, -50))
         pygame.display.update()
 
 
@@ -909,9 +818,6 @@ try:
 
     def addchat(string):
         messages.append(string)
-
-        # magicmsg("PythianRealms", ["Welcome back to the land of the living, my friend.",
-        # "You've been asleep for a very long time."], False, False)
     
     menu = False
     # welcome screen
@@ -928,29 +834,6 @@ try:
         display.blit(text, (
             vmapwidth * tilesizex / 2 - round((len(pressspace) / 2) * 27), vmapheight * tilesizey / 3 * 2))
         pygame.display.update()
-
-    # Display all the startup things.
-##    startupnotes = [welcome,
-##                    welcome2 + version,
-##                    welcomedev,
-##                    welcomedonate,
-##                    "",
-##                    welcome3,
-##                    "",
-##                    welcome4,
-##                    "",
-##                    "",
-##                    "KEYBINDINGS:",
-##                    "============",
-##                    "Arrow Keys: Move",
-##                    "F3: Toggle debug information",
-##                    "Q: Enable Build Mode",
-##                    "A: Disable Build Mode",
-##                    "R: Enable Pickup Mode",
-##                    "F: Disable Pickup Mode",
-##                    "T: Toggle RPG/Construction Realm",
-##                    "C: Open " + gameName + " IRC Chat"] # nts: update keybindings
-##    msg(startupnotes)
 
     changedz = list(range(mapz))  # 0,1,2,3 after you add the loading system. Until then, this'll do.
 
@@ -976,42 +859,32 @@ try:
 
     while chat is None:
         global un
-        if settings.username is None:
-            un,pw = easygui.multpasswordbox("PythianRealms Account Informaton. This is for online chat. If you do not want online chat, please leave blank.", chathead, [enterun, enterpw])
-        else:
-            un,pw = settings.username,settings.password
-        if (un is not None and un != "" and un != " " and un != False) and (pw is not None and pw != "" and pw != " " and pw != False):
+        un = easygui.enterbox("PythianRealms chat username. If you do \
+not want online chat, please leave blank.", chathead)
+        if un is not None and un != "" and un != " " and un != False:
             try:
                 logger.info("Logging in as: "+un)
-                check = str(urllib.request.urlopen('http://scratso.com/pythianrealms/acc/print.php?user='+un+"&password="+pw).read()).split("'")[1]
-                if check == "Log in.":
-                    global irc
-                    irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    print("connecting to irc.editingarchive.com...")
-                    irc.connect(("irc.editingarchive.com", 6667))
-                    irc.send(bytes("USER " + un + " " + un + " " + un + " :" + gameName + " Game Chat\n", "utf-8"))
-                    irc.send(bytes("NICK " + un + "\n", "utf-8"))
-                    text = str(irc.recv(2040))
-                    unraw = text.split("\\r\\n")
-                    for line in unraw:
-                        print(line)
-                        try:
-                            nick = line.split(":")[1].split("!")[0]
-                            text = line.split(":", 2)[2]
-                        except:
-                            nick = "Service"
-                        if line.find("PING :") != -1:
-                            irc.send(bytes('PONG :' + line.split(" :")[1].upper() + '\r\n', "utf-8"))
-                    irc.send(bytes("JOIN " + channel + "\n", "utf-8"))
-                    display = pygame.display.set_mode((vmapwidth * tilesizex, vmapheight * tilesizey + 50),
-                                                      HWSURFACE | DOUBLEBUF)  # |RESIZABLE later
-                    settings.username = un
-                    settings.password = pw
-                    settings.store()
-                    chat = True
-                else:
-                    easygui.msgbox(check, "Unable to log in.")
-                    logger.warn("Unable to log in: "+check)
+                global irc
+                irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                print("connecting to irc.editingarchive.com...")
+                irc.connect(("irc.editingarchive.com", 6667))
+                irc.send(bytes("USER " + un + " " + un + " " + un + " :" + gameName + " Game Chat\n", "utf-8"))
+                irc.send(bytes("NICK " + un + "\n", "utf-8"))
+                text = str(irc.recv(2040))
+                unraw = text.split("\\r\\n")
+                for line in unraw:
+                    print(line)
+                    try:
+                        nick = line.split(":")[1].split("!")[0]
+                        text = line.split(":", 2)[2]
+                    except:
+                        nick = "Service"
+                    if line.find("PING :") != -1:
+                        irc.send(bytes('PONG :' + line.split(" :")[1].upper() + '\r\n', "utf-8"))
+                irc.send(bytes("JOIN " + channel + "\n", "utf-8"))
+                display = pygame.display.set_mode((vmapwidth * tilesizex, vmapheight * tilesizey + 50),
+                                                  HWSURFACE | DOUBLEBUF)  # |RESIZABLE later
+                chat = True
             except Exception as e:
                 logger.error(e)
                 chat = False
@@ -1092,8 +965,7 @@ try:
 
 
     class Save(
-        easygui.EgStore):  # Create a class named Settings inheriting from easygui.EgStore so that I can persist
-        # TechnoMagic Account info.
+        easygui.EgStore):
         def __init__(self, filename):  # filename is required
             # -------------------------------------------------
             # Specify default/initial values for variables that
@@ -1532,14 +1404,12 @@ cause issues. Use this at your own risk. (This terminal is English only.)""")
                     if zaxis <= mapz-2: # z limit - 2
                         zaxis += 1
                 elif event.key == K_q:
-                    if realm == 2 or premium:
-                        changedz = []
-                        pickup = True
-                        addchat(pickupmodenotice)
+                    changedz = []
+                    pickup = True
+                    addchat(pickupmodenotice)
                 elif event.key == K_r:
-                    if realm == 2 or premium:
-                        changedz = []
-                        place = True
+                    changedz = []
+                    place = True
                 elif event.key == K_i:
                     invshow = not invshow
                 elif event.key == K_h:
@@ -1553,11 +1423,6 @@ cause issues. Use this at your own risk. (This terminal is English only.)""")
                         else:
                             addchat(targetselect)
                             addchat(targetinstruct)
-                    else:
-                        if premium:
-                            msg(["Hey, premium member!",
-                                 "Did you know that you can buy a Staff of Darkness in the shop (H) for just 25 coins?",
-                                 "Why not go do that, and then try this key again!"])
                 elif event.key == K_SPACE:
                     if selectednpc is not None:
                         if NPCtype[selectednpc[0]] == "Hostile":
@@ -1750,7 +1615,6 @@ cause issues. Use this at your own risk. (This terminal is English only.)""")
                         layersurfs[layer].blit(textures[tilemap[layer][row][column]],
                                                (column * tilesizex, row * tilesizey)) #  - layer * 16
             changedz = []
-            pass
         if place:
             x = math.floor(mx / tilesizex - xoffset / tilesizex)
             y = math.floor(my / tilesizey - yoffset / tilesizey)

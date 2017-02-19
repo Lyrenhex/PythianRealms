@@ -1,2 +1,2 @@
-C:\Python32\python.exe PythianRealms.py
+py PythianRealms.py
 pause
